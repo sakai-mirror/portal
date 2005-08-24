@@ -1,6 +1,6 @@
 /**********************************************************************************
  * $URL: https://source.sakaiproject.org/svn/trunk/sakai/portal/charon/src/java/org/sakaiproject/portal/charon/CharonPortal.java $
- * $Id: CharonPortal.java 632 2005-07-14 21:22:50Z janderse@umich.edu $
+ * $Id: CharonPortal.java 1350 2005-08-23 21:36:51Z janderse@umich.edu $
  **********************************************************************************
  *
  * Copyright (c) 2005 The Regents of the University of Michigan, Trustees of Indiana University,
@@ -47,10 +47,12 @@ import org.sakaiproject.api.kernel.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.api.kernel.tool.ActiveTool;
 import org.sakaiproject.api.kernel.tool.Placement;
 import org.sakaiproject.api.kernel.tool.Tool;
+import org.sakaiproject.api.kernel.tool.ToolURL;
 import org.sakaiproject.api.kernel.tool.cover.ActiveToolManager;
 import org.sakaiproject.api.kernel.tool.cover.ToolManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.portal.charon.ToolURLManagerImpl;
 import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
 import org.sakaiproject.service.legacy.preference.Preferences;
 import org.sakaiproject.service.legacy.preference.cover.PreferencesService;
@@ -68,7 +70,7 @@ import org.sakaiproject.util.web.Web;
  * </p>
  *
  * @author University of Michigan, Sakai Software Development Team
- * @version $Revision: 632 $
+ * @version $Revision: 1350 $
  */
 public class CharonPortal extends HttpServlet
 {
@@ -1045,6 +1047,7 @@ public class CharonPortal extends HttpServlet
 		req.setAttribute("sakai.html.head.css.skin", headCssToolSkin);
 		req.setAttribute("sakai.html.head.js", headJs);
 		req.setAttribute("sakai.html.body.onload", bodyonload.toString());
+        req.setAttribute(ToolURL.MANAGER, new ToolURLManagerImpl(res));
 
 		// let the tool do the the work (forward)
 		tool.forward(req, res, p, toolContextPath, toolPathInfo);
