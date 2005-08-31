@@ -1320,7 +1320,7 @@ public class CharonPortal extends HttpServlet
 			// since we are doing logout, cancel top.login
 			topLogin = false;
 			
-			out.println("<a href=\"https://falcon.iu.edu/iu/uits/oncourse-admins/occlsuggest.html\" target=\"_new\">Suggestions</a> |");
+			out.println("<a href=\"https://falcon.iu.edu/iu/uits/oncourse-admins/occontact.html\" target=\"_new\">Contact Us</a> |");
 		}
 
 		// put out the links version
