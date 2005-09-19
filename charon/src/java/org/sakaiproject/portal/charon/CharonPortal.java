@@ -1,6 +1,6 @@
 /**********************************************************************************
  * $URL: https://source.sakaiproject.org/svn/trunk/sakai/portal/charon/src/java/org/sakaiproject/portal/charon/CharonPortal.java $
- * $Id: CharonPortal.java 1350 2005-08-23 21:36:51Z janderse@umich.edu $
+ * $Id: CharonPortal.java 1642 2005-09-12 19:28:14Z gsilver@umich.edu $
  **********************************************************************************
  *
  * Copyright (c) 2005 The Regents of the University of Michigan, Trustees of Indiana University,
@@ -70,7 +70,7 @@ import org.sakaiproject.util.web.Web;
  * </p>
  *
  * @author University of Michigan, Sakai Software Development Team
- * @version $Revision: 1350 $
+ * @version $Revision: 1642 $
  */
 public class CharonPortal extends HttpServlet
 {
@@ -146,10 +146,10 @@ public class CharonPortal extends HttpServlet
 		PrintWriter out = startResponse(res, title, null);
 
 		// Show session information
-		out.println("<H2>Session</H2>");
+		out.println("<h2>Session</h2>");
 		showSession(out, true);
 
-		out.println("<H2>Unknown Request</H2>");
+		out.println("<h2>Unknown Request</h2>");
 		Web.snoop(out, true, getServletConfig(), req);
 
 		// end the response
@@ -1221,7 +1221,7 @@ public class CharonPortal extends HttpServlet
 		}
 
 // gsilver - jump to links
-		out.println("<a href=\"#content\"  class=\"skip\" title=\"" + Web.escapeHtml(rb.getString("sit.jumpcontent")) + "\" accesskey=\"c\">" + Web.escapeHtml(rb.getString("sit.jumpcontent")) + "</a>");
+		out.println("<a href=\"#tocontent\"  class=\"skip\" title=\"" + Web.escapeHtml(rb.getString("sit.jumpcontent")) + "\" accesskey=\"c\">" + Web.escapeHtml(rb.getString("sit.jumpcontent")) + "</a>");
 		out.println("<a href=\"#toolmenu\"  class=\"skip\" title=\"" + Web.escapeHtml(rb.getString("sit.jumptools")) + "\" accesskey=\"l\">" + Web.escapeHtml(rb.getString("sit.jumptools")) + "</a>");
 		out.println("<a href=\"#sitetabs\" class=\"skip\" title=\""+ Web.escapeHtml(rb.getString("sit.jumpworksite")) + "\" accesskey=\"w\">" + Web.escapeHtml(rb.getString("sit.jumpworksite")) + "</a>");
 
@@ -1342,11 +1342,8 @@ public class CharonPortal extends HttpServlet
 			Tool loginTool = ToolManager.getTool("sakai.login");
 			String eidWording = null;
 			String pwWording = null;
-			if (loginTool != null)
-			{
-				eidWording = StringUtil.trimToNull(loginTool.getRegisteredConfig().getProperty("eid"));
-				pwWording = StringUtil.trimToNull(loginTool.getRegisteredConfig().getProperty("pw"));
-			}
+			eidWording = StringUtil.trimToNull(rb.getString("log.userid"));
+			pwWording = StringUtil.trimToNull(rb.getString("log.pass"));
 
 			if (eidWording == null) eidWording = "eid";
 			if (pwWording == null) pwWording = "pw";
@@ -1491,7 +1488,7 @@ public class CharonPortal extends HttpServlet
 
 		out.println("				<a  accesskey=\"h\" href=\"javascript:;\" " +  "onclick=\"window.open('" + helpUrl + "'"
 				+ ",'Help','resize=yes,toolbar=no,scrollbars=yes, width=800,height=600')\" onkeypress=\"window.open('" + helpUrl + "'"
-				+ ",'Help','resize=yes,toolbar=no,scrollbars=yes, width=800,height=600')\">Help</a>");
+				+ ",'Help','resize=yes,toolbar=no,scrollbars=yes, width=800,height=600')\">" + rb.getString("sit.help") +"</a>");
 		out.println("			</li>");
 
 		out.println("		</ul>");
@@ -1518,7 +1515,7 @@ public class CharonPortal extends HttpServlet
 // gsilver - target of "jump to content" link and header for content
 
 		out.println("	<h1 class=\"skip\">" + Web.escapeHtml(rb.getString("sit.contentshead")) +  "</h1>");
-		out.println("	<a id=\"content\" class=\"skip\" name=\"content\"></a>");
+		out.println("	<a id=\"tocontent\" class=\"skip\" name=\"content\"></a>");
 
 	}
 
@@ -1546,7 +1543,7 @@ public class CharonPortal extends HttpServlet
 
 //gsilver - jump to links
 
-		out.println("<a href=\"#content\"  class=\"skip\" title=\"jump to content\" accesskey=\"c\">jump to content</a>");
+		out.println("<a href=\"#tocontent\"  class=\"skip\" title=\"jump to content\" accesskey=\"c\">jump to content</a>");
 		out.println("<a href=\"#toolmenu\" class=\"skip\"  title=\"jump to tools list\" accesskey=\"l\">jump to tools list</a>");
 		out.println("<a href=\"#sitetabs\" class=\"skip\" title=\"jump to worksite list\" accesskey=\"w\">jump to worksite list</a>");
 
@@ -1844,7 +1841,7 @@ public class CharonPortal extends HttpServlet
 		out.println("	height=\"50\"");
 		out.println("	width=\"100%\"");
 		out.println("	frameborder=\"0\"");
-		out.println("	marginwidth=\"0\"");
+		out.println("	marginwidth=\"0\"");	
 		out.println("	marginheight=\"0\"");
 		out.println("	scrolling=\"auto\"");
 		out.println("	src=\"" + toolUrl + "?panel=Main\">");
@@ -1964,7 +1961,7 @@ public class CharonPortal extends HttpServlet
 				+ "headscripts.js\"></script>" + "  </head>");
 
 		// start the body
-		out.println("<body  marginwidth=\"0\" marginheight=\"0\" topmargin=\"0\" leftmargin=\"0\">");
+		out.println("<body class=\"portalBody\">");
 
 		return out;
 	}
