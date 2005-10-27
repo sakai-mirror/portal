@@ -1,6 +1,6 @@
 /**********************************************************************************
  * $URL: https://source.sakaiproject.org/svn/trunk/sakai/portal/charon/src/java/org/sakaiproject/portal/charon/CharonPortal.java $
- * $Id: CharonPortal.java 1642 2005-09-12 19:28:14Z gsilver@umich.edu $
+ * $Id: CharonPortal.java 2371 2005-10-05 22:53:19 -0500 (Wed, 05 Oct 2005) ggolden@umich.edu $
  **********************************************************************************
  *
  * Copyright (c) 2005 The Regents of the University of Michigan, Trustees of Indiana University,
@@ -54,9 +54,9 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.charon.ToolURLManagerImpl;
 import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
+import org.sakaiproject.service.legacy.entity.ResourceProperties;
 import org.sakaiproject.service.legacy.preference.Preferences;
 import org.sakaiproject.service.legacy.preference.cover.PreferencesService;
-import org.sakaiproject.service.legacy.resource.ResourceProperties;
 import org.sakaiproject.service.legacy.site.Site;
 import org.sakaiproject.service.legacy.site.SitePage;
 import org.sakaiproject.service.legacy.site.ToolConfiguration;
@@ -70,7 +70,7 @@ import org.sakaiproject.util.web.Web;
  * </p>
  *
  * @author University of Michigan, Sakai Software Development Team
- * @version $Revision: 1642 $
+ * @version $Revision: 2371 $
  */
 public class CharonPortal extends HttpServlet
 {
