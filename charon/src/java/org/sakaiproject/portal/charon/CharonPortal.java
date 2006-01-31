@@ -1415,6 +1415,7 @@ public class CharonPortal extends HttpServlet
 	{
 		String presenceUrl = Web.returnUrl(req, "/presence/" + Web.escapeUrl(site.getId()));
 		String pageUrl = Web.returnUrl(req, "/" + portalPrefix + "/" + Web.escapeUrl(site.getId()) + "/page/");
+		String pagePopupUrl = Web.returnUrl(req, "/page/");
 		boolean showPresence = ServerConfigurationService.getBoolean("display.users.present", true);
 		boolean loggedIn = session.getUserId() != null;
 		String iconUrl = site.getIconUrlFull();
@@ -1458,26 +1459,33 @@ public class CharonPortal extends HttpServlet
 			for (Iterator i = pages.iterator(); i.hasNext();)
 			{
 				SitePage p = (SitePage) i.next();
-				if (p.getId().equals(page.getId()))
+				boolean current = (p.getId().equals(page.getId()) && !p.isPopUp());
+
+				out.print("			<li><a ");
+				if (count < 10)
 				{
-					// show as current
-					out.println("			<li><a class=\"selected\" href=\"#\">" +  Web.escapeHtml(p.getTitle()) + "</a></li>");
+					out.print("accesskey=\"" +  count + "\" ");
+				}
+				if (current)
+				{
+					out.print("class=\"selected\" ");
+				}
+				out.print("href=\"");
+				if (current)
+				{
+					out.print("\"#\"");
+				}
+				else if (p.isPopUp())
+				{
+					out.print("javascript:;\" " + "onclick=\"window.open('" + pagePopupUrl + Web.escapeUrl(p.getId()) + "'"
+							+ ",'" + Web.escapeJavascript(p.getTitle()) + "','resize=yes,toolbar=no,scrollbars=yes, width=800,height=600')");
 				}
 				else
 				{
-					// show as option
-					if (count==0)
-					{
-						out.println("			<li><a accesskey=\"" + "0" + "\" href=\"" + pageUrl + Web.escapeUrl(p.getId()) + "\">" + Web.escapeHtml(p.getTitle())
-							+ "</a></li>");
-					}
-					else
-					{
-						out.println("			<li><a accesskey=\"" + count + "\" href=\"" + pageUrl + Web.escapeUrl(p.getId()) + "\">" + Web.escapeHtml(p.getTitle())
-							+ "</a></li>");
-					}
-
+					out.print(pageUrl + Web.escapeUrl(p.getId()));
 				}
+				out.println("\">" + Web.escapeHtml(p.getTitle()) + "</a></li>");				
+
 				count++;
 			}
 
