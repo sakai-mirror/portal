@@ -1524,6 +1524,7 @@ public class CharonPortal extends HttpServlet
 	{
 		String presenceUrl = Web.returnUrl(req, "/presence/" + Web.escapeUrl(site.getId()));
 		String pageUrl = Web.returnUrl(req, "/" + portalPrefix + "/" + Web.escapeUrl(site.getId()) + "/page/");
+		String pagePopupUrl = Web.returnUrl(req, "/page/");
 		boolean showPresence = ServerConfigurationService.getBoolean("display.users.present", true);
 		boolean loggedIn = session.getUserId() != null;
 		String iconUrl = site.getIconUrlFull();
