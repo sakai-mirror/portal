@@ -1867,13 +1867,15 @@ public class CharonPortal extends HttpServlet
 			out.println("						<li class=\"selectedTab\"><a>" + Web.escapeHtml(extraTitle) + "</a></li>");
 		}
 
-		out.println("					<li style=\"display:none;border-width:0\" class=\"fixTabsIE\">"
-				+ "<a href=\"javascript:void(0);\">#x20;</a></li>");
 		String prefToolURL = getPrefToolURL(session);
 		if(prefToolURL != null) {
 		
-			out.println("<li><a target=\"_parent\" href=\""+Web.serverUrl(req)+prefToolURL+"\"><img alt=\"Click here to edit your tab preferences\"  border=\"0\" src=\"https://original-oncourse.iu.edu/fal2004/images/buttons/edit.gif\"></a></li>");
+			out.println("<li><a target=\"_parent\" title=\"Edit Your Tab Order Preferences\" href=\""+Web.serverUrl(req)+prefToolURL+"\">edit</a></li>");
 		}
+		
+		out.println("					<li style=\"display:none;border-width:0\" class=\"fixTabsIE\">"
+				+ "<a href=\"javascript:void(0);\">#x20;</a></li>");
+		
 		out.println("				</ul>");
 		out.println("			</td>");
 
