@@ -25,6 +25,10 @@ package org.sakaiproject.portal.charon;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Iterator;
@@ -54,6 +58,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.charon.ToolURLManagerImpl;
 import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
+import org.sakaiproject.service.framework.sql.cover.SqlService;
 import org.sakaiproject.service.legacy.entity.ResourceProperties;
 import org.sakaiproject.service.legacy.preference.Preferences;
 import org.sakaiproject.service.legacy.preference.cover.PreferencesService;
@@ -1867,6 +1872,13 @@ public class CharonPortal extends HttpServlet
 		out.println("				</ul>");
 		out.println("			</td>");
 
+		String prefToolURL = getPrefToolURL(session);
+		if(prefToolURL != null) {
+		
+			out.println("<a href=\""+prefsToolURL+""\"><img border=\"0\" src=\"https://original-oncourse.iu.edu/fal2004/images/buttons/edit.gif\"></a>");
+		}
+		
+		
 		// more dropdown
 		if (moreSites.size() > 0)
 		{
@@ -2139,6 +2151,52 @@ public class CharonPortal extends HttpServlet
 
 		return -1;
 	}
+	
+	private String getPrefToolURL(Session session) {
+		  
+		String username = session.getUserId();
+		String sql = "select PAGE_ID from sakai_site_tool where site_id = '~"+username+"' and REGISTRATION = 'sakai.preferences'";
+		
+		String url = null;
+		
+		Connection conn = null;
+		Statement statement;
+		ResultSet result;
+		
+		  try {
+			conn = SqlService.borrowConnection();
+			
+			statement = conn.createStatement();
+			
+			result = statement.executeQuery(sql);
+			
+			if(result != null && result.next()) {
+				
+				String pageId = result.getString("PAGE_ID");
+				
+				url =  "/portal/site/~"+username+"/page/"+pageId;
+				
+			}
+			
+			result.close();
+			statement.close();
+			
+			
+			
+		} catch (SQLException e) {
+			M_log.error(this+": SQLException: "+e);
+		} finally {
+
+			if(conn != null)
+			SqlService.returnConnection(conn);
+			
+		}
+		  
+		  
+		  
+		  return url;
+		  
+	  }
 }
 
 
