@@ -1875,7 +1875,7 @@ public class CharonPortal extends HttpServlet
 		String prefToolURL = getPrefToolURL(session);
 		if(prefToolURL != null) {
 		
-			out.println("<a href=\""+prefsToolURL+""\"><img border=\"0\" src=\"https://original-oncourse.iu.edu/fal2004/images/buttons/edit.gif\"></a>");
+			out.println("<a href=\""+prefToolURL+"\"><img border=\"0\" src=\"https://original-oncourse.iu.edu/fal2004/images/buttons/edit.gif\"></a>");
 		}
 		
 		
