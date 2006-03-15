@@ -25,10 +25,6 @@ package org.sakaiproject.portal.charon;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Iterator;
@@ -58,7 +54,6 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.charon.ToolURLManagerImpl;
 import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
-import org.sakaiproject.service.framework.sql.cover.SqlService;
 import org.sakaiproject.service.legacy.entity.ResourceProperties;
 import org.sakaiproject.service.legacy.preference.Preferences;
 import org.sakaiproject.service.legacy.preference.cover.PreferencesService;
@@ -1867,19 +1862,11 @@ public class CharonPortal extends HttpServlet
 			out.println("						<li class=\"selectedTab\"><a>" + Web.escapeHtml(extraTitle) + "</a></li>");
 		}
 
-		String prefToolURL = getPrefToolURL(session);
-		if(prefToolURL != null) {
-		
-			out.println("<li><a target=\"_parent\" title=\"Edit Your Tab Order Preferences\" href=\""+Web.serverUrl(req)+prefToolURL+"\">edit</a></li>");
-		}
-		
 		out.println("					<li style=\"display:none;border-width:0\" class=\"fixTabsIE\">"
 				+ "<a href=\"javascript:void(0);\">#x20;</a></li>");
-		
 		out.println("				</ul>");
 		out.println("			</td>");
 
-		
 		// more dropdown
 		if (moreSites.size() > 0)
 		{
@@ -2152,52 +2139,6 @@ public class CharonPortal extends HttpServlet
 
 		return -1;
 	}
-	
-	private String getPrefToolURL(Session session) {
-		  
-		String username = session.getUserId();
-		String sql = "select PAGE_ID from sakai_site_tool where site_id = '~"+username+"' and REGISTRATION = 'sakai.preferences'";
-		
-		String url = null;
-		
-		Connection conn = null;
-		Statement statement;
-		ResultSet result;
-		
-		  try {
-			conn = SqlService.borrowConnection();
-			
-			statement = conn.createStatement();
-			
-			result = statement.executeQuery(sql);
-			
-			if(result != null && result.next()) {
-				
-				String pageId = result.getString("PAGE_ID");
-				
-				url =  "/portal/site/~"+username+"/page/"+pageId;
-				
-			}
-			
-			result.close();
-			statement.close();
-			
-			
-			
-		} catch (SQLException e) {
-			M_log.error(this+": SQLException: "+e);
-		} finally {
-
-			if(conn != null)
-			SqlService.returnConnection(conn);
-			
-		}
-		  
-		  
-		  
-		  return url;
-		  
-	  }
 }
 
 
