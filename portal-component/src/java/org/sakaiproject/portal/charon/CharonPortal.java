@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/branches/sakai_2-1-x/portal/charon/src/java/org/sakaiproject/portal/charon/CharonPortal.java $
- * $Id: CharonPortal.java 6072 2006-02-16 21:07:59Z lance@indiana.edu $
+ * $URL: https://source.sakaiproject.org/svn/branches/sakai_2-1-2/portal/portal-component/src/java/org/sakaiproject/portal/charon/CharonPortal.java $
+ * $Id: CharonPortal.java 6474 2006-03-06 11:45:24 -0500 (Mon, 06 Mar 2006) lance@indiana.edu $
  **********************************************************************************
  *
  * Copyright (c) 2005 The Regents of the University of Michigan, Trustees of Indiana University,
@@ -29,7 +29,6 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ResourceBundle;
 import java.util.Vector;
 
 import javax.servlet.ServletConfig;
@@ -47,12 +46,12 @@ import org.sakaiproject.api.kernel.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.api.kernel.tool.ActiveTool;
 import org.sakaiproject.api.kernel.tool.Placement;
 import org.sakaiproject.api.kernel.tool.Tool;
+import org.sakaiproject.api.kernel.tool.ToolException;
 import org.sakaiproject.api.kernel.tool.ToolURL;
 import org.sakaiproject.api.kernel.tool.cover.ActiveToolManager;
 import org.sakaiproject.api.kernel.tool.cover.ToolManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.portal.charon.ToolURLManagerImpl;
 import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
 import org.sakaiproject.service.legacy.entity.ResourceProperties;
 import org.sakaiproject.service.legacy.preference.Preferences;
@@ -61,7 +60,9 @@ import org.sakaiproject.service.legacy.site.Site;
 import org.sakaiproject.service.legacy.site.SitePage;
 import org.sakaiproject.service.legacy.site.ToolConfiguration;
 import org.sakaiproject.service.legacy.site.cover.SiteService;
+import org.sakaiproject.util.java.ResourceLoader;
 import org.sakaiproject.util.java.StringUtil;
+import org.sakaiproject.util.portal.ErrorReporter;
 import org.sakaiproject.util.web.Web;
 
 /**
@@ -70,7 +71,7 @@ import org.sakaiproject.util.web.Web;
  * </p>
  *
  * @author University of Michigan, Sakai Software Development Team
- * @version $Revision: 6072 $
+ * @version $Revision: 6474 $
  */
 public class CharonPortal extends HttpServlet
 {
@@ -78,7 +79,7 @@ public class CharonPortal extends HttpServlet
 	private static Log M_log = LogFactory.getLog(CharonPortal.class);
 
 	/** messages. */
-	private static ResourceBundle rb = ResourceBundle.getBundle("sitenav");
+	private static ResourceLoader rb = new ResourceLoader("sitenav");
 
 	/** Session attribute root for storing a site's last page visited - just append the site id. */
 	protected static final String ATTR_SITE_PAGE = "sakai.portal.site.";
@@ -117,7 +118,7 @@ public class CharonPortal extends HttpServlet
 		super.destroy();
 	}
 
-	protected void doError(HttpServletRequest req, HttpServletResponse res, Session session, int mode) throws IOException
+	protected void doError(HttpServletRequest req, HttpServletResponse res, Session session, int mode) throws ToolException, IOException
 	{
 		if (ThreadLocalManager.get(ATTR_ERROR) == null)
 		{
@@ -164,8 +165,14 @@ public class CharonPortal extends HttpServlet
 		endResponse(out);
 	}
 
+	protected void doThrowableError(HttpServletRequest req, HttpServletResponse res, Throwable t)
+	{
+		ErrorReporter err = new ErrorReporter(rb);
+		err.report(req, res, t);
+	}
+
 	protected void doGallery(HttpServletRequest req, HttpServletResponse res, Session session, String siteId, String pageId,
-			String toolContextPath) throws IOException
+			String toolContextPath) throws ToolException, IOException
 	{
 		// check to default site id
 		if (siteId == null)
@@ -287,201 +294,222 @@ public class CharonPortal extends HttpServlet
 	 */
 	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException
 	{
-		// get the Sakai session
-		Session session = SessionManager.getCurrentSession();
-
-		// recognize what to do from the path
-		String option = req.getPathInfo();
-
-		// if missing, set it to home or gateway
-		if ((option == null) || ("/".equals(option)))
+		try
 		{
-			if (session.getUserId() == null)
+			// get the Sakai session
+			Session session = SessionManager.getCurrentSession();
+	
+			// recognize what to do from the path
+			String option = req.getPathInfo();
+	
+			// if missing, set it to home or gateway
+			if ((option == null) || ("/".equals(option)))
 			{
-				option = "/site/" + ServerConfigurationService.getGatewaySiteId();
+				if (session.getUserId() == null)
+				{
+					option = "/site/" + ServerConfigurationService.getGatewaySiteId();
+				}
+				else
+				{
+					option = "/site/" + SiteService.getUserSiteId(session.getUserId());
+				}
 			}
+	
+			// get the parts (the first will be "")
+			String[] parts = option.split("/");
+	
+			// recognize and dispatch the 'tool' option: [1] = "tool", [2] = placement id (of a site's tool placement), rest for the tool
+			if ((parts.length >= 2) && (parts[1].equals("tool")))
+			{
+				// Resolve the placements of the form /portal/tool/sakai.resources?sakai.site=~csev
+				String toolPlacement = getPlacement(req, res, session, parts[2] ,false);
+				if ( toolPlacement == null ) 
+				{
+					return;
+				}
+				parts[2] = toolPlacement;
+	
+				doTool(req, res, session, parts[2], req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 3), Web
+						.makePath(parts, 3, parts.length));
+			}
+	
+			else if ((parts.length >= 2) && (parts[1].equals("title")))
+			{
+				// Resolve the placements of the form /portal/title/sakai.resources?sakai.site=~csev
+				String toolPlacement = getPlacement(req, res, session, parts[2] ,false);
+				if ( toolPlacement == null ) 
+				{
+					return;
+				}
+				parts[2] = toolPlacement;
+	
+				doTitle(req, res, session, parts[2], req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 3), Web
+						.makePath(parts, 3, parts.length));
+			}
+	
+			// recognize a dispatch the 'page' option (tools on a page)
+			else if ((parts.length == 3) && (parts[1].equals("page")))
+			{
+				// Resolve the placements of the form /portal/page/sakai.resources?sakai.site=~csev
+				String pagePlacement = getPlacement(req, res, session, parts[2] ,true);
+				if ( pagePlacement == null ) 
+				{
+					return;
+				}
+				parts[2] = pagePlacement;
+	
+				doPage(req, res, session, parts[2], req.getContextPath() + req.getServletPath());
+			}
+	
+			// recognize a dispatch the 'worksite' option (pages navigation + tools on a page)
+			else if ((parts.length >= 3) && (parts[1].equals("worksite")))
+			{
+				// recognize an optional page/pageid
+				String pageId = null;
+				if ((parts.length == 5) && (parts[3].equals("page")))
+				{
+					pageId = parts[4];
+				}
+	
+				doWorksite(req, res, session, parts[2], pageId, req.getContextPath() + req.getServletPath());
+			}
+	
+			// recognize a dispatch the 'gallery' option (site tabs + pages navigation + tools on a page)
+			else if ((parts.length >= 2) && (parts[1].equals("gallery")))
+			{
+				// recognize an optional page/pageid
+				String pageId = null;
+				if ((parts.length == 5) && (parts[3].equals("page")))
+				{
+					pageId = parts[4];
+				}
+	
+				// site might be specified
+				String siteId = null;
+				if (parts.length >= 3)
+				{
+					siteId = parts[2];
+				}
+	
+				doGallery(req, res, session, siteId, pageId, req.getContextPath() + req.getServletPath());
+			}
+	
+			// recognize a dispatch the 'site' option (site logo and tabs + pages navigation + tools on a page)
+			else if ((parts.length >= 2) && (parts[1].equals("site")))
+			{
+				// recognize an optional page/pageid
+				String pageId = null;
+				if ((parts.length == 5) && (parts[3].equals("page")))
+				{
+					pageId = parts[4];
+				}
+	
+				// site might be specified
+				String siteId = null;
+				if (parts.length >= 3)
+				{
+					siteId = parts[2];
+				}
+	
+				doSite(req, res, session, siteId, pageId, req.getContextPath() + req.getServletPath());
+			}
+	
+			// recognize site tabs
+			else if ((parts.length == 3) && (parts[1].equals("site_tabs")))
+			{
+				doSiteTabs(req, res, session, parts[2]);
+			}
+	
+			// recognize gallery tabs
+			else if ((parts.length == 3) && (parts[1].equals("gallery_tabs")))
+			{
+				doGalleryTabs(req, res, session, parts[2]);
+			}
+	
+			// recognize nav login
+			else if ((parts.length == 3) && (parts[1].equals("nav_login")))
+			{
+				doNavLogin(req, res, session, parts[2]);
+			}
+	
+			// recognize nav login for the gallery
+			else if ((parts.length == 3) && (parts[1].equals("nav_login_gallery")))
+			{
+				doNavLoginGallery(req, res, session, parts[2]);
+			}
+	
+			// recognize presence
+			else if ((parts.length >= 3) && (parts[1].equals("presence")))
+			{
+				doPresence(req, res, session, parts[2], req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 3), Web
+						.makePath(parts, 3, parts.length));
+			}
+	
+			// recognize help
+			else if ((parts.length >= 2) && (parts[1].equals("help")))
+			{
+				doHelp(req, res, session, req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 2), Web.makePath(parts,
+						2, parts.length));
+			}
+	
+			// recognize and dispatch the 'login' option
+			else if ((parts.length == 2) && (parts[1].equals("relogin")))
+			{
+				// Note: here we send a null path, meaning we will NOT set it as a possible return path
+				//       we expect we are in the middle of a login screen processing, and it's already set (user login button is "ulogin") -ggolden
+				doLogin(req, res, session, null, false);
+			}
+	
+			// recognize and dispatch the 'login' option
+			else if ((parts.length == 2) && (parts[1].equals("login")))
+			{
+				doLogin(req, res, session, "", false);
+			}
+	
+			// recognize and dispatch the 'login' options
+			else if ((parts.length == 2) && ((parts[1].equals("xlogin"))))
+			{
+				doLogin(req, res, session, "", true);
+			}
+	
+			// recognize and dispatch the 'login' option for gallery
+			else if ((parts.length == 2) && (parts[1].equals("login_gallery")))
+			{
+				doLogin(req, res, session, "/gallery", false);
+			}
+	
+			// recognize and dispatch the 'logout' option
+			else if ((parts.length == 2) && (parts[1].equals("logout")))
+			{
+				doLogout(req, res, session, null);
+			}
+	
+			// recognize and dispatch the 'logout' option for gallery
+			else if ((parts.length == 2) && (parts[1].equals("logout_gallery")))
+			{
+				doLogout(req, res, session, "/gallery");
+			}
+	
+			// recognize error done
+			else if ((parts.length >= 2) && (parts[1].equals("error-reported")))
+			{
+				doErrorDone(req, res);
+			}
+
+			// handle an unrecognized request
 			else
 			{
-				option = "/site/" + SiteService.getUserSiteId(session.getUserId());
+				doError(req, res, session, ERROR_SITE);
 			}
 		}
-
-		// get the parts (the first will be "")
-		String[] parts = option.split("/");
-
-		// recognize and dispatch the 'tool' option: [1] = "tool", [2] = placement id (of a site's tool placement), rest for the tool
-		if ((parts.length >= 2) && (parts[1].equals("tool")))
+		catch (Throwable t)
 		{
-			// Resolve the placements of the form /portal/tool/sakai.resources?sakai.site=~csev
-			String toolPlacement = getPlacement(req, res, session, parts[2] ,false);
-			if ( toolPlacement == null ) 
-			{
-				return;
-			}
-			parts[2] = toolPlacement;
-
-			doTool(req, res, session, parts[2], req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 3), Web
-					.makePath(parts, 3, parts.length));
-		}
-
-		else if ((parts.length >= 2) && (parts[1].equals("title")))
-		{
-			// Resolve the placements of the form /portal/title/sakai.resources?sakai.site=~csev
-			String toolPlacement = getPlacement(req, res, session, parts[2] ,false);
-			if ( toolPlacement == null ) 
-			{
-				return;
-			}
-			parts[2] = toolPlacement;
-
-			doTitle(req, res, session, parts[2], req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 3), Web
-					.makePath(parts, 3, parts.length));
-		}
-
-		// recognize a dispatch the 'page' option (tools on a page)
-		else if ((parts.length == 3) && (parts[1].equals("page")))
-		{
-			// Resolve the placements of the form /portal/page/sakai.resources?sakai.site=~csev
-			String pagePlacement = getPlacement(req, res, session, parts[2] ,true);
-			if ( pagePlacement == null ) 
-			{
-				return;
-			}
-			parts[2] = pagePlacement;
-
-			doPage(req, res, session, parts[2], req.getContextPath() + req.getServletPath());
-		}
-
-		// recognize a dispatch the 'worksite' option (pages navigation + tools on a page)
-		else if ((parts.length >= 3) && (parts[1].equals("worksite")))
-		{
-			// recognize an optional page/pageid
-			String pageId = null;
-			if ((parts.length == 5) && (parts[3].equals("page")))
-			{
-				pageId = parts[4];
-			}
-
-			doWorksite(req, res, session, parts[2], pageId, req.getContextPath() + req.getServletPath());
-		}
-
-		// recognize a dispatch the 'gallery' option (site tabs + pages navigation + tools on a page)
-		else if ((parts.length >= 2) && (parts[1].equals("gallery")))
-		{
-			// recognize an optional page/pageid
-			String pageId = null;
-			if ((parts.length == 5) && (parts[3].equals("page")))
-			{
-				pageId = parts[4];
-			}
-
-			// site might be specified
-			String siteId = null;
-			if (parts.length >= 3)
-			{
-				siteId = parts[2];
-			}
-
-			doGallery(req, res, session, siteId, pageId, req.getContextPath() + req.getServletPath());
-		}
-
-		// recognize a dispatch the 'site' option (site logo and tabs + pages navigation + tools on a page)
-		else if ((parts.length >= 2) && (parts[1].equals("site")))
-		{
-			// recognize an optional page/pageid
-			String pageId = null;
-			if ((parts.length == 5) && (parts[3].equals("page")))
-			{
-				pageId = parts[4];
-			}
-
-			// site might be specified
-			String siteId = null;
-			if (parts.length >= 3)
-			{
-				siteId = parts[2];
-			}
-
-			doSite(req, res, session, siteId, pageId, req.getContextPath() + req.getServletPath());
-		}
-
-		// recognize site tabs
-		else if ((parts.length == 3) && (parts[1].equals("site_tabs")))
-		{
-			doSiteTabs(req, res, session, parts[2]);
-		}
-
-		// recognize gallery tabs
-		else if ((parts.length == 3) && (parts[1].equals("gallery_tabs")))
-		{
-			doGalleryTabs(req, res, session, parts[2]);
-		}
-
-		// recognize nav login
-		else if ((parts.length == 3) && (parts[1].equals("nav_login")))
-		{
-			doNavLogin(req, res, session, parts[2]);
-		}
-
-		// recognize nav login for the gallery
-		else if ((parts.length == 3) && (parts[1].equals("nav_login_gallery")))
-		{
-			doNavLoginGallery(req, res, session, parts[2]);
-		}
-
-		// recognize presence
-		else if ((parts.length >= 3) && (parts[1].equals("presence")))
-		{
-			doPresence(req, res, session, parts[2], req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 3), Web
-					.makePath(parts, 3, parts.length));
-		}
-
-		// recognize help
-		else if ((parts.length >= 2) && (parts[1].equals("help")))
-		{
-			doHelp(req, res, session, req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 2), Web.makePath(parts,
-					2, parts.length));
-		}
-
-		// recognize and dispatch the 'login' option
-		else if ((parts.length == 2) && (parts[1].equals("login")))
-		{
-			doLogin(req, res, session, null, false);
-		}
-
-		// recognize and dispatch the 'login' options
-		else if ((parts.length == 2) && ((parts[1].equals("xlogin"))))
-		{
-			doLogin(req, res, session, null, true);
-		}
-
-		// recognize and dispatch the 'login' option for gallery
-		else if ((parts.length == 2) && (parts[1].equals("login_gallery")))
-		{
-			doLogin(req, res, session, "/gallery", false);
-		}
-
-		// recognize and dispatch the 'logout' option
-		else if ((parts.length == 2) && (parts[1].equals("logout")))
-		{
-			doLogout(req, res, session, null);
-		}
-
-		// recognize and dispatch the 'logout' option for gallery
-		else if ((parts.length == 2) && (parts[1].equals("logout_gallery")))
-		{
-			doLogout(req, res, session, "/gallery");
-		}
-
-		// handle an unrecognized request
-		else
-		{
-			doError(req, res, session, ERROR_SITE);
+			doThrowableError(req, res, t);
 		}
 	}
 
 	protected void doTitle(HttpServletRequest req, HttpServletResponse res, Session session, String placementId,
-			String toolContextPath, String toolPathInfo) throws IOException
+			String toolContextPath, String toolPathInfo) throws ToolException, IOException
 	{
 		// find the tool from some site
 		ToolConfiguration siteTool = SiteService.findTool(placementId);
@@ -657,10 +685,12 @@ public class CharonPortal extends HttpServlet
 	}
 
 	protected void doLogin(HttpServletRequest req, HttpServletResponse res, Session session, String returnPath,
-			boolean skipContainer) throws IOException
+			boolean skipContainer) throws ToolException
 	{
 		// setup for the helper if needed (Note: in session, not tool session, special for Login helper)
-		if (session.getAttribute(Tool.HELPER_DONE_URL) == null)
+		// Note: always set this if we are passed in a return path... a blank return path is valid... to clean up from
+		//       possible abandened previous login attempt -ggolden
+		if (returnPath != null)
 		{
 			// where to go after
 			session.setAttribute(Tool.HELPER_DONE_URL, Web.returnUrl(req, returnPath));
@@ -669,30 +699,42 @@ public class CharonPortal extends HttpServlet
 		ActiveTool tool = ActiveToolManager.getActiveTool("sakai.login");
 
 		// to skip container auth for this one, forcing things to be handled internaly, set the "extreme" login path
-		String loginPath = (skipContainer ? "/xlogin" : "/login");
+		String loginPath = (skipContainer ? "/xlogin" : "/relogin");
 
 		String context = req.getContextPath() + req.getServletPath() + loginPath;
 		tool.help(req, res, context, loginPath);
 	}
 
-	protected void doLogout(HttpServletRequest req, HttpServletResponse res, Session session, String returnPath) throws IOException
+	/**
+	 * Process a logout
+	 * 
+	 * @param req
+	 *        Request object
+	 * @param res
+	 *        Response object
+	 * @param session
+	 *        Current session
+	 * @param returnPath
+	 *        if not null, the path to use for the end-user browser redirect after the logout is complete. Leave null to use the configured logged out URL.
+	 * @throws IOException
+	 */
+	protected void doLogout(HttpServletRequest req, HttpServletResponse res, Session session, String returnPath) throws ToolException
 	{
-		// setup for the helper if needed (Note: in session, not tool session, special for Login helper)
-		if (session.getAttribute(Tool.HELPER_DONE_URL) == null)
+		// where to go after
+		if (returnPath == null)
 		{
-			// where to go after
-			if (returnPath == null)
-			{
-				// if no path, use the configured logged out URL
-				String loggedOutUrl = ServerConfigurationService.getLoggedOutUrl();
-				session.setAttribute(Tool.HELPER_DONE_URL, loggedOutUrl);
-			}
-			else
-			{
-				// if we have a path, use a return based on the request and this path
-				String loggedOutUrl = Web.returnUrl(req, returnPath);
-				session.setAttribute(Tool.HELPER_DONE_URL, loggedOutUrl);
-			}
+			// if no path, use the configured logged out URL
+			String loggedOutUrl = ServerConfigurationService.getLoggedOutUrl();
+			session.setAttribute(Tool.HELPER_DONE_URL, loggedOutUrl);
+		}
+		else
+		{
+			// if we have a path, use a return based on the request and this path
+			// Note: this is currently used only as "/gallery"
+			//       - we should really add a ServerConfigurationService.getGalleryLoggedOutUrl()
+			//       and change the returnPath to a normal/gallery indicator -ggolden
+			String loggedOutUrl = Web.returnUrl(req, returnPath);
+			session.setAttribute(Tool.HELPER_DONE_URL, loggedOutUrl);
 		}
 
 		ActiveTool tool = ActiveToolManager.getActiveTool("sakai.login");
@@ -726,7 +768,7 @@ public class CharonPortal extends HttpServlet
 	}
 
 	protected void doPage(HttpServletRequest req, HttpServletResponse res, Session session, String pageId, String toolContextPath)
-			throws IOException
+			throws ToolException, IOException
 	{
 		// find the page from some site
 		SitePage page = SiteService.findPage(pageId);
@@ -790,57 +832,70 @@ public class CharonPortal extends HttpServlet
 	 */
 	protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException
 	{
-		// get the Sakai session
-		Session session = SessionManager.getCurrentSession();
-
-		// recognize what to do from the path
-		String option = req.getPathInfo();
-
-		// if missing, we have a stray post
-		if ((option == null) || ("/".equals(option)))
+		try
 		{
-			doError(req, res, session, ERROR_SITE);
-			return;
+			// get the Sakai session
+			Session session = SessionManager.getCurrentSession();
+	
+			// recognize what to do from the path
+			String option = req.getPathInfo();
+	
+			// if missing, we have a stray post
+			if ((option == null) || ("/".equals(option)))
+			{
+				doError(req, res, session, ERROR_SITE);
+				return;
+			}
+	
+			// get the parts (the first will be "")
+			String[] parts = option.split("/");
+	
+			// recognize and dispatch the 'tool' option: [1] = "tool", [2] = placement id (of a site's tool placement), rest for the tool
+			if ((parts.length >= 2) && (parts[1].equals("tool")))
+			{
+				doTool(req, res, session, parts[2], req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 3), Web
+						.makePath(parts, 3, parts.length));
+			}
+	
+			else if ((parts.length >= 2) && (parts[1].equals("title")))
+			{
+				doTitle(req, res, session, parts[2], req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 3), Web
+						.makePath(parts, 3, parts.length));
+			}
+	
+			// recognize and dispatch the 'login' options
+			else if ((parts.length == 2) && ((parts[1].equals("login") || (parts[1].equals("xlogin")) || (parts[1].equals("relogin")))))
+			{
+				postLogin(req, res, session, parts[1]);
+			}
+	
+			// recognize help
+			else if ((parts.length >= 2) && (parts[1].equals("help")))
+			{
+				doHelp(req, res, session, req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 2), Web.makePath(parts,
+						2, parts.length));
+			}
+	
+			// recognize error feedback
+			else if ((parts.length >= 2) && (parts[1].equals("error-report")))
+			{
+				doErrorReport(req, res);
+			}
+
+			// handle an unrecognized request
+			else
+			{
+				doError(req, res, session, ERROR_SITE);
+			}
 		}
-
-		// get the parts (the first will be "")
-		String[] parts = option.split("/");
-
-		// recognize and dispatch the 'tool' option: [1] = "tool", [2] = placement id (of a site's tool placement), rest for the tool
-		if ((parts.length >= 2) && (parts[1].equals("tool")))
+		catch (Throwable t)
 		{
-			doTool(req, res, session, parts[2], req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 3), Web
-					.makePath(parts, 3, parts.length));
-		}
-
-		else if ((parts.length >= 2) && (parts[1].equals("title")))
-		{
-			doTitle(req, res, session, parts[2], req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 3), Web
-					.makePath(parts, 3, parts.length));
-		}
-
-		// recognize and dispatch the 'login' options
-		else if ((parts.length == 2) && ((parts[1].equals("login") || (parts[1].equals("xlogin")))))
-		{
-			postLogin(req, res, session, parts[1]);
-		}
-
-		// recognize help
-		else if ((parts.length >= 2) && (parts[1].equals("help")))
-		{
-			doHelp(req, res, session, req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 2), Web.makePath(parts,
-					2, parts.length));
-		}
-
-		// handle an unrecognized request
-		else
-		{
-			doError(req, res, session, ERROR_SITE);
+			doThrowableError(req, res, t);
 		}
 	}
 
 	protected void doPresence(HttpServletRequest req, HttpServletResponse res, Session session, String siteId,
-			String toolContextPath, String toolPathInfo) throws IOException
+			String toolContextPath, String toolPathInfo) throws ToolException, IOException
 	{
 		// permission check - visit the site
 		Site site = null;
@@ -887,7 +942,7 @@ public class CharonPortal extends HttpServlet
 	}
 
 	protected void doHelp(HttpServletRequest req, HttpServletResponse res, Session session, String toolContextPath,
-			String toolPathInfo) throws IOException
+			String toolPathInfo) throws ToolException, IOException
 	{
 		// permission check - none
 
@@ -909,8 +964,24 @@ public class CharonPortal extends HttpServlet
 		forwardTool(tool, req, res, placement, skin, toolContextPath, toolPathInfo);
 	}
 
+	protected void doErrorReport(HttpServletRequest req, HttpServletResponse res) throws ToolException, IOException
+	{
+		setupForward(req, res, null, null);
+
+		ErrorReporter err = new ErrorReporter(rb);
+		err.postResponse(req, res);
+	}
+
+	protected void doErrorDone(HttpServletRequest req, HttpServletResponse res) throws ToolException, IOException
+	{
+		setupForward(req, res, null, null);
+		 
+		ErrorReporter err = new ErrorReporter(rb);
+		err.thanksResponse(req, res);
+	}
+
 	protected void doSite(HttpServletRequest req, HttpServletResponse res, Session session, String siteId, String pageId,
-			String toolContextPath) throws IOException
+			String toolContextPath) throws ToolException, IOException
 	{
 		// default site if not set
 		if (siteId == null)
@@ -1006,7 +1077,7 @@ public class CharonPortal extends HttpServlet
 	// processing and return null to the caller.
 
 	protected String getPlacement(HttpServletRequest req, HttpServletResponse res, Session session, 
-			String placementId, boolean doPage) throws IOException
+			String placementId, boolean doPage) throws ToolException
 	{
 
 		String siteId = req.getParameter(PARAM_SAKAI_SITE);
@@ -1065,7 +1136,7 @@ public class CharonPortal extends HttpServlet
 	}
 
 	protected void doTool(HttpServletRequest req, HttpServletResponse res, Session session, String placementId,
-			String toolContextPath, String toolPathInfo) throws IOException
+			String toolContextPath, String toolPathInfo) throws ToolException, IOException
 	{
 		// find the tool from some site
 		ToolConfiguration siteTool = SiteService.findTool(placementId);
@@ -1114,11 +1185,7 @@ public class CharonPortal extends HttpServlet
 		forwardTool(tool, req, res, siteTool, siteTool.getSkin(), toolContextPath, toolPathInfo);
 	}
 
-	/**
-	 * Forward to the tool - but first setup JavaScript/CSS etc that the tool will render
-	 */
-	protected void forwardTool(ActiveTool tool, HttpServletRequest req, HttpServletResponse res, Placement p, String skin,
-			String toolContextPath, String toolPathInfo)
+	protected void setupForward(HttpServletRequest req, HttpServletResponse res, Placement p, String skin) throws ToolException
 	{
 		// setup html information that the tool might need (skin, body on load, js includes, etc).
 		if (skin == null || skin.length() == 0) skin = ServerConfigurationService.getString("skin.default");
@@ -1151,6 +1218,15 @@ public class CharonPortal extends HttpServlet
 		req.setAttribute("sakai.html.head.css.skin", headCssToolSkin);
 		req.setAttribute("sakai.html.head.js", headJs);
 		req.setAttribute("sakai.html.body.onload", bodyonload.toString());
+	}
+
+	/**
+	 * Forward to the tool - but first setup JavaScript/CSS etc that the tool will render
+	 */
+	protected void forwardTool(ActiveTool tool, HttpServletRequest req, HttpServletResponse res, Placement p, String skin,
+			String toolContextPath, String toolPathInfo) throws ToolException
+	{
+		setupForward(req, res, p, skin);
         req.setAttribute(ToolURL.MANAGER, new ToolURLManagerImpl(res));
 
 		// let the tool do the the work (forward)
@@ -1158,7 +1234,7 @@ public class CharonPortal extends HttpServlet
 	}
 
 	protected void doWorksite(HttpServletRequest req, HttpServletResponse res, Session session, String siteId, String pageId,
-			String toolContextPath) throws IOException
+			String toolContextPath) throws ToolException, IOException
 	{
 		// if no page id, see if there was a last page visited for this site
 		if (pageId == null)
@@ -1226,7 +1302,7 @@ public class CharonPortal extends HttpServlet
 		endResponse(out);
 	}
 
-	protected void endResponse(PrintWriter out) throws IOException
+	protected void endResponse(PrintWriter out)
 	{
 		out.println("</body></html>");
 	}
@@ -2002,7 +2078,7 @@ public class CharonPortal extends HttpServlet
 	 * @param session
 	 * @throws IOException
 	 */
-	protected void postLogin(HttpServletRequest req, HttpServletResponse res, Session session, String loginPath) throws IOException
+	protected void postLogin(HttpServletRequest req, HttpServletResponse res, Session session, String loginPath) throws ToolException
 	{
 		ActiveTool tool = ActiveToolManager.getActiveTool("sakai.login");
 		String context = req.getContextPath() + req.getServletPath() + "/" + loginPath;
@@ -2140,6 +2216,3 @@ public class CharonPortal extends HttpServlet
 		return -1;
 	}
 }
-
-
-
