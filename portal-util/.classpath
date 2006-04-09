@@ -8,6 +8,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/email-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/event-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/util"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/webapp-api"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/tool-api"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
