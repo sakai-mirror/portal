@@ -1543,7 +1543,11 @@ public class CharonPortal extends HttpServlet
 		if (!topLogin)
 		{
 			out.println("<div id=\"loginLinks\">");
-			out.println("<a href=\"https://falcon.iu.edu/iu/uits/oncourse-admins/occontact.html\" target=\"_new\">Contact Us</a> |");
+			// Oncourse CL - Show 'Contact Us' link before Logout if user is logged in
+			if (session.getUserId() != null) {
+				out.println("<a href=\"https://falcon.iu.edu/iu/uits/oncourse-admins/occontact.html\" target=\"_new\">Contact Us</a> |");
+			}
+			// End Oncourse CL
 			out.println("			<a href=\"" + logInOutUrl + "\" target=\"_parent\" title=\"" + message + "\">"
 					+ ((image1 == null) ? message : "<img src=\"" + image1 + "\"/>") + "</a>");
 			if (logInOutUrl2 != null)
