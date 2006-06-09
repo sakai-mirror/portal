@@ -1,6 +1,6 @@
 /**********************************************************************************
  * $URL: https://source.sakaiproject.org/svn/portal/trunk/portal-impl/impl/src/java/org/sakaiproject/portal/charon/CharonPortal.java $
- * $Id: CharonPortal.java 9317 2006-05-12 02:27:13Z ggolden@umich.edu $
+ * $Id: CharonPortal.java 10382 2006-06-08 10:22:28 -0400 (Thu, 08 Jun 2006) gsilver@umich.edu $
  ***********************************************************************************
  *
  * Copyright (c) 2005, 2006 The Sakai Foundation.
@@ -1382,7 +1382,6 @@ public class CharonPortal extends HttpServlet
 		out.println("</div>");
 		out.println("</div>");
 		out.println("</div>");
-		out.println("</div>");		
 	}
 
 	protected void includeGalleryLogin(PrintWriter out, HttpServletRequest req, Session session, String siteId) throws IOException
@@ -1534,20 +1533,17 @@ public class CharonPortal extends HttpServlet
 
 			// since we are doing logout, cancel top.login
 			topLogin = false;
-			
-		
-			
 		}
 
 		// put out the links version
 		if (!topLogin)
 		{
 			out.println("<div id=\"loginLinks\">");
-			// Oncourse CL - Show 'Contact Us' link before Logout if user is logged in
+//			IU Oncourse CL - Show 'Contact Us' link before Logout if user is logged in
 			if (session.getUserId() != null) {
 				out.println("<a href=\"https://falcon.iu.edu/iu/uits/oncourse-admins/occontact.html\" target=\"_new\">Contact Us</a> |");
 			}
-			// End Oncourse CL
+			// END IU
 			out.println("			<a href=\"" + logInOutUrl + "\" target=\"_parent\" title=\"" + message + "\">"
 					+ ((image1 == null) ? message : "<img src=\"" + image1 + "\"/>") + "</a>");
 			if (logInOutUrl2 != null)
@@ -1683,7 +1679,14 @@ public class CharonPortal extends HttpServlet
 			SitePage p = (SitePage) i.next();
 			boolean current = (p.getId().equals(page.getId()) && !p.isPopUp());
 
-			out.print("			<li><a ");
+			if (current)
+			{
+				out.print("			<li class=\"selectedTool\"><a ");
+			}
+			else
+			{
+				out.print("			<li><a ");	
+			}
 			if (count < 10)
 			{
 				out.print("accesskey=\"" + count + "\" ");
@@ -1794,7 +1797,7 @@ public class CharonPortal extends HttpServlet
 		out.println("<a href=\"#tocontent\"  class=\"skip\" title=\"" + Web.escapeHtml(rb.getString("sit.jumpcontent")) + "\" accesskey=\"c\">" + Web.escapeHtml(rb.getString("sit.jumpcontent")) + "</a>");
 		out.println("<a href=\"#totoolmenu\"  class=\"skip\" title=\"" + Web.escapeHtml(rb.getString("sit.jumptools")) + "\" accesskey=\"l\">" + Web.escapeHtml(rb.getString("sit.jumptools")) + "</a>");
 		out.println("<a href=\"#sitetabs\" class=\"skip\" title=\""+ Web.escapeHtml(rb.getString("sit.jumpworksite")) + "\" accesskey=\"w\">" + Web.escapeHtml(rb.getString("sit.jumpworksite")) + "</a>");
-
+		out.println("</div>");			
 		out.println("<div id=\"header\">");
 		out.println("<iframe");
 		out.println("	name=\"sitenav\"");
@@ -1838,7 +1841,7 @@ public class CharonPortal extends HttpServlet
 		if (session.getUserId() != null)
 		{
 			Preferences prefs = PreferencesService.getPreferences(session.getUserId());
-			ResourceProperties props = prefs.getProperties("sakai.portal.sitenav");
+			ResourceProperties props = prefs.getProperties("sakai:portal:sitenav");
 			try
 			{
 				prefTabs = (int) props.getLongProperty("tabs");
@@ -1944,8 +1947,9 @@ public class CharonPortal extends HttpServlet
 
 		String cssClass = (siteType != null) ? "siteNavWrap " + siteType : "siteNavWrap";
 		out.println("<div class=\"" + cssClass + "\">");
-		out.println("	<div id=\"siteNav\">");
-		out.println("		<div id=\"linkNav\">");
+		out.println("	<table id=\"siteNav\">");
+		out.println("	<tr>");
+		out.println("		<td id=\"linkNav\">");
 
 		// target for "jump to tabs" link and header
 
@@ -1957,7 +1961,7 @@ public class CharonPortal extends HttpServlet
 		// myWorkspace
 		if (curMyWorkspace)
 		{
-			out.println("						<li class=\"selectedTab\"><a href=\"#\"><span>" + rb.getString("sit.mywor") + "<span></a></li>");
+			out.println("						<li class=\"selectedTab\"><a href=\"#\"><span>" + rb.getString("sit.mywor") + "</span></a></li>");
 		}
 		else
 		{
@@ -1992,12 +1996,12 @@ public class CharonPortal extends HttpServlet
 		out.println("					<li style=\"display:none;border-width:0\" class=\"fixTabsIE\">"
 				+ "<a href=\"javascript:void(0);\">#x20;</a></li>");
 		out.println("				</ul>");
-		out.println("			</div>");
+		out.println("			</td>");
 
 		// more dropdown
 		if (moreSites.size() > 0)
 		{
-			out.println("			<div id=\"selectNav\"><span class=\"skip\">" + Web.escapeHtml(rb.getString("sit.selectmessage")) + "</span>");
+			out.println("			<td id=\"selectNav\"><span class=\"skip\">" + Web.escapeHtml(rb.getString("sit.selectmessage")) + "</span>");
 			out.println("				<select ");
 			out.println("						onchange=\"if (this.options[this.selectedIndex].value != '')"
 					+ " { parent.location = this.options[this.selectedIndex].value; } else { this.selectedIndex = 0; }\">");
@@ -2013,7 +2017,7 @@ public class CharonPortal extends HttpServlet
 			}
 
 			out.println("				</select>");
-			out.println("			</div>");
+			out.println("			</td>");
 		}
 
 		if (addLogout)
@@ -2023,8 +2027,8 @@ public class CharonPortal extends HttpServlet
 			out.println("	<a href=\"" + logoutUrl + "\" target=\"_parent\">" + Web.escapeHtml(rb.getString("sit.log")) + "</a>");
 			out.println("</div>");
 		}
-
-		out.println("	</div>");
+		out.println("	</tr>");
+		out.println("	</table>");
 		out.println("<div class=\"divColor\" id=\"tabBottom\"></div></div>");
 		if (addLogout)
 		{
