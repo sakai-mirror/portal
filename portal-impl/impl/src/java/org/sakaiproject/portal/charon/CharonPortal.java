@@ -1,6 +1,6 @@
 /**********************************************************************************
  * $URL: https://source.sakaiproject.org/svn/portal/trunk/portal-impl/impl/src/java/org/sakaiproject/portal/charon/CharonPortal.java $
- * $Id: CharonPortal.java 10382 2006-06-08 10:22:28 -0400 (Thu, 08 Jun 2006) gsilver@umich.edu $
+ * $Id: CharonPortal.java 12434 2006-07-17 16:08:15 +0000 (Mon, 17 Jul 2006) ggolden@umich.edu $
  ***********************************************************************************
  *
  * Copyright (c) 2005, 2006 The Sakai Foundation.
@@ -57,7 +57,9 @@ import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.Preferences;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.PreferencesService;
+import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ErrorReporter;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
@@ -152,7 +154,7 @@ public class CharonPortal extends HttpServlet
 		String title = ServerConfigurationService.getString("ui.service") + " : Portal";
 
 		// start the response
-		PrintWriter out = startResponse(res, title, null);
+		PrintWriter out = startResponse(res, title, null, false);
 
 		// Show session information
 		out.println("<h2>Session</h2>");
@@ -203,7 +205,7 @@ public class CharonPortal extends HttpServlet
 		Site site = null;
 		try
 		{
-			site = SiteService.getSiteVisit(siteId);
+			site = getSiteVisit(siteId);
 		}
 		catch (IdUnusedException e)
 		{
@@ -247,7 +249,7 @@ public class CharonPortal extends HttpServlet
 		String title = ServerConfigurationService.getString("ui.service") + " : " + site.getTitle() + " : " + page.getTitle();
 
 		// start the response
-		PrintWriter out = startResponse(res, title, site.getSkin());
+		PrintWriter out = startResponse(res, title, site.getSkin(), true);
 
 		// the 'little' top area
 		includeGalleryNav(out, req, session, siteId);
@@ -270,7 +272,7 @@ public class CharonPortal extends HttpServlet
 		String skin = SiteService.getSiteSkin(siteId);
 
 		// start the response
-		PrintWriter out = startResponse(res, "Site Navigation", skin);
+		PrintWriter out = startResponse(res, "Site Navigation", skin, false);
 
 		// Remove the logout button from gallery since it is designed to be included within
 		// some other application (like a portal) which will want to control logout.
@@ -623,6 +625,7 @@ public class CharonPortal extends HttpServlet
 				+ skin
 				+ "/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n"
 				+ "    <meta http-equiv=\"Content-Style-Type\" content=\"text/css\" />\n"
+				+ "    <script type=\"text/javascript\" language=\"JavaScript\" src=\"" + getScriptPath() + "headscripts.js\"></script>\n"
 				+ "    <title>"
 				+ toolTitle
 				+ "</title>\n" + "  </head>\n" + "  <body>\n";
@@ -641,12 +644,9 @@ public class CharonPortal extends HttpServlet
 			out.write("\t<div class=\"action\">\n");
 		if (showHelpButton)
 		{
-			out
-					.write("\t\t<a href=\"javascript:;\" onclick=\"window.open('"
-							+ helpActionUrl
-							+ "','Help','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')\" onkeypress=\"window.open('"
-							+ helpActionUrl
-							+ "','Help','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')\"><img src=\"/library/image/transparent.gif\" alt=\"Help\" border=\"0\" /></a>\n");
+			out.write("\t\t<a href=\"" + helpActionUrl + "\" target=\"_blank\" "
+					+ "onclick=\"openWindow('" + helpActionUrl + "', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false\">"
+					+ "<img src=\"/library/image/transparent.gif\" alt=\"Help\" border=\"0\" /></a>\n");
 		}
 		out.write("\t</div>\n");
 		out.write("</div>\n");
@@ -753,7 +753,7 @@ public class CharonPortal extends HttpServlet
 	protected void doNavLogin(HttpServletRequest req, HttpServletResponse res, Session session, String siteId) throws IOException
 	{
 		// start the response
-		PrintWriter out = startResponse(res, "Login", null);
+		PrintWriter out = startResponse(res, "Login", null, false);
 
 		includeLogo(out, req, session, siteId);
 		out.println("<div class=\"divColor\" id=\"tabBottom\"><br /></div></div>");
@@ -766,7 +766,7 @@ public class CharonPortal extends HttpServlet
 			throws IOException
 	{
 		// start the response
-		PrintWriter out = startResponse(res, "Login", null);
+		PrintWriter out = startResponse(res, "Login", null, false);
 
 		includeGalleryLogin(out, req, session, siteId);
 		out.println("<div class=\"divColor\" id=\"tabBottom\"><br /></div></div>");
@@ -815,7 +815,7 @@ public class CharonPortal extends HttpServlet
 		String title = ServerConfigurationService.getString("ui.service") + " : " + site.getTitle() + " : " + page.getTitle();
 
 		// start the response
-		PrintWriter out = startResponse(res, title, page.getSkin());
+		PrintWriter out = startResponse(res, title, page.getSkin(), true);
 
 		// div to wrap the works
 		String siteType = calcSiteType(site.getId());
@@ -1016,7 +1016,7 @@ public class CharonPortal extends HttpServlet
 		Site site = null;
 		try
 		{
-			site = SiteService.getSiteVisit(siteId);
+			site = getSiteVisit(siteId);
 		}
 		catch (IdUnusedException e)
 		{
@@ -1060,7 +1060,7 @@ public class CharonPortal extends HttpServlet
 		String title = ServerConfigurationService.getString("ui.service") + " : " + site.getTitle() + " : " + page.getTitle();
 
 		// start the response
-		PrintWriter out = startResponse(res, title, site.getSkin());
+		PrintWriter out = startResponse(res, title, site.getSkin(), true);
 
 		// the 'full' top area
 		includeSiteNav(out, req, session, siteId);
@@ -1135,7 +1135,7 @@ public class CharonPortal extends HttpServlet
 		String skin = SiteService.getSiteSkin(siteId);
 
 		// start the response
-		PrintWriter out = startResponse(res, "Site Navigation", skin);
+		PrintWriter out = startResponse(res, "Site Navigation", skin, false);
 
 		includeLogo(out, req, session, siteId);
 		includeTabs(out, req, session, siteId, "site", false);
@@ -1147,6 +1147,8 @@ public class CharonPortal extends HttpServlet
 	protected void doTool(HttpServletRequest req, HttpServletResponse res, Session session, String placementId,
 			String toolContextPath, String toolPathInfo) throws ToolException, IOException
 	{
+		if (redirectIfLoggedOut(res)) return;
+
 		// find the tool from some site
 		ToolConfiguration siteTool = SiteService.findTool(placementId);
 		if (siteTool == null)
@@ -1255,7 +1257,7 @@ public class CharonPortal extends HttpServlet
 		Site site = null;
 		try
 		{
-			site = SiteService.getSiteVisit(siteId);
+			site = getSiteVisit(siteId);
 		}
 		catch (IdUnusedException e)
 		{
@@ -1299,7 +1301,7 @@ public class CharonPortal extends HttpServlet
 		String title = ServerConfigurationService.getString("ui.service") + " : " + site.getTitle() + " : " + page.getTitle();
 
 		// start the response
-		PrintWriter out = startResponse(res, title, site.getSkin());
+		PrintWriter out = startResponse(res, title, site.getSkin(), true);
 
 		String siteType = calcSiteType(siteId);
 		out.println("<div id=\"container\"" + ((siteType != null) ? " class=\"" + siteType + "\"" : "") + ">");
@@ -1633,7 +1635,7 @@ public class CharonPortal extends HttpServlet
 			String toolContextPath, String portalPrefix) throws IOException
 	{
 		String presenceUrl = Web.returnUrl(req, "/presence/" + Web.escapeUrl(site.getId()));
-		String pageUrl = Web.returnUrl(req, "/" + portalPrefix + "/" + Web.escapeUrl(site.getId()) + "/page/");
+		String pageUrl = Web.returnUrl(req, "/" + portalPrefix + "/" + Web.escapeUrl(getSiteEffectiveId(site)) + "/page/");
 		String pagePopupUrl = Web.returnUrl(req, "/page/");
 		boolean showPresence = ServerConfigurationService.getBoolean("display.users.present", true);
 		boolean showHelp = ServerConfigurationService.getBoolean("display.help.menu", true);
@@ -1722,10 +1724,9 @@ public class CharonPortal extends HttpServlet
 			out.println("			<li>");
 
 			// help gets its own accesskey - h
-			out.println("				<a  accesskey=\"h\" href=\"javascript:;\" " + "onclick=\"window.open('" + helpUrl + "'"
-				+ ",'Help','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')\" onkeypress=\"window.open('" + helpUrl
-				+ "'" + ",'Help','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')\"><span>" + rb.getString("sit.help")
-				+ "</span></a>");
+			out.println("				<a  accesskey=\"h\" href=\"" + helpUrl + "\" target=\"_blank\" "
+				+ "onclick=\"openWindow('" + helpUrl + "', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false\">"
+				+ "<span>" + rb.getString("sit.help") + "</span></a>");
 
 			out.println("			</li>");
 		}
@@ -1819,13 +1820,23 @@ public class CharonPortal extends HttpServlet
 	protected void includeTabs(PrintWriter out, HttpServletRequest req, Session session, String siteId, String prefix,
 			boolean addLogout) throws IOException
 	{
-
 		// for skinning
 		String siteType = calcSiteType(siteId);
 
 		// is the current site the end user's My Workspace?
-		boolean curMyWorkspace = ((siteId == null) || (SiteService.isUserSite(siteId) && (SiteService.getSiteUserId(siteId)
-				.equals(session.getUserId()))));
+		// Note: the site id can match the user's id or eid
+		String curUserId = session.getUserId();
+		String curUserEid = curUserId;
+		if (siteId != null)
+		{
+			try
+			{
+				curUserEid = UserDirectoryService.getUserEid(curUserId);
+			}
+			catch (UserNotDefinedException e) {}
+		}
+		boolean curMyWorkspace = ((siteId == null) || (SiteService.isUserSite(siteId) && ((SiteService.getSiteUserId(siteId)
+				.equals(curUserId) || SiteService.getSiteUserId(siteId).equals(curUserEid)))));
 
 		// if this is a My Workspace, it gets its own tab and should not be considered in the other tab logic
 		if (curMyWorkspace) siteId = null;
@@ -1940,7 +1951,29 @@ public class CharonPortal extends HttpServlet
 				}
 				catch (IdUnusedException e)
 				{
-					M_log.warn("doSiteNav: cur site not found: " + siteId);
+					// check for another user's myWorkspace by eid
+					if (SiteService.isUserSite(siteId))
+					{
+						String userEid = SiteService.getSiteUserId(siteId);
+						try
+						{
+							String userId = UserDirectoryService.getUserId(userEid);
+							Site site = SiteService.getSite(SiteService.getUserSiteId(userId));
+							extraTitle = site.getTitle();
+						}
+						catch (UserNotDefinedException ee)
+						{
+							M_log.warn("includeTabs: cur site not found (not ~eid): " + siteId);							
+						}
+						catch (IdUnusedException ee)
+						{
+							M_log.warn("includeTabs: cur site not found (assumed ~eid, didn't find site): " + siteId);
+						}
+					}
+					else
+					{
+						M_log.warn("includeTabs: cur site not found: " + siteId);
+					}
 				}
 			}
 		}
@@ -1966,7 +1999,7 @@ public class CharonPortal extends HttpServlet
 		else
 		{
 			String siteUrl = Web.serverUrl(req) + ServerConfigurationService.getString("portalPath") + "/" + prefix + "/"
-					+ Web.escapeUrl(SiteService.getUserSiteId(session.getUserId()));
+					+ Web.escapeUrl(getUserEidBasedSiteId(session.getUserId()));
 			out.println("						<li><a href=\"" + siteUrl + "\" target=\"_parent\" title=\""
 					+ Web.escapeHtml(rb.getString("sit.mywor")) + "\"><span>" + Web.escapeHtml(rb.getString("sit.mywor")) + "</span></a></li>");
 		}
@@ -1981,7 +2014,7 @@ public class CharonPortal extends HttpServlet
 			}
 			else
 			{
-				String siteUrl = Web.serverUrl(req) + ServerConfigurationService.getString("portalPath") + "/" + prefix + "/" + Web.escapeUrl(s.getId());
+				String siteUrl = Web.serverUrl(req) + ServerConfigurationService.getString("portalPath") + "/" + prefix + "/" + Web.escapeUrl(getSiteEffectiveId(s));
 				out.println("							<li><a href=\"" + siteUrl + "\" target=\"_parent\" title=\"" + Web.escapeHtml(s.getTitle())
 						+ " " + Web.escapeHtml(rb.getString("sit.worksite")) + "\"><span>" + Web.escapeHtml(s.getTitle()) + "</span></a></li>");
 			}
@@ -2010,7 +2043,7 @@ public class CharonPortal extends HttpServlet
 			for (Iterator i = moreSites.iterator(); i.hasNext();)
 			{
 				Site s = (Site) i.next();
-				String siteUrl = Web.serverUrl(req) + ServerConfigurationService.getString("portalPath") + "/" + prefix + "/" + s.getId();
+				String siteUrl = Web.serverUrl(req) + ServerConfigurationService.getString("portalPath") + "/" + prefix + "/" + getSiteEffectiveId(s);
 				out.println("						<option title=\"" + Web.escapeHtml(s.getTitle()) + " "
 						+ Web.escapeHtml(rb.getString("sit.worksite")) + "\" value=\"" + siteUrl + "\">"
 						+ Web.escapeHtml(s.getTitle()) + "</option> ");
@@ -2128,7 +2161,7 @@ public class CharonPortal extends HttpServlet
 	}
 
 	/**
-	 * TODO: I'm not sure why this has to be different from doLogin...
+	 * Send the POST request to login
 	 * 
 	 * @param req
 	 * @param res
@@ -2184,7 +2217,7 @@ public class CharonPortal extends HttpServlet
 		}
 	}
 
-	protected PrintWriter startResponse(HttpServletResponse res, String title, String skin) throws IOException
+	protected PrintWriter startResponse(HttpServletResponse res, String title, String skin, boolean top) throws IOException
 	{
 		// headers
 		res.setContentType("text/html; charset=UTF-8");
@@ -2218,6 +2251,14 @@ public class CharonPortal extends HttpServlet
 
 		// start the body
 		out.println("<body class=\"portalBody\">");
+
+		// if top, mark this as the portal window
+		if (top)
+		{
+			out.println("<script type=\"text/javascript\" language=\"JavaScript\">");
+			out.println("var sakaiPortalWindow = \"\";");
+			out.println("</script>");
+		}
 
 		return out;
 	}
@@ -2272,5 +2313,121 @@ public class CharonPortal extends HttpServlet
 		}
 
 		return -1;
+	}
+
+	/**
+	 * Check for any just expired sessions and redirect
+	 * 
+	 * @return true if we redirected, false if not
+	 */
+	protected boolean redirectIfLoggedOut(HttpServletResponse res) throws IOException
+	{
+		// if we are in a newly created session where we had an invalid (presumed timed out) session in the request,
+		// send script to cause a sakai top level redirect
+		if (ThreadLocalManager.get(SessionManager.CURRENT_INVALID_SESSION) != null)
+		{
+			String loggedOutUrl = ServerConfigurationService.getLoggedOutUrl();
+			sendPortalRedirect(res, loggedOutUrl);
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Send a redirect so our Portal window ends up at the url, via javascript.
+	 * 
+	 * @param url
+	 *        The redirect url
+	 */
+	protected void sendPortalRedirect(HttpServletResponse res, String url) throws IOException
+	{
+		PrintWriter out = startResponse(res, null, null, false);
+		out.println("<script type=\"text/javascript\" language=\"JavaScript\">");
+		out.println("portalWindowRefresh('" + url + "');");
+		out.println("</script>");
+		endResponse(out);
+	}
+
+	/**
+	 * Compute the string that will identify the user site for this user - use the EID if possible
+	 * 
+	 * @param userId
+	 *        The user id
+	 * @return The site "ID" but based on the user EID
+	 */
+	protected String getUserEidBasedSiteId(String userId)
+	{
+		try
+		{
+			// use the user EID
+			String eid = UserDirectoryService.getUserEid(userId);
+			return SiteService.getUserSiteId(eid);
+		}
+		catch (UserNotDefinedException e)
+		{
+			M_log.warn("getUserEidBasedSiteId: user id not found for eid: " + userId);
+			return SiteService.getUserSiteId(userId);
+		}
+	}
+
+	/**
+	 * If this is a user site, return an id based on the user EID, otherwise just return the site id.
+	 * 
+	 * @param site
+	 *        The site.
+	 * @return The effective site id.
+	 */
+	protected String getSiteEffectiveId(Site site)
+	{
+		if (SiteService.isUserSite(site.getId()))
+		{
+			try
+			{
+				String userId = SiteService.getSiteUserId(site.getId());
+				String eid = UserDirectoryService.getUserEid(userId);
+				return SiteService.getUserSiteId(eid);
+			}
+			catch (UserNotDefinedException e)
+			{
+				M_log.warn("getSiteEffectiveId: user eid not found for user site: " + site.getId());
+			}
+		}
+
+		return site.getId();
+	}
+	
+	/**
+	 * Do the getSiteVisit, but if not found and the id is a user site, try translating from user EID to ID.
+	 * @param siteId The Site Id.
+	 * @return The Site.
+	 * @throws PermissionException If not allowed.
+	 * @throws IdUnusedException If not found.
+	 */
+	protected Site getSiteVisit(String siteId) throws PermissionException, IdUnusedException
+	{
+		try
+		{
+			return SiteService.getSiteVisit(siteId);
+		}
+		catch (IdUnusedException e)
+		{
+			if (SiteService.isUserSite(siteId))
+			{
+				try
+				{
+					String userEid = SiteService.getSiteUserId(siteId);
+					String userId = UserDirectoryService.getUserId(userEid);
+					String alternateSiteId = SiteService.getUserSiteId(userId);
+					return SiteService.getSiteVisit(alternateSiteId);
+				}
+				catch (UserNotDefinedException ee)
+				{
+				}
+			}
+			
+			// re-throw if that didn't work
+			throw e;
+		}
 	}
 }
