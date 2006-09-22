@@ -23,5 +23,6 @@
 	<classpathentry kind="src" path="impl/src/test"/>
 	<classpathentry kind="src" path="impl/src/bundle"/>
 	<classpathentry kind="src" path="impl/src/testBundle"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/hierarchy-api"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
