@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><project>
+<?xml version="1.0" encoding="UTF-8"?><project xmlns="http://maven.apache.org/POM/4.0.0"          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">  
   <modelVersion>4.0.0</modelVersion>
 
    <parent>
@@ -9,14 +9,14 @@
 
   <artifactId>sakai-portal-charon</artifactId>
   <name>sakai-portal-charon</name>
+    <packaging>war</packaging>
+        
   <inceptionYear>2003</inceptionYear>
   <organization>
     <name>University of Michigan</name>
     <url>http://sakaiproject.org/</url>
   </organization>
-  <build>
-    <sourceDirectory>src/java</sourceDirectory>
-  </build>
+    
   <dependencies>
     <dependency>
       <groupId>org.sakaiproject.charon</groupId>
@@ -43,6 +43,14 @@
       <artifactId>sakai-portal-util</artifactId>
       <version>${sakai.version}</version>
     </dependency>
+      
+      <dependency>
+          <groupId>org.sakaiproject</groupId>
+          <artifactId>sakai-tool-servlet</artifactId>
+          <version>${sakai.version}</version>
+          <scope>runtime</scope>
+      </dependency>
+      
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
