@@ -12,9 +12,8 @@
 
    <groupId>org.sakaiproject.charon</groupId>
    <artifactId>charon-parent</artifactId>
-   <version>2.2.3-SNAPSHOT</version>
    <packaging>pom</packaging>
-   <name>Charon</name>
+   <name>charon-parent</name>
 
 <!--
     <respositories>

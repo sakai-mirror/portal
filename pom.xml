@@ -10,7 +10,7 @@
     <name>Sakai</name>
 
     <properties>
-      <sakai.version>2.2.3</sakai.version>
+      <sakai.version>2.2.3-SNAPSHOT</sakai.version>
       <sakai.spring.version>2.0</sakai.spring.version>
       <sakai.xerces.version>2.4.0</sakai.xerces.version>
     </properties>

@@ -7,8 +7,8 @@
       <version>2.2.3-SNAPSHOT</version>
    </parent>
 
-  <artifactId>portal</artifactId>
-  <name>portal</name>
+  <artifactId>sakai-portal-charon</artifactId>
+  <name>sakai-portal-charon</name>
   <inceptionYear>2003</inceptionYear>
   <organization>
     <name>University of Michigan</name>

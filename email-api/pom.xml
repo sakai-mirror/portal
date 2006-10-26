@@ -8,7 +8,6 @@
 
   <artifactId>sakai-email-api</artifactId>
   <name>sakai-email-api</name>
-  <version>${sakai.version}</version>
   <inceptionYear>2003</inceptionYear>
   <organization>
     <name>The Sakai Foundation</name>

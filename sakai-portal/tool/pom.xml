@@ -5,8 +5,8 @@
       <artifactId>charon-parent</artifactId>
       <version>2.2.3-SNAPSHOT</version>
    </parent>
-  <artifactId>tool</artifactId>
-  <name>tool</name>
+  <artifactId>sakai-portal-tool</artifactId>
+  <name>sakai-portal-tool</name>
   <inceptionYear>2003</inceptionYear>
   <organization>
     <name>University of Michigan</name>

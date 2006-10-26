@@ -8,7 +8,6 @@
 
   <artifactId>sakai-entity-api</artifactId>
   <name>sakai-entity-api</name>
-  <version>${sakai.version}</version>
   <inceptionYear>2003</inceptionYear>
   <organization>
     <name>University of Michigan</name>
