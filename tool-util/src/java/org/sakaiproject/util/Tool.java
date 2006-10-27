@@ -80,7 +80,7 @@ public class Tool implements org.sakaiproject.tool.api.Tool, Comparable
 	}
 
 	/**
-	 * {@inheritDoc}
+ * {@inheritDoc}
 	 */
 	public boolean equals(Object obj)
 	{

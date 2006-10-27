@@ -30,6 +30,8 @@
       <module>impl</module>
       <module>util</module>
       <module>tool</module>
+      <module>portlet-api</module>
+      <module>portlet-impl</module>
     </modules>
 </project>
 

@@ -30,8 +30,8 @@
 		</dependency>
 
 		<dependency>
-			<groupId>${sakai.spring.groupId}</groupId>
-			<artifactId>${sakai.spring.artifactId}</artifactId>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring</artifactId>
 			<version>${sakai.spring.version}</version>
 			<url>http://www.springframework.org</url>
 			<properties>

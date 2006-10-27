@@ -50,6 +50,12 @@
           <version>${sakai.version}</version>
           <scope>runtime</scope>
       </dependency>
+       <dependency>
+          <groupId>org.sakaiproject</groupId>
+          <artifactId>sakai-util-impl</artifactId>
+          <version>${sakai.version}</version>
+          <scope>runtime</scope>
+      </dependency>
       
     <dependency>
       <groupId>junit</groupId>
