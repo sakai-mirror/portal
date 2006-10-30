@@ -1,13 +1,17 @@
-package org.sakaiproject.portal.charon.render;
+package org.sakaiproject.portal.render.api;
 
-import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.site.api.ToolConfiguration;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.ServletContext;
 import java.io.IOException;
 
+/**
+ * Service responsible for rendering tools within
+ * a Sakai portal.
+ * 
+ */
 public interface ToolRenderService {
 
     /**
@@ -21,7 +25,8 @@ public interface ToolRenderService {
      * @throws ToolRenderException
      */
     void preprocess(ToolConfiguration toolConfiguration,
-                    HttpServletRequest request, HttpServletResponse response)
+                    HttpServletRequest request, HttpServletResponse response,
+                    ServletContext context)
         throws IOException, ToolRenderException;
 
     /**
@@ -34,7 +39,8 @@ public interface ToolRenderService {
      * @throws ToolRenderException
      */
     void render(ToolConfiguration toolConfiguration,
-                HttpServletRequest request, HttpServletResponse response)
+                HttpServletRequest request, HttpServletResponse response,
+                ServletContext context)
         throws IOException, ToolRenderException;
 
 

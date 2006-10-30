@@ -1,4 +1,4 @@
-package org.sakaiproject.portal.charon.render;
+package org.sakaiproject.portal.render.api;
 
 import java.io.IOException;
 

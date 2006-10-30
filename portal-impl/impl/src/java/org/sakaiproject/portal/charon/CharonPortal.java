@@ -68,9 +68,7 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.ToolURLManagerImpl;
 import org.sakaiproject.util.Web;
-import org.sakaiproject.portal.charon.render.portlet.PortletToolRenderService;
-import org.sakaiproject.portal.charon.render.compat.CompatibilityToolRenderService;
-import org.sakaiproject.portal.charon.render.iframe.IFrameToolRenderService;
+import org.sakaiproject.portal.render.cover.ToolRenderService;
 
 /**
  * <p>
@@ -132,15 +130,6 @@ public class CharonPortal extends HttpServlet
 	private BasicAuth basicAuth = null;
 
 	private boolean enableDirect = false;
-
-    private CompatibilityToolRenderService renderService;
-
-
-    public CharonPortal() {
-        renderService = new CompatibilityToolRenderService();
-        renderService.setPortletRenderService(new PortletToolRenderService());
-        renderService.setIframeRenderService(new IFrameToolRenderService());
-    }
 
     /**
 	 * Shutdown the servlet.
@@ -2920,7 +2909,7 @@ public class CharonPortal extends HttpServlet
 		// Output the iframe for the tool content
 		out.println("<div class=\"portletMainWrap\">");
 
-        renderService.render(placement, req, res);
+        ToolRenderService.render(placement, req, res, getServletContext());
 
         out.println("</div><!--gsilver end of the portletMainWrap--></div><!--gsilver end of the portlet-->");
 	}
@@ -2955,8 +2944,6 @@ public class CharonPortal extends HttpServlet
 
 		enableDirect = "true".equals(ServerConfigurationService.getString(
 				"charon.directurl", "true"));
-
-        renderService.setServletContext(config.getServletContext());
     }
 
 	/**
