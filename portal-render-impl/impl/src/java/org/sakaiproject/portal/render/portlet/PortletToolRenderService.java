@@ -55,7 +55,7 @@ public class PortletToolRenderService implements ToolRenderService {
             PortletState state = portletStateEncoder.decode(stateParam);
             if (state.isAction() && state.getId().equals(tool.getId())) {
                 PortletStateAccess.setPortletState(request, state);
-                org.sakaiproject.portal.render.portlet.SakaiPortletWindow window = createPortletWindow(tool, placement);
+                SakaiPortletWindow window = createPortletWindow(tool, placement);
                 window.setState(state);
                 try {
                     PortletContainer portletContainer = getPortletContainer(context);
@@ -76,10 +76,15 @@ public class PortletToolRenderService implements ToolRenderService {
             throws IOException, ToolRenderException {
 
         Tool tool = toolConfiguration.getTool();
-        Placement placement = toolConfiguration;
-        SakaiPortletWindow window = createPortletWindow(tool, placement);
+
+        SakaiPortletWindow window = createPortletWindow(tool, toolConfiguration);
+        if(Boolean.TRUE.toString().equals(request.getParameter("test168"))) {
+            window = new SakaiPortletWindow("theonlyone", "/testsuite", "TestPortlet1");
+        }
         PortletState state = PortletStateAccess.getPortletState(request, window.getId().getStringId());
-        window.setState(state);
+        if(state != null) {
+            window.setState(state);
+        }
         try {
             PortletContainer portletContainer = getPortletContainer(context);
             portletContainer.doRender(window, request, response);

@@ -39,8 +39,14 @@ public class SakaiPortalCallbackService implements PortalCallbackService {
     }
 
     public PortletURLProvider getPortletURLProvider(HttpServletRequest request, PortletWindow window) {
-        PortletState state = new PortletState(PortletStateAccess.getPortletState(
-                request, window.getId().getStringId()));
+        PortletState currentState = PortletStateAccess.getPortletState(request, window.getId().getStringId());
+        PortletState state = null;
+        if(currentState != null) {
+            state = new PortletState(currentState);
+        }
+        else {
+            state = new PortletState(window.getId().getStringId());
+        }
         String baseUrl = request.getRequestURI();
         return new SakaiPortletURLProvider(baseUrl, state);
     }

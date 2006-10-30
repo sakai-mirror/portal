@@ -56,7 +56,7 @@ public class CompatibilityToolRenderService implements ToolRenderService {
                            HttpServletResponse response,
                            ServletContext context)
             throws IOException, ToolRenderException {
-        if (isPortletApplication(context, configuration.getContext())) {
+        if (isIn168TestMode(request) || isPortletApplication(context, configuration.getContext())) {
             portletRenderService.preprocess(configuration, request, response, context);
         } else {
             iframeRenderService.preprocess(configuration, request, response, context);
@@ -69,11 +69,15 @@ public class CompatibilityToolRenderService implements ToolRenderService {
                        ServletContext context)
             throws IOException, ToolRenderException {
 
-        if (isPortletApplication(context, configuration.getContext())) {
+        if (isIn168TestMode(request) || isPortletApplication(context, configuration.getContext())) {
             portletRenderService.render(configuration, request, response, context);
         } else {
             iframeRenderService.render(configuration, request, response, context);
         }
+    }
+
+    private boolean isIn168TestMode(HttpServletRequest request) {
+        return Boolean.TRUE.toString().equalsIgnoreCase(request.getParameter("test168"));
     }
 
     private boolean isPortletApplication(ServletContext context, String toolContext)

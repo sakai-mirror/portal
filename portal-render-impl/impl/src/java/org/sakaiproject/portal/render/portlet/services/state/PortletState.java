@@ -25,6 +25,8 @@ public class PortletState implements Serializable {
 
     public PortletState(String id) {
         this.id = id;
+        portletMode = PortletMode.VIEW;
+        windowState = WindowState.NORMAL;
         parameters = new HashMap();
     }
 
