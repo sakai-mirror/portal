@@ -22,6 +22,7 @@ package org.sakaiproject.portal.render.cover;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.portal.render.api.RenderResult;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -70,15 +71,16 @@ public class ToolRenderService {
     }
 
 
-	public static void render(ToolConfiguration configuration,
+	public static RenderResult render(ToolConfiguration configuration,
                                   HttpServletRequest request,
                                   HttpServletResponse response,
                                   ServletContext context)
         throws IOException {
 		org.sakaiproject.portal.render.api.ToolRenderService service = getInstance();
-		if (service == null) return;
+		if (service == null)
+            return null;
 
-        service.render(configuration, request, response, context);
+        return service.render(configuration, request, response, context);
     }
 
 }

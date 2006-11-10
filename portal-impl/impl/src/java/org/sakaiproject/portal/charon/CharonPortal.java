@@ -69,6 +69,7 @@ import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.ToolURLManagerImpl;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.portal.render.cover.ToolRenderService;
+import org.sakaiproject.portal.render.api.RenderResult;
 
 /**
  * <p>
@@ -2824,7 +2825,6 @@ public class CharonPortal extends HttpServlet
 		// let the tool do some the work (include) (see note above)
 		String toolUrl = ServerConfigurationService.getToolUrl() + "/"
 				+ Web.escapeUrl(placement.getId());
-		String titleString = Web.escapeHtml(placement.getTitle());
 
 		// Reset the tool state if requested
 		if ("true".equals(req.getParameter(PARM_STATE_RESET)) || "true".equals(getResetState()))
@@ -2878,6 +2878,8 @@ public class CharonPortal extends HttpServlet
 
 		out.write("<div class=\"portletTitle\">\n");
 		out.write("\t<div class=\"title\">\n");
+        
+        RenderResult result = ToolRenderService.render(placement, req, res, getServletContext());
 
 		// This is a new-style reset where the button is in the background document
 		if (showResetButton)
@@ -2896,7 +2898,7 @@ public class CharonPortal extends HttpServlet
 					+ "\"><img src=\"/library/image/transparent.gif\" alt=\"" 
 					+ Web.escapeHtml(rb.getString("sit.reset")) + "\" border=\"1\" /></a>");
 		}
-		out.write("<h2>" + titleString + "\n" + "\t</h2></div>\n");
+		out.write("<h2>" + result.getTitle() + "\n" + "\t</h2></div>\n");
 		out.write("\t<div class=\"action\">\n");
 		if (showHelpButton)
 		{
@@ -2909,7 +2911,7 @@ public class CharonPortal extends HttpServlet
 		// Output the iframe for the tool content
 		out.println("<div class=\"portletMainWrap\">");
 
-        ToolRenderService.render(placement, req, res, getServletContext());
+        out.println(result.getContent());
 
         out.println("</div><!--gsilver end of the portletMainWrap--></div><!--gsilver end of the portlet-->");
 	}

@@ -118,6 +118,7 @@ public class SakaiPortalCallbackService implements PortalCallbackService {
         public String toString() {
             return new StringBuffer(baseUrl)
                     .append("?").append(PORTLET_STATE_QUERY_PARAM)
+                    .append("=")
                     .append(portletStateEncoder.encode(portletState))
                     .toString();
         }

@@ -2,12 +2,14 @@ package org.sakaiproject.portal.render.compat;
 
 import org.sakaiproject.portal.render.api.ToolRenderService;
 import org.sakaiproject.portal.render.api.ToolRenderException;
+import org.sakaiproject.portal.render.api.RenderResult;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.servlet.ServletContext;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -63,21 +65,27 @@ public class CompatibilityToolRenderService implements ToolRenderService {
         }
     }
 
-    public void render(ToolConfiguration configuration,
+    public RenderResult render(ToolConfiguration configuration,
                        HttpServletRequest request,
                        HttpServletResponse response,
                        ServletContext context)
             throws IOException, ToolRenderException {
 
         if (isIn168TestMode(request) || isPortletApplication(context, configuration.getContext())) {
-            portletRenderService.render(configuration, request, response, context);
+            return portletRenderService.render(configuration, request, response, context);
         } else {
-            iframeRenderService.render(configuration, request, response, context);
+            return iframeRenderService.render(configuration, request, response, context);
         }
     }
 
     private boolean isIn168TestMode(HttpServletRequest request) {
-        return Boolean.TRUE.toString().equalsIgnoreCase(request.getParameter("test168"));
+        HttpSession session = request.getSession(true);
+        if(session.getAttribute("test168") != null ||
+           request.getParameter("test168") != null) {
+            request.getSession(true).setAttribute("test168", Boolean.TRUE.toString());
+            return true;
+        }
+        return false;
     }
 
     private boolean isPortletApplication(ServletContext context, String toolContext)

@@ -38,7 +38,7 @@ public interface ToolRenderService {
      * @throws IOException
      * @throws ToolRenderException
      */
-    void render(ToolConfiguration toolConfiguration,
+    RenderResult render(ToolConfiguration toolConfiguration,
                 HttpServletRequest request, HttpServletResponse response,
                 ServletContext context)
         throws IOException, ToolRenderException;

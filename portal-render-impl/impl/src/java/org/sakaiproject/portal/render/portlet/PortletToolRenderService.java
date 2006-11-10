@@ -6,8 +6,10 @@ import org.sakaiproject.portal.render.portlet.services.state.encode.PortletState
 import org.sakaiproject.portal.render.portlet.services.SakaiPortalCallbackService;
 import org.sakaiproject.portal.render.portlet.services.SakaiPortletContainerServices;
 import org.sakaiproject.portal.render.portlet.services.SakaiPortalContext;
+import org.sakaiproject.portal.render.portlet.services.PortletAttributesAccess;
 import org.sakaiproject.portal.render.api.ToolRenderException;
 import org.sakaiproject.portal.render.api.ToolRenderService;
+import org.sakaiproject.portal.render.api.RenderResult;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -19,7 +21,6 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.portlet.PortletException;
-import javax.portlet.PortalContext;
 import java.io.IOException;
 
 /**
@@ -69,7 +70,7 @@ public class PortletToolRenderService implements ToolRenderService {
         }
     }
 
-    public void render(ToolConfiguration toolConfiguration,
+    public RenderResult render(ToolConfiguration toolConfiguration,
                        HttpServletRequest request,
                        HttpServletResponse response,
                        ServletContext context)
@@ -78,16 +79,21 @@ public class PortletToolRenderService implements ToolRenderService {
         Tool tool = toolConfiguration.getTool();
 
         SakaiPortletWindow window = createPortletWindow(tool, toolConfiguration);
-        if(Boolean.TRUE.toString().equals(request.getParameter("test168"))) {
-            window = new SakaiPortletWindow("theonlyone", "/testsuite", "TestPortlet1");
-        }
         PortletState state = PortletStateAccess.getPortletState(request, window.getId().getStringId());
         if(state != null) {
             window.setState(state);
         }
         try {
             PortletContainer portletContainer = getPortletContainer(context);
-            portletContainer.doRender(window, request, response);
+
+            BufferedServletResponse bufferedResponse = new BufferedServletResponse(response);
+            portletContainer.doRender(window, request, bufferedResponse);
+
+            RenderResult result = new RenderResult();
+            result.setContent(bufferedResponse.getInternalBuffer().getBuffer());
+            result.setTitle(PortletAttributesAccess.getPortletAttributes(request, window).getTitle());
+
+            return result;
 
         } catch (PortletContainerException e) {
             throw new ToolRenderException(e.getMessage(), e);
@@ -97,9 +103,11 @@ public class PortletToolRenderService implements ToolRenderService {
     }
 
     private SakaiPortletWindow createPortletWindow(Tool tool, Placement placement) {
-        String contextPath = placement.getContext();
+//        String contextPath = placement.getContext();
+//        String portletName = tool.getId();
+        String contextPath = "/testsuite";
+        String portletName = "TestPortlet1";
         String windowId = placement.getId();
-        String portletName = tool.getId();
         return new SakaiPortletWindow(windowId, contextPath, portletName);
     }
 
