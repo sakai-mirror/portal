@@ -11,14 +11,14 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/000portal-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/component-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/tool-api"/>
-        <classpathentry combineaccessrules="false" kind="src" path="/entity-api"/>
-        <classpathentry combineaccessrules="false" kind="src" path="/authz-api"/>
-        <classpathentry combineaccessrules="false" kind="src" path="/user-api"/>
-        <classpathentry combineaccessrules="false" kind="src" path="/util-api"/>
-        <classpathentry combineaccessrules="false" kind="src" path="/util-util"/>
-        <classpathentry combineaccessrules="false" kind="src" path="/site-api"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/entity-api"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/authz-api"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/user-api"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/util-api"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/util-util"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/site-api"/>
 	<classpathentry kind="var" path="MAVEN_REPO/javax.portlet/jars/portlet-api-1.0.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/org.apache.pluto/jars/pluto-container-1.1.0-SNAPSHOT.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/org.apache.pluto/jars/pluto-descriptor-api-1.1.0-SNAPSHOT.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/pluto/pluto-container/1.1.0-SNAPSHOT/pluto-container-1.1.0-SNAPSHOT.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/pluto/pluto-descriptor-api/1.1.0-SNAPSHOT/pluto-descriptor-api-1.1.0-SNAPSHOT.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
