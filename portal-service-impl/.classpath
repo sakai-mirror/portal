@@ -18,7 +18,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/util-util"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/site-api"/>
 	<classpathentry kind="var" path="MAVEN_REPO/javax.portlet/jars/portlet-api-1.0.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/apache/pluto/pluto-container/1.1.0-SNAPSHOT/pluto-container-1.1.0-SNAPSHOT.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/apache/pluto/pluto-descriptor-api/1.1.0-SNAPSHOT/pluto-descriptor-api-1.1.0-SNAPSHOT.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/pluto/pluto-container/1.1.0/pluto-container-1.1.0.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/pluto/pluto-descriptor-api/1.1.0/pluto-descriptor-api-1.1.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
