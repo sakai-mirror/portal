@@ -13,13 +13,13 @@
 	<classpathentry kind="src" path="impl/src/test"/>
 	<classpathentry kind="src" path="impl/src/bundle"/>
 	<classpathentry kind="src" path="impl/src/testBundle"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/000portal-render-api"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/000portal-api"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/portal-render-api"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/portal-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/util-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/util-util"/>
-	<classpathentry kind="var" path="M2_REPO/ca/utoronto/atrc/accessforall/0.1/accessforall-0.1.jar"/>
-	<classpathentry kind="var" path="M2_REPO/ca/utoronto/atrc/styleable/0.1.2/styleable-0.1.2.jar"/>
-	<classpathentry kind="var" path="M2_REPO/ca/utoronto/atrc/transformable-common/0.1.1/transformable-common-0.1.1.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/ca.utoronto.atrc/jars/accessforall-0.2.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/ca.utoronto.atrc/jars/styleable-0.2.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/ca.utoronto.atrc/jars/transformable-common-0.2.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/sakai-styleable-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/sakai-transformable-preferences-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/tool-api"/>

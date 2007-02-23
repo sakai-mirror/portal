@@ -8,7 +8,7 @@
 	<classpathentry kind="src" path="impl/src/testBundle"/>
 	<classpathentry kind="var" path="MAVEN_REPO/servletapi/jars/servletapi-2.4.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/commons-logging/jars/commons-logging-1.0.4.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/000portal-api"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/portal-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/component-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/tool-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/entity-api"/>
@@ -18,7 +18,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/util-util"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/site-api"/>
 	<classpathentry kind="var" path="MAVEN_REPO/javax.portlet/jars/portlet-api-1.0.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/apache/pluto/pluto-container/1.1.0/pluto-container-1.1.0.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/apache/pluto/pluto-descriptor-api/1.1.0/pluto-descriptor-api-1.1.0.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/org.apache.pluto/jars/pluto-container-1.1.0-r509503.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/org.apache.pluto/jars/pluto-descriptor-api-1.1.0-r509503.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

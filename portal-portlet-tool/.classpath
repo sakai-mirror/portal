@@ -21,8 +21,8 @@
 	<classpathentry kind="src" path="tool/src/test"/>
 	<classpathentry kind="src" path="tool/src/bundle"/>
 	<classpathentry kind="src" path="tool/src/testBundle"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/000portal-render-api"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/000portal-api"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/portal-render-api"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/portal-api"/>
 	<classpathentry kind="var" path="MAVEN_REPO/javax.portlet/jars/portlet-api-1.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
