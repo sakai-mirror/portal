@@ -20,6 +20,7 @@ import org.sakaiproject.portal.render.api.ToolRenderService;
 import org.sakaiproject.portal.render.portlet.services.SakaiPortalCallbackService;
 import org.sakaiproject.portal.render.portlet.services.SakaiPortalContext;
 import org.sakaiproject.portal.render.portlet.services.SakaiPortletContainerServices;
+import org.sakaiproject.portal.render.portlet.services.SakaiOptionalPortletContainerServices;
 import org.sakaiproject.portal.render.portlet.services.state.PortletState;
 import org.sakaiproject.portal.render.portlet.services.state.PortletStateAccess;
 import org.sakaiproject.portal.render.portlet.services.state.PortletStateEncoder;
@@ -99,28 +100,8 @@ public class PortletToolRenderService implements ToolRenderService
 			{
 				PortletContainer portletContainer = getPortletContainer(context);
 
-				// T O D O: Review by David - I nned to make sure that I fully
-				// understand
-				// Understand why we go through this fuss to make parameters
-				// come from state
-				// rather than the request object - thus breaking everything -
-				// Chuck
-				// Note that in Pluto - they do no such wrapping or parameter
-				// faking
-				// "pluto-portal-driver/src/main/java/org/apache/pluto/driver/PortalDriverServlet.java"
-				// line 118 of 192 -
-				// This is related to making the user-added parameters direct on
-				// the URL modifications
-				// in the state encoding process.
-
-				// ieb: the SakaiServletActionRequest merges window state with
-				// request state,
-				// request state taking precidence.
-
 				portletContainer.doAction(window, new SakaiServletActionRequest(request,
 						state), response);
-
-				// portletContainer.doAction(window, request, response);
 			}
 			catch (PortletException e)
 			{
@@ -184,10 +165,7 @@ public class PortletToolRenderService implements ToolRenderService
 						bufferedResponse = new BufferedServletResponse(response);
 						try
 						{
-							// TODO: Review David
 							portletContainer.doRender(window, req, bufferedResponse);
-							// portletContainer.doRender(window, request,
-							// bufferedResponse);
 						}
 						catch (PortletException e)
 						{
@@ -251,9 +229,10 @@ public class PortletToolRenderService implements ToolRenderService
 	private PortletContainer createPortletContainer() throws PortletContainerException
 	{
 		SakaiPortletContainerServices services = new SakaiPortletContainerServices();
+		SakaiOptionalPortletContainerServices optServices = new SakaiOptionalPortletContainerServices();
 		services.setPortalCallbackService(new SakaiPortalCallbackService());
 		services.setPortalContext(new SakaiPortalContext());
-		return PortletContainerFactory.getInstance().createContainer("sakai", services);
+		return PortletContainerFactory.getInstance().createContainer("sakai", services, optServices);
 	}
 
 	private static boolean isIn168TestMode(HttpServletRequest request)
