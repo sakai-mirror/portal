@@ -24,5 +24,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/util-util"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/portal-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/portal-util"/>
+	<classpathentry kind="var" path="MAVEN_REPO/org.apache.pluto/jars/pluto-descriptor-api-1.1.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
