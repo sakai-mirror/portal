@@ -18,8 +18,8 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/util-util"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/site-api"/>
 	<classpathentry kind="var" path="MAVEN_REPO/javax.portlet/jars/portlet-api-1.0.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/org.apache.pluto/jars/pluto-container-1.1.1.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/org.apache.pluto/jars/pluto-descriptor-api-1.1.1.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/org.apache.pluto/jars/pluto-container-1.1.2.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/org.apache.pluto/jars/pluto-descriptor-api-1.1.2.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/castor/jars/castor-1.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
