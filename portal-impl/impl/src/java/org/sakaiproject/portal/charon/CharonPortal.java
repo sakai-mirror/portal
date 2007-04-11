@@ -2084,7 +2084,7 @@ public class CharonPortal extends HttpServlet
 			out.println("<div id=\"loginLinks\">");
 			//	IU Oncourse CL - Seach box, and Show 'Contact Us' link before Logout if user is logged in
 			if (session.getUserId() != null) {
-		        out.println("<a href=\"#\" onclick=\"toggleSearch();return false;\"><img src=\"/library/image/zoom.png\" />Search</a> | ");
+		        out.println("<img style=\"cursor:pointer;\" onclick=\"toggleSearch();return false;\" src=\"/library/image/zoom.png\" /><a href=\"#\" onclick=\"toggleSearch();return false;\">Search</a> | ");
 				out.println("<a href=\"https://falcon.iu.edu/iu/uits/oncourse-admins/occontact.html\" target=\"_new\">Contact Us</a> |");
 			}
 			// END IU
