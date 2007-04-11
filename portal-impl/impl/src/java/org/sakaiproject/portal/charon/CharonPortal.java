@@ -2084,7 +2084,7 @@ public class CharonPortal extends HttpServlet
 			out.println("<div id=\"loginLinks\">");
 			//	IU Oncourse CL - Seach box, and Show 'Contact Us' link before Logout if user is logged in
 			if (session.getUserId() != null) {
-		        out.println("<img style=\"cursor:pointer;\" onclick=\"toggleSearch();return false;\" src=\"/library/image/zoom.png\" /><a href=\"#\" onclick=\"toggleSearch();return false;\">Search</a> | ");
+		      //  out.println("<img style=\"cursor:pointer;\" onclick=\"toggleSearch();return false;\" src=\"/library/image/zoom.png\" /><a href=\"#\" onclick=\"toggleSearch();return false;\">Search</a> | ");
 				out.println("<a href=\"https://falcon.iu.edu/iu/uits/oncourse-admins/occontact.html\" target=\"_new\">Contact Us</a> |");
 			}
 			// END IU
@@ -3079,15 +3079,15 @@ public class CharonPortal extends HttpServlet
 						+ "    <title>"
 						+ Web.escapeHtml(title)
 						+ "</title>"
-						+ "    <script type=\"text/javascript\" language=\"JavaScript\" src=\""		//IU ONLY -- ajax scripts for search box
-						+ getScriptPath()
-						+ "jquery-1.1.2.js\"></script>"												
+					//	+ "    <script type=\"text/javascript\" language=\"JavaScript\" src=\""		//IU ONLY -- ajax scripts for search box
+					//	+ getScriptPath()
+					//	+ "jquery-1.1.2.js\"></script>"												
 						+ "    <script type=\"text/javascript\" language=\"JavaScript\" src=\""
 						+ getScriptPath()
 						+ "headscripts.js\"></script>"
-						+ "    <script type=\"text/javascript\" language=\"JavaScript\" src=\""
-						+ getScriptPath()
-						+ "searchbox.js\"></script>"
+					//	+ "    <script type=\"text/javascript\" language=\"JavaScript\" src=\""
+					//	+ getScriptPath()
+					//	+ "searchbox.js\"></script>"
 						+ "  </head>");//END IU ONLY
 
 		// start the body
