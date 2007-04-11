@@ -3081,11 +3081,14 @@ public class CharonPortal extends HttpServlet
 						+ "</title>"
 						+ "    <script type=\"text/javascript\" language=\"JavaScript\" src=\""		//IU ONLY -- ajax scripts for search box
 						+ getScriptPath()
-						+ "jquery-1.1.2.js\"></script>"												//END IU ONLY
+						+ "jquery-1.1.2.js\"></script>"												
 						+ "    <script type=\"text/javascript\" language=\"JavaScript\" src=\""
 						+ getScriptPath()
 						+ "headscripts.js\"></script>"
-						+ "  </head>");
+						+ "    <script type=\"text/javascript\" language=\"JavaScript\" src=\""
+						+ getScriptPath()
+						+ "searchbox.js\"></script>"
+						+ "  </head>");//END IU ONLY
 
 		// start the body
 		out.println("<body class=\"portalBody\">");
