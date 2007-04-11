@@ -2082,8 +2082,9 @@ public class CharonPortal extends HttpServlet
 		if (!topLogin)
 		{
 			out.println("<div id=\"loginLinks\">");
-			//	IU Oncourse CL - Show 'Contact Us' link before Logout if user is logged in
+			//	IU Oncourse CL - Seach box, and Show 'Contact Us' link before Logout if user is logged in
 			if (session.getUserId() != null) {
+		        out.println("<a href=\"#\" onclick=\"toggleSearch();return false;\"><img src=\"/library/image/zoom.png\" />Search</a> | ");
 				out.println("<a href=\"https://falcon.iu.edu/iu/uits/oncourse-admins/occontact.html\" target=\"_new\">Contact Us</a> |");
 			}
 			// END IU
@@ -3078,6 +3079,9 @@ public class CharonPortal extends HttpServlet
 						+ "    <title>"
 						+ Web.escapeHtml(title)
 						+ "</title>"
+						+ "    <script type=\"text/javascript\" language=\"JavaScript\" src=\""		//IU ONLY -- ajax scripts for search box
+						+ getScriptPath()
+						+ "jquery-1.1.2.js\"></script>"												//END IU ONLY
 						+ "    <script type=\"text/javascript\" language=\"JavaScript\" src=\""
 						+ getScriptPath()
 						+ "headscripts.js\"></script>"
