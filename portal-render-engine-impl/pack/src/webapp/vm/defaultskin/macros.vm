@@ -300,9 +300,12 @@
 #if (${site.isCurrentSite})
 				<li class="selectedTab"><a href="#"><span>${site.siteTitle}</span></a></li>
 #else
-				<li><a href="${site.siteUrl}" title="${site.siteTitle} ${rloader.sit_mywor}">
-					<span>${site.siteTitle}</span>
-				</a></li>
+				<li><a href="${site.siteUrl}" title="${site.siteTitle} ${rloader.sit_mywor}"
+#if (${site.isMyWorkspace})
+					><span>${rloader.sit_mywor}</span></a>
+#else
+					><span>${site.siteTitle}</span></a>
+				</li>
 #end
 #end
 #if ($tabsHasExtraTitle)
