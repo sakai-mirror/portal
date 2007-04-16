@@ -1824,6 +1824,9 @@ public class CharonPortal extends HttpServlet
 				.getStrings("powered.img");
 		String[] poweredByAltText = ServerConfigurationService
 				.getStrings("powered.alt");
+		
+		// IU Oncourse CL  - Add acknowledgements footer
+		String acknowledgementsUrl = ServerConfigurationService.getString("acknowledgementsUrl");
 
 		out.println("<div id=\"footer\">");
 		out.println("	<div class=\"footerExtNav\" align=\"center\">");
@@ -1861,9 +1864,18 @@ public class CharonPortal extends HttpServlet
 							+ Web.escapeHtml(rb.getString("site.newwindow"))
 							+ "</span><a href=\"http://sakaiproject.org\" target=\"_blank\">"
 							+ "<img border=\"0\" src=\"/library/image/sakai_powered.gif\" alt=\"Powered by Sakai\" /></a>");
+			
 		}
+		
+		
 		out.println("	</div>");
-		out.println("		<div class=\"sakaiCopyrightInfo\">" + copyright
+		out.println("		<div class=\"sakaiCopyrightInfo\">");
+
+		// IU Oncourse CL  - Add acknowledgements footer
+		out.println("<a href=\""+ acknowledgementsUrl + "\">Acknowledgements</a><br/><br/>");
+		// End Oncourse
+		
+	    out.println(copyright
 				+ "<br />");
 		out.println("		" + service + " - " + serviceVersion + " - Sakai "
 				+ sakaiVersion + " - Server \"" + server + "\"</div>");
