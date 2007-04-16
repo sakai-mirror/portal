@@ -1868,7 +1868,7 @@ public class CharonPortal extends HttpServlet
 		}
 		
 		// IU Oncourse CL  - Add acknowledgements footer
-		out.println("<br/><a class=\"footerExtNav\" href=\""+ acknowledgementsUrl + "\">Acknowledgements</a>");
+		out.println("<br/><a class=\"footerExtNav\" href=\""+ acknowledgementsUrl + "\" target="_blank">Acknowledgements</a>");
 		// End Oncourse
 		
 		out.println("	</div>");
