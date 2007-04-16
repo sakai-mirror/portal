@@ -1867,14 +1867,13 @@ public class CharonPortal extends HttpServlet
 			
 		}
 		
+		// IU Oncourse CL  - Add acknowledgements footer
+		out.println("<br/><a class=\"footerExtNav\" href=\""+ acknowledgementsUrl + "\">Acknowledgements</a>");
+		// End Oncourse
 		
 		out.println("	</div>");
 		out.println("		<div class=\"sakaiCopyrightInfo\">");
 
-		// IU Oncourse CL  - Add acknowledgements footer
-		out.println("<a href=\""+ acknowledgementsUrl + "\">Acknowledgements</a><br/><br/>");
-		// End Oncourse
-		
 	    out.println(copyright
 				+ "<br />");
 		out.println("		" + service + " - " + serviceVersion + " - Sakai "
