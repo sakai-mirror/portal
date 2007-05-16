@@ -235,8 +235,10 @@
 		<img style="cursor:pointer;" onclick="toggleSearch();return false;" src="/library/image/zoom.png" style="align:absmiddle" />
 			<a href="#" onclick="toggleSearch();return false;">Search</a> |
 		<a href="https://falcon.iu.edu/iu/uits/oncourse-admins/occontact.html" target="_new">Contact Us</a> |
+		<a  href="${loginLogInOutUrl}" title="${loginMessage}">
+#else
+		<a id="loginlink" href="${loginLogInOutUrl}" title="${loginMessage}">
 #end
-		<a href="${loginLogInOutUrl}" title="${loginMessage}">
 #if (${loginHasImage1}) 
 			<img src="${loginImage1}"/>
 #else
