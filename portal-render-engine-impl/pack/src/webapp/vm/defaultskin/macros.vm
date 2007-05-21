@@ -404,7 +404,7 @@
 				</li>
    #else
 			<li>
-			<a href="${page.pageRefUrl}" ><span>${page.pageTitle}</span></a>
+			<a href="${page.pageRefUrl}" title="${page.description}" ><span>${page.pageTitle}</span></a>
 			</li>
    #end
   #end
