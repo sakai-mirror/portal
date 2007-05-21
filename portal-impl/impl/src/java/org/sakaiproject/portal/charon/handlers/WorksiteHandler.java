@@ -279,7 +279,7 @@ public class WorksiteHandler extends PageHandler
 					m.put("jsPageId", Web.escapeJavascript(p.getId()));
 					m.put("pageRefUrl", pagerefUrl);
 					Iterator tools = pTools.iterator();
-					//get the tool descriptions for this page, typically only one per page, execpt for the Home page
+					//Oncourse - get the tool descriptions for this page, typically only one per page, execpt for the Home page
 					StringBuffer desc = new StringBuffer();
 					int tCount = 0;
 					while(tools.hasNext()){
@@ -292,6 +292,7 @@ public class WorksiteHandler extends PageHandler
 					}
 					
 					m.put("description", desc.toString());
+					//End Oncourse
 					if (includeSummary) siteHelper.summarizePage(m, site, p);
 					l.add(m);
 					continue;
