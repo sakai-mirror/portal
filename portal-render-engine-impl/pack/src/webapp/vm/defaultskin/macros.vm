@@ -276,6 +276,7 @@
 ##			m.put("isCurrentSite",Boolean.valueOf(s.getId().equals(siteId)));
 ##			m.put("siteTitle",Web.escapeHtml(s.getTitle()));
 ##			m.put("siteUrl",Web.escapeHtml(s.getTitle()));
+##		rcontext.put("tabsMoreTerms", tabsMoreSections);
 ##		rcontext.put("tabsSites",l);		
 ##		rcontext.put("tabsHasExtraTitle",Boolean.valueOf(extraTitle != null));
 ##			rcontext.put("tabsExtraTitle",Web.escapeHtml(extraTitle));
@@ -317,17 +318,13 @@
 				</li>
 			</ul>
 		</div>
-		<div id="selectNav">
+		<div id="selectNavToggle">
 #if ($tabsMoreSitesShow)
-			<span class="skip">${rloader.sit_selectmessage}</span>
-			<select onchange="if (this.options[this.selectedIndex].value != '') { parent.location = this.options[this.selectedIndex].value; } else { this.selectedIndex = 0; }">
-				<option value="" selected="selected">${rloader.sit_more}</option>
-#foreach( $site in $tabsMoreSites )
-				<option title="${site.siteTitle}" value="${site.siteUrl}">${site.siteTitle}</option> 
-#end	
-			</select>
+			<a href="#" onclick="$('div#selectNav').slideToggle()">${rloader.sit_more}</a>
 #end
 		</div>
+		
+		
 #if ($tabsAddLogout)
 		<div class="galleryLogin">
 			<a href="$tabsLogoutUrl">${rloader.sit_log}</a>
@@ -339,6 +336,32 @@
 	<div class="divColor" id="tabBottom">
 	</div>
 #end	
+<!-- IU MOVED -->
+		<div id="selectNav" style="display:none">
+			<div>
+			<span class="skip">${rloader.sit_selectmessage}</span>
+#foreach( $termKey in $tabsMoreTerms.keySet() )
+			<div class="termContainer">
+			<h4>$termKey</h4>
+			<ul id="siteLinkList2">
+#foreach( $site in $tabsMoreTerms.get($termKey))
+#if (${site.isMyWorkspace})
+				<li><a href="${site.siteUrl}" title="${rloader.sit_mywor}">
+					<span>${rloader.sit_mywor}</span>
+				</a></li>
+#else
+				<li><a href="${site.siteUrl}" title="${site.siteTitle}">
+					<span>${site.siteTitle}</span>
+				</a></li>
+#end
+#end
+			</ul>
+			</div> <!-- /termContainer -->
+#end	
+			</div>
+		</div>
+<!-- END IU  MOVED-->
+		
 </div>
 <!-- end includeTabs -->
 #end
