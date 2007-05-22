@@ -585,24 +585,39 @@
 #end
 
 
-
+##Oncourse read information from a String array which related with the information in file sakai.properties
 #macro( includeBottom )
-<div id="footer">
-	<div class="footerExtNav" align="center">
-		|
+#set($i = 0)
+#set($wanted1 = "")
+#set($wanted2 = "")
+#set($wanted3 = "")
+#set($wanted4 = "")
+
 #foreach ( $bn in $bottomNav )
-		${bn}  | 
+	#if ($i == 0)
+		#set($wanted1 = $bn)
+	#elseif($i ==1)
+		#set($wanted2 = $bn)
+	#elseif($i ==2)
+		#set($wanted3 = $bn)
+	#else
+		#set($wanted4 = $bn)
+	#end
+
+	#set($i = $i + 1)
 #end
-	</div>
-	<div id="footerInfo">
+<div id="footerInfo">
+	<div class="footerExtNav">
 #foreach ( $pb in $bottomNavPoweredBy )
 		<span class="skip">${rloader.site_newwindow}</span>	
-		<a href="${pb.poweredByUrl}" target="_blank">
-				<img border="0" src="${pb.poweredByImage}" alt="${pb.poweredByAltText}" /></a>
+		<div id="blockiu">
+			<a href="${pb.poweredByUrl}" target="_blank" title="Indiana Univeristy">
+			<img border="0" src="${pb.poweredByImage}" alt="Block IU" width="22" height="28"/></a>
+		</div>
 #end
-	</div>
-	<div class="sakaiCopyrightInfo">${bottomNavCopyright}<br />
-	${bottomNavService} - ${bottomNavServiceVersion} - Sakai ${bottomNavSakaiVersion} - Server ${bottomNavServer}
+		<div class="sakaiCopyrightInfo">
+			${wanted1} &copy;  ${year} The ${wanted2} of ${wanted3} | ${wanted4} 
+		</div>
 	</div>
 </div>
 #end

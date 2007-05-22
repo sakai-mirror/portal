@@ -23,6 +23,7 @@ package org.sakaiproject.portal.charon;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Calendar;    /* Oncourse Added */
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -1229,6 +1230,14 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			rcontext.put("bottomNavServiceVersion", serviceVersion);
 			rcontext.put("bottomNavSakaiVersion", sakaiVersion);
 			rcontext.put("bottomNavServer", server);
+
+        /****************Oncourse: produce the year automatically**************/
+                        Calendar calendar = Calendar.getInstance();
+                        int year = calendar.get(Calendar.YEAR);
+ 
+                        rcontext.put("year", year);
+
+
 		}
 	}
 
