@@ -313,15 +313,13 @@
 				</a></li>
 #end
 #end
+#if ($tabsMoreSitesShow)
+			<li><a href="#" onclick="$('div#selectNav').slideToggle()">${rloader.sit_more}</a></li>
+#end
 				<li style="display:none;border-width:0" class="fixTabsIE">
 					<a href="javascript:void(0);">#x20;</a>
 				</li>
 			</ul>
-		</div>
-		<div id="selectNavToggle">
-#if ($tabsMoreSitesShow)
-			<a href="#" onclick="$('div#selectNav').slideToggle()">${rloader.sit_more}</a>
-#end
 		</div>
 		
 		
