@@ -347,7 +347,9 @@ public class SiteHandler extends WorksiteHandler
 				myWorkspaceSiteId = siteHelper.getSiteEffectiveId(myWorkspaceSite);
 			}
 
-			int prefTabs = 4;
+			// ONCOURSE ONCOURSE ONCOURSE ONCOURSE ONCOURSE
+			int prefTabs = 5;
+			// ONCOURSE ONCOURSE ONCOURSE ONCOURSE ONCOURSE
 			int tabsToDisplay = prefTabs;
 
 			// Get the list of sites in the right order,
