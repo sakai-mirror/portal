@@ -633,13 +633,20 @@
 	<div class="footerExtNav">
 #foreach ( $pb in $bottomNavPoweredBy )
 		<span class="skip">${rloader.site_newwindow}</span>	
-		<div id="blockiu">
-			<a href="${pb.poweredByUrl}" target="_blank" title="Indiana Univeristy">
-			<img border="0" src="${pb.poweredByImage}" alt="Block IU" width="22" height="28"/></a>
-		</div>
+		<span class="skip">${rloader.site_newwindow}</span>	
+		<a href="${pb.poweredByUrl}" target="_blank">
+				<img border="0" src="${pb.poweredByImage}" alt="${pb.poweredByAltText}" id="poweredByImg" /></a>
 #end
+## Oncourse Add Acknowledgements
+		<br/><a href="${acknowledgmentsUrl}" target="_blank">Acknowledgements</a>
+## End Oncourse
+		<div id="blockiu">
+			<a href="http://www.indiana.edu" target="_blank" title="Indiana Univeristy">
+			<img border="0" src="/library/image/blockiu_white.gif" alt="Block IU" width="22" height="28"/></a>
+		</div>
 		<div class="sakaiCopyrightInfo">
-			${wanted1} &copy;  ${year} The ${wanted2} of ${wanted3} | ${wanted4} 
+			${wanted1} &copy;  ${year} The ${wanted2} of ${wanted3} | ${wanted4} <br />
+			${bottomNavService} - ${bottomNavServiceVersion} - Sakai ${bottomNavSakaiVersion} - Server ${bottomNavServer}
 		</div>
 	</div>
 </div>
