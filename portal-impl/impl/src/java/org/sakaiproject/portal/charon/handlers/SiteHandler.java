@@ -481,7 +481,7 @@ public class SiteHandler extends WorksiteHandler
 				String[] parts = oncourseTerms[i].split(",");
 				
 				
-				if(tabsMoreTerms.containsKey(parts[3]) {
+				if(tabsMoreTerms.containsKey(parts[3])) {
 					
 					tabsMoreSortedTermList.add(parts[3]);
 					
