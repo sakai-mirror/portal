@@ -1196,7 +1196,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			// Web.escapeHtml(rb.getString("site_newwindow")));
 			
 			/** Oncourse Add Acknowledgements **/
-			String acknowledgmentsUrl = ServerConfigurationService.getString("acknoledgmentsUrl");
+			String acknowledgmentsUrl = ServerConfigurationService.getString("acknowledgmentsUrl");
 			rcontext.put("acknowledgmentsUrl", acknowledgmentsUrl);
 
 			if ((poweredByUrl != null) && (poweredByImage != null)

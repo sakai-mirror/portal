@@ -631,22 +631,31 @@
 #end
 <div id="footerInfo">
 	<div class="footerExtNav">
+		<div class="footerBucketWrap">
+		<div class="footerBucket">
 #foreach ( $pb in $bottomNavPoweredBy )
 		<span class="skip">${rloader.site_newwindow}</span>	
 		<span class="skip">${rloader.site_newwindow}</span>	
 		<a href="${pb.poweredByUrl}" target="_blank">
 				<img border="0" src="${pb.poweredByImage}" alt="${pb.poweredByAltText}" id="poweredByImg" /></a>
 #end
+		</div>
+		<div class="footerBucket">
+					${bottomNavService} - ${bottomNavServiceVersion} - Sakai ${bottomNavSakaiVersion} - Server ${bottomNavServer}
+		</div>
+		<div class="footerBucket">
 ## Oncourse Add Acknowledgements
-		<br/><a href="${acknowledgmentsUrl}" target="_blank">Acknowledgements</a>
-## End Oncourse
+					<a href="${acknowledgmentsUrl}" target="_blank">Acknowledgements</a>
+## End Oncourse				
+		</div>
+		</div>
+
 		<div id="blockiu">
 			<a href="http://www.indiana.edu" target="_blank" title="Indiana Univeristy">
 			<img border="0" src="/library/image/blockiu_white.gif" alt="Block IU" width="22" height="28"/></a>
 		</div>
 		<div class="sakaiCopyrightInfo">
-			${wanted1} &copy;  ${year} The ${wanted2} of ${wanted3} | ${wanted4} <br />
-			${bottomNavService} - ${bottomNavServiceVersion} - Sakai ${bottomNavSakaiVersion} - Server ${bottomNavServer}
+			${wanted1} &copy;  ${year} The ${wanted2} of ${wanted3} | ${wanted4}
 		</div>
 	</div>
 </div>
