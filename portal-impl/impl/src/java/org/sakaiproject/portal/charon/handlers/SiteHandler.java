@@ -478,9 +478,12 @@ public class SiteHandler extends WorksiteHandler
 			//Filter out terms for which user is not a member of any sites
 			for(int i=0; i < oncourseTerms.length; i++) {
 				
-				if(tabsMoreTerms.containsKey(oncourseTerms[i])) {
+				String[] parts = oncourseTerms[i].split(",");
+				
+				
+				if(tabsMoreTerms.containsKey(parts[3]) {
 					
-					tabsMoreSortedTermList.add(oncourseTerms[i]);
+					tabsMoreSortedTermList.add(parts[3]);
 					
 				}
 				
