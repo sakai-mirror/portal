@@ -340,7 +340,7 @@
 		<div id="selectNav" style="display:none">
 			<div>
 			<span class="skip">${rloader.sit_selectmessage}</span>
-#foreach( $termKey in $tabsMoreTerms.keySet() )
+#foreach( $termKey in $tabsMoreSortedTermList)
 			<div class="termContainer">
 			<h4>$termKey</h4>
 			<ul id="siteLinkList2">

@@ -436,10 +436,20 @@ public class SiteHandler extends WorksiteHandler
 			for (int i=0; i < allSites.size(); i++){
 				Site site = allSites.get(i);
 				ResourceProperties siteProperties = site.getProperties();
-				String term = siteProperties.getProperty("term");
-				if (term == null || term.equals("")){
-					term = "Misc";
+				
+				String type = site.getType();
+				String term = null;
+				
+				if("course".equals(type)) {
+					term = siteProperties.getProperty("term");
+				} 
+				if ("project".equals(type)) {
+					term = "PROJECTS";
+				} 
+				if ("portfolio".equals(type)) {
+					term = "PORTFOLIOS";
 				}
+				
 				List<Site> currentList = new ArrayList();
 				if(termsToSites.containsKey(term)){
 					currentList = termsToSites.get(term);
@@ -459,9 +469,36 @@ public class SiteHandler extends WorksiteHandler
 								.getString(Portal.CONFIG_AUTO_RESET)),
 						/* doPages */true, /* toolContextPath */null, loggedIn);
 				tabsMoreTerms.put(key, temp);
+			}
+				
+			String[] oncourseTerms = ServerConfigurationService.getStrings("oncourse.terms");
+			List<String> tabsMoreSortedTermList = new ArrayList<String>();
+			
+			//Order term column headers according to order specified in oncourse.terms
+			//Filter out terms for which user is not a member of any sites
+			for(int i=0; i < oncourseTerms.length; i++) {
+				
+				if(tabsMoreTerms.containsKey(oncourseTerms[i])) {
+					
+					tabsMoreSortedTermList.add(oncourseTerms[i]);
+					
+				}
+				
 				
 			}
+			
+			if(tabsMoreTerms.containsKey("PROJECTS")) {
+				tabsMoreSortedTermList.add("PROJECTS");
+			}
+			
+			if(tabsMoreTerms.containsKey("PORTFOLIOS")) {
+				tabsMoreSortedTermList.add("PORTFOLIOS");
+			}
+			
+				
+			
 			rcontext.put("tabsMoreTerms", tabsMoreTerms);
+			rcontext.put("tabsMoreSortedTermList", tabsMoreSortedTermList);
 			
 			/** END IU Oncourse **/
 
