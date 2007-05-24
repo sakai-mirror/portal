@@ -444,12 +444,17 @@ public class SiteHandler extends WorksiteHandler
 				
 				if("course".equals(type)) {
 					term = siteProperties.getProperty("term");
-				} 
+				} else
 				if ("project".equals(type)) {
 					term = "PROJECTS";
-				} 
+				} else
 				if ("portfolio".equals(type)) {
 					term = "PORTFOLIOS";
+				} else
+				if ("admin".equals(type)) {
+					term = "ADMINISTRATION";
+				} else {
+					term = "OTHER";
 				}
 				
 				List<Site> currentList = new ArrayList();
