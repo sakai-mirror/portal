@@ -454,7 +454,7 @@ public class SiteHandler extends WorksiteHandler
 				if ("admin".equals(type)) {
 					term = "ADMINISTRATION";
 				} else {
-					term = "MISC";
+					term = "OTHER";
 				}
 				
 				List<Site> currentList = new ArrayList();
@@ -509,8 +509,8 @@ public class SiteHandler extends WorksiteHandler
 				tabsMoreSortedTermList.add("ADMINISTRATION");
 			}
 			
-			if(tabsMoreTerms.containsKey("MISC")) {
-				tabsMoreSortedTermList.add("MISC");
+			if(tabsMoreTerms.containsKey("OTHER")) {
+				tabsMoreSortedTermList.add("OTHER");
 			}
 			
 				
