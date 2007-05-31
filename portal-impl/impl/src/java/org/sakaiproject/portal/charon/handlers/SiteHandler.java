@@ -502,7 +502,7 @@ public class SiteHandler extends WorksiteHandler
 						/* doPages */true, /* toolContextPath */null, loggedIn);
 				
 				
-				temp = Collections.sort(temp, termSorter);
+				Lists.sort(temp, termSorter);
 				
 				tabsMoreTerms.put(key, temp);
 			}
