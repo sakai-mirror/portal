@@ -23,6 +23,8 @@ package org.sakaiproject.portal.charon.handlers;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
@@ -466,6 +468,29 @@ public class SiteHandler extends WorksiteHandler
 				termsToSites.put(term, currentList);
 			}
 			
+			class TermSorter implements Comparator<Map> {
+
+				public int compare(Map first, Map second) {
+					
+					if(first == null && second == null) return 0;
+					
+					String firstTitle = (String)first.get("siteTitle");
+					String secondTitle = (String)second.get("siteTitle");
+					
+					if(firstTitle != null)
+						return firstTitle.compareToIgnoreCase(secondTitle);
+					
+					return 0;
+					
+				}
+
+			
+				
+			}
+			
+			Comparator<Map> termSorter = new TermSorter();
+			
+			
 			//now loop through each section and convert the Lists to maps
 			for (String key : termsToSites.keySet()){
 				List<Site> currentList = termsToSites.get(key);
@@ -475,6 +500,10 @@ public class SiteHandler extends WorksiteHandler
 						/* resetTools */"true".equals(ServerConfigurationService
 								.getString(Portal.CONFIG_AUTO_RESET)),
 						/* doPages */true, /* toolContextPath */null, loggedIn);
+				
+				
+				temp = Collections.sort(temp, termSorter);
+				
 				tabsMoreTerms.put(key, temp);
 			}
 				
