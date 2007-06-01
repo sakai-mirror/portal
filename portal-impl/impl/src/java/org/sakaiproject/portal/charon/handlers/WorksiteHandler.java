@@ -281,14 +281,21 @@ public class WorksiteHandler extends PageHandler
 					Iterator tools = pTools.iterator();
 					//Oncourse - get the tool descriptions for this page, typically only one per page, execpt for the Home page
 					StringBuffer desc = new StringBuffer();
-					int tCount = 0;
-					while(tools.hasNext()){
-						ToolConfiguration t = (ToolConfiguration)tools.next();
-						if (tCount > 0){
-							desc.append(" | ");
-						}
-						desc.append(t.getTool().getDescription());
-						tCount++;
+					if(Web.escapeHtml(p.getTitle()).equals("Home"))
+					{
+						desc.append("Home");
+					}
+					else
+					{
+	      					int tCount = 0;
+	      					while(tools.hasNext()){
+	      						ToolConfiguration t = (ToolConfiguration)tools.next();
+	      						if (tCount > 0){
+	      							desc.append(" | ");
+	      						}
+	      						desc.append(t.getTool().getDescription());
+	      						tCount++;
+	      					}
 					}
 					
 					m.put("description", desc.toString());
