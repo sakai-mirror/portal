@@ -234,7 +234,7 @@
 	<div id="loginLinks">
 #if (${loggedIn})
 		<!-- Not working in IE <img style="cursor:pointer;" onclick="toggleSearch();return false;" src="/library/image/zoom.png" style="align:absmiddle" />
-			<a href="#" onclick="toggleSearch();return false;">Search</a> | ->
+			<a href="#" onclick="toggleSearch();return false;">Search</a> | -->
 		<a href="https://falcon.iu.edu/iu/uits/oncourse-admins/occontact.html" target="_new">Contact Us</a> |
 		<a  href="${loginLogInOutUrl}" title="${loginMessage}">
 #else
