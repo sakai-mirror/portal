@@ -21,8 +21,7 @@
     <title>${pageTitle}</title>
     <script type="text/javascript" language="JavaScript" src="${pageScriptPath}headscripts.js"></script>
     <script type="text/javascript" language="JavaScript" src="${pageScriptPath}jquery-1.1.2.js"></script>
-    <!-- not working in IE 
-    <script type="text/javascript" language="JavaScript" src="${pageScriptPath}searchbox.js"></script>-->
+    <script type="text/javascript" language="JavaScript" src="${pageScriptPath}searchbox.js"></script>
     
     
     <script type="text/javascript" language="JavaScript" src="/portal/scripts/portalscripts.js"></script>
