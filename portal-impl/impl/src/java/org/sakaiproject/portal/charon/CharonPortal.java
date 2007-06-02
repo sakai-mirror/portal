@@ -2979,8 +2979,8 @@ public class CharonPortal extends HttpServlet
 				+ getScriptPath()
 				+ "headscripts.js\"></script>"
 				+ "    <script type=\"text/javascript\" language=\"JavaScript\" src=\""
-				+ getScriptPath()
-				+ "searchbox.js\"></script>"
+// not working in IE				+ getScriptPath()
+//				+ "searchbox.js\"></script>"
 				+ "  </head>");//END IU ONLY
 
 
