@@ -272,6 +272,7 @@ public class WorksiteHandler extends PageHandler
 					m.put("isPage", Boolean.valueOf(true));
 					m.put("current", Boolean.valueOf(current));
 					m.put("ispopup", Boolean.valueOf(p.isPopUp()));
+					m.put("ispopupwithbrowsertoolbar", Boolean.valueOf(p.isPopUpWithBrowserToolbar()));
 					m.put("pagePopupUrl", pagePopupUrl);
 					m.put("pageTitle", Web.escapeHtml(p.getTitle()));
 					m.put("jsPageTitle", Web.escapeJavascript(p.getTitle()));
