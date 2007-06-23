@@ -16,7 +16,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/authz-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/tool-util"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/announcement-api"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/chat-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/discussion-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/message-api"/>
 	<classpathentry kind="output" path="bin"/>
