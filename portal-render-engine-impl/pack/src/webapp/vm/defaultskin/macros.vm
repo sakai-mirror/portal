@@ -421,7 +421,7 @@
    #if (${page.ispopup})
 				<li>
 				#if (${page.ispopupwithbrowsertoolbar})
-				<a href="javascript:;" onclick="window.open('${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=yes,scrollbars=yes, width=800,height=600')">
+				<a href="javascript:;" onclick="window.open('${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=yes,scrollbars=yes,menubar=yes, width=800,height=600')">
 				#else
 				<a href="javascript:;" onclick="window.open('${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')">
 				#end
