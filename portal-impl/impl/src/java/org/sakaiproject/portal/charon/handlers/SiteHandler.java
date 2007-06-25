@@ -23,6 +23,10 @@ package org.sakaiproject.portal.charon.handlers;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -352,6 +356,13 @@ public class SiteHandler extends WorksiteHandler
 			// Get the list of sites in the right order,
 			// My WorkSpace will be the first in the list
 			List<Site> mySites = siteHelper.getAllSites(req, session, true);
+			
+			
+			List<Site> allSites = new ArrayList<Site>();
+			allSites.addAll(mySites);
+			
+			
+			
 			if (!loggedIn)
 			{
 				prefTabs = ServerConfigurationService.getInt(
@@ -422,6 +433,122 @@ public class SiteHandler extends WorksiteHandler
 					mySites.add(currentSelectedSite);
 				}
 			}
+			
+			
+
+			
+			//get Sections
+			Map<String, List> termsToSites = new HashMap<String, List>();
+			Map<String, List> tabsMoreTerms = new HashMap<String, List>();
+			for (int i=0; i < allSites.size(); i++){
+				Site site = allSites.get(i);
+				ResourceProperties siteProperties = site.getProperties();
+				
+				String type = site.getType();
+				String term = null;
+				
+				if("course".equals(type)) {
+					term = siteProperties.getProperty("term");
+				} else
+				if ("project".equals(type)) {
+					term = "PROJECTS";
+				} else
+				if ("portfolio".equals(type)) {
+					term = "PORTFOLIOS";
+				} else
+				if ("admin".equals(type)) {
+					term = "ADMINISTRATION";
+				} else {
+					term = "OTHER";
+				}
+				
+				List<Site> currentList = new ArrayList();
+				if(termsToSites.containsKey(term)){
+					currentList = termsToSites.get(term);
+					termsToSites.remove(term);
+				} 
+				currentList.add(site);
+				termsToSites.put(term, currentList);
+			}
+			
+			class TitleSorter implements Comparator<Map> {
+
+				public int compare(Map first, Map second) {
+					
+					if(first == null && second == null) return 0;
+					
+					String firstTitle = (String)first.get("siteTitle");
+					String secondTitle = (String)second.get("siteTitle");
+					
+					if(firstTitle != null)
+						return firstTitle.compareToIgnoreCase(secondTitle);
+					
+					return 0;
+					
+				}
+
+			
+				
+			}
+			
+			Comparator<Map> titleSorter = new TitleSorter();
+			
+			
+			//now loop through each section and convert the Lists to maps
+			for (String key : termsToSites.keySet()){
+				List<Site> currentList = termsToSites.get(key);
+				List<Map> temp = portal.convertSitesToMaps(req, currentList, prefix, siteId,
+						myWorkspaceSiteId,
+						/* includeSummary */false, /* expandSite */false,
+						/* resetTools */"true".equals(ServerConfigurationService
+								.getString(Portal.CONFIG_AUTO_RESET)),
+						/* doPages */true, /* toolContextPath */null, loggedIn);
+				
+				
+				Collections.sort(temp, titleSorter);
+				
+				tabsMoreTerms.put(key, temp);
+				
+			}
+				
+			String[] termOrder = ServerConfigurationService.getStrings("portal.term.order");
+			List<String> tabsMoreSortedTermList = new ArrayList<String>();
+			
+			//Order term column headers according to order specified in portal.term.order
+			//Filter out terms for which user is not a member of any sites
+			
+			
+			
+			if(termOrder != null) {
+				for(int i=0; i < termOrder.length; i++) {
+					
+					if(tabsMoreTerms.containsKey(termOrder[i])) {
+						
+						tabsMoreSortedTermList.add(termOrder[i]);
+						
+					}
+					
+					
+				}
+			}
+			
+			Iterator i = tabsMoreTerms.keySet().iterator();
+			while(i.hasNext()) {
+				String term = (String) i.next();
+				if(!tabsMoreSortedTermList.contains(term)) {
+					tabsMoreSortedTermList.add(term);
+			
+				}
+			}
+			
+		
+			
+			rcontext.put("tabsMoreTerms", tabsMoreTerms);
+			rcontext.put("tabsMoreSortedTermList", tabsMoreSortedTermList);
+			
+			
+				
+		
 
 			String cssClass = (siteType != null) ? "siteNavWrap " + siteType
 					: "siteNavWrap";
