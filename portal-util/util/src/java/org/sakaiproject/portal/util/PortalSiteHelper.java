@@ -534,12 +534,6 @@ public class PortalSiteHelper
 		// No way to render an opinion
 		if (placement == null || site == null) return true;
 
-		// The site owner sees all pages !
-		if (SecurityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference()))
-		{
-			return true;
-		}
-
 		boolean retval = true;
 
 		String TOOL_CFG_FUNCTIONS = "functions.require";
@@ -570,12 +564,6 @@ public class PortalSiteHelper
 	{
 		// Get all of the pages
 		List pages = site.getOrderedPages();
-
-		// The site owner sees all pages !
-		if (SecurityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference()))
-		{
-			return pages;
-		}
 
 		List newPages = new ArrayList();
 
