@@ -431,6 +431,7 @@
    #else
 			<li>
 			<a href="${page.pageRefUrl}" title="${page.description}" ><span>${page.pageTitle}</span></a> <!-- Oncourse - added "title" attribute -->
+			<p class="hoverDescription" style="display:none">${page.description}</p> <!-- Oncourse - added <p> tag -->
 			</li>
    #end
   #end
