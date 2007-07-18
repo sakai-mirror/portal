@@ -4,48 +4,48 @@
 ##------------------------------------------------------------------------------------------
 #macro( start_response  )
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <link href="${pageSkinRepo}/${pageSkin}/portal.css" type="text/css" rel="stylesheet" media="all" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link href="${pageSkinRepo}/${pageSkin}/portal.css" type="text/css" rel="stylesheet" media="all" />
 <!-- this caises problems for layout nneds investihating -->
-    <link href="/portal/styles/portalstyles.css" type="text/css" rel="stylesheet" media="all" />
+<link href="/portal/styles/portalstyles.css" type="text/css" rel="stylesheet" media="all" />
 <!--[if gte IE 5]><![if lt IE 7]>
-    <link href="/portal/styles/portalstyles-ie5.css" type="text/css" rel="stylesheet" media="all" />
+<link href="/portal/styles/portalstyles-ie5.css" type="text/css" rel="stylesheet" media="all" />
 <![endif]><![endif]-->
 
 
 
-    <meta http-equiv="Content-Style-Type" content="text/css" />
-    <title>${pageTitle}</title>
-    <script type="text/javascript" language="JavaScript" src="${pageScriptPath}headscripts.js"></script>
-    <script type="text/javascript" language="JavaScript" src="${pageScriptPath}jquery-1.1.2.js"></script>
-    <script type="text/javascript" language="JavaScript" src="${pageScriptPath}searchbox.js"></script>
-    
-    
-    <script type="text/javascript" language="JavaScript" src="/portal/scripts/portalscripts.js"></script>
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<title>${pageTitle}</title>
+<script type="text/javascript" language="JavaScript" src="${pageScriptPath}headscripts.js"></script>
+<script type="text/javascript" language="JavaScript" src="${pageScriptPath}jquery-1.1.2.js"></script>
+<script type="text/javascript" language="JavaScript" src="${pageScriptPath}searchbox.js"></script>
+
+
+<script type="text/javascript" language="JavaScript" src="/portal/scripts/portalscripts.js"></script>
 
 #if ( ${styleable} )
 
 <script type="text/javascript" 
-    	language="JavaScript" 
-    	src="/sakai-preferable-tool/js/styleable.js" >
-    </script>
-    
-    <script type="text/javascript" 
-            language="JavaScript">
-    window.onload = insertStyleAbleStyles;
-    </script>
-    
+language="JavaScript" 
+src="/sakai-preferable-tool/js/styleable.js" >
+</script>
+
+<script type="text/javascript" 
+    language="JavaScript">
+window.onload = insertStyleAbleStyles;
+</script>
+
 #if ( ${styleableStyleSheet} )
-	<style type="text/css" title="StyleAble">${styleableStyleSheet}</style>
+<style type="text/css" title="StyleAble">${styleableStyleSheet}</style>
 #end
 
 #if ( ${styleableJS} )
-	<script type="text/javascript" language="JavaScript">
-	${styleableJS} 
-	</script>
+<script type="text/javascript" language="JavaScript">
+${styleableJS} 
+</script>
 #end
 
 #end
@@ -55,29 +55,29 @@
 <!--
 <div class="skinselection" >
 <form id="skinselect" action="#" method="GET" name="skinselect">
-	<select name="portalskin" id="portalskin" onchange="skinselect.submit();" >
+<select name="portalskin" id="portalskin" onchange="skinselect.submit();" >
 #foreach ($skin in $pageSkins) 
 #if (  ${skin.name} == $pageCurrentSkin )
-   		<option value="${skin.name}" selected="selected" >${skin.display}</option>
+	<option value="${skin.name}" selected="selected" >${skin.display}</option>
 #else
-   		<option value="${skin.name}" >${skin.display}</option>
+	<option value="${skin.name}" >${skin.display}</option>
 #end
 #end
-	</select>
+</select>
 </form>
 </div>
 -->
 #if ( $pageTop )
-	<script type="text/javascript" language="JavaScript">
-	var sakaiPortalWindow = "";
-	</script>
+<script type="text/javascript" language="JavaScript">
+var sakaiPortalWindow = "";
+</script>
 #end
 #end
 ##
 ## emit the bottom of the page
 ##
 #macro( end_response  )
-	</body>
+</body>
 </html>
 #end
 ##------------------------------------------------------------------------------------------
@@ -98,79 +98,79 @@
 
 #macro( includeToolTitle $toolPlacement )
 #if (${toolPlacement.hasRenderResult})
-	<div class="portletTitleWrap">
-		<div class="portletTitle">
-			<div class="title">
+<div class="portletTitleWrap">
+	<div class="portletTitle">
+		<div class="title">
 #if (${toolPlacement.toolShowResetButton})
-                <a href="${toolPlacement.toolResetActionUrl}" target="${toolPlacement.toolPlacementIDJS}" title="${rloader.sit_reset}">
-                        <img src="/library/image/transparent.gif" alt="${rloader.sit_reset}" border="1" />
-                </a>
+	<a href="${toolPlacement.toolResetActionUrl}" target="${toolPlacement.toolPlacementIDJS}" title="${rloader.sit_reset}">
+		<img src="/library/image/transparent.gif" alt="${rloader.sit_reset}" border="1" />
+	</a>
 #end
-				<h2>${toolPlacement.toolRenderResult.getTitle()}</h2>
-			</div>
-			<div class="action">
+			<h2>${toolPlacement.toolRenderResult.getTitle()}</h2>
+		</div>
+		<div class="action">
 #if (${toolPlacement.toolJSR168Edit} )
-            <a accesskey="e" id="jsr-edit" href="${toolPlacement.toolJSR168Edit}" 
-                   title="${rloader.sit_edit}"><img src="/library/image/transparent.gif"  
-                    alt="${rloader.sit_edit}" border="0"></a>
+    <a accesskey="e" id="jsr-edit" href="${toolPlacement.toolJSR168Edit}" 
+	   title="${rloader.sit_edit}"><img src="/library/image/transparent.gif"  
+	    alt="${rloader.sit_edit}" border="0"></a>
 #end 
 #if (${toolPlacement.toolShowHelpButton})
-	#if (${toolPlacement.toolJSR168Help} )
-             <a accesskey="h" href="${toolPlacement.toolJSR168Help}" title="${rloader.sit_help}">
-	#else
-		<a accesskey="h" href="${toolPlacement.toolHelpActionUrl}" title="${rloader.sit_help}" 
-		 target="_blank" onclick="openWindow('${toolPlacement.toolHelpActionUrl}', 'Help',
-		  'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">
-	#end
-			<img src="/library/image/transparent.gif"  alt="${rloader.sit_help}" border="0" />
-		</a>
-#end
-			</div>
-		</div>
-	</div>
+#if (${toolPlacement.toolJSR168Help} )
+     <a accesskey="h" href="${toolPlacement.toolJSR168Help}" title="${rloader.sit_help}">
 #else
-	<div class="portletTitleWrap">
-		<div class="portletTitle">
-			<div class="title">
-#if (${toolPlacement.toolShowResetButton})
-                <a href="${toolPlacement.toolResetActionUrl} target="${toolPlacement.toolPlacementIDJS}" title="${sitReset}">
-                        <img src="/library/image/transparent.gif" alt="${sitReset}" border="1" />
-                </a>
-#end	
-				<h2>${toolPlacement.toolTitle}</h2>
-			</div>
-			<div class="action">
-#if (${toolPlacement.toolShowHelpButton})
-		<a accesskey="h" href="${toolPlacement.toolHelpActionUrl}" title="${rloader.sit_help}" 
-		 target="_blank" onclick="openWindow('${toolPlacement.toolHelpActionUrl}', 'Help',
-		  'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">
-			<img src="/library/image/transparent.gif"  alt="${rloader.sit_help}" border="0" />
-		</a>
+	<a accesskey="h" href="${toolPlacement.toolHelpActionUrl}" title="${rloader.sit_help}" 
+	 target="_blank" onclick="openWindow('${toolPlacement.toolHelpActionUrl}', 'Help',
+	  'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">
 #end
-			</div>
+		<img src="/library/image/transparent.gif"  alt="${rloader.sit_help}" border="0" />
+	</a>
+#end
 		</div>
 	</div>
+</div>
+#else
+<div class="portletTitleWrap">
+	<div class="portletTitle">
+		<div class="title">
+#if (${toolPlacement.toolShowResetButton})
+	<a href="${toolPlacement.toolResetActionUrl} target="${toolPlacement.toolPlacementIDJS}" title="${sitReset}">
+		<img src="/library/image/transparent.gif" alt="${sitReset}" border="1" />
+	</a>
+#end	
+			<h2>${toolPlacement.toolTitle}</h2>
+		</div>
+		<div class="action">
+#if (${toolPlacement.toolShowHelpButton})
+	<a accesskey="h" href="${toolPlacement.toolHelpActionUrl}" title="${rloader.sit_help}" 
+	 target="_blank" onclick="openWindow('${toolPlacement.toolHelpActionUrl}', 'Help',
+	  'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">
+		<img src="/library/image/transparent.gif"  alt="${rloader.sit_help}" border="0" />
+	</a>
+#end
+		</div>
+	</div>
+</div>
 #end
 #end
 
 #macro( includeToolBody $toolPlacement )
 #if (${toolPlacement.hasRenderResult})
-	<div class="portletMainWrap">
-	    ${toolPlacement.toolRenderResult.getContent()}
-	</div>
+<div class="portletMainWrap">
+    ${toolPlacement.toolRenderResult.getContent()}
+</div>
 #else
-	<div class="portletMainWrap">
-		<iframe	name="${toolPlacement.toolPlacementIDJS}" id="${toolPlacement.toolPlacementIDJS}" title="${toolPlacement.toolTitle}" 
-			class ="portletMainIframe"
-			height="50"
-			width="100%"
-			frameborder="0"
-			marginwidth="0"
-			marginheight="0"
-			scrolling="auto"	
-			src="${toolPlacement.toolUrl}?panel=Main">
-		</iframe>
-	</div>
+<div class="portletMainWrap">
+	<iframe	name="${toolPlacement.toolPlacementIDJS}" id="${toolPlacement.toolPlacementIDJS}" title="${toolPlacement.toolTitle}" 
+		class ="portletMainIframe"
+		height="50"
+		width="100%"
+		frameborder="0"
+		marginwidth="0"
+		marginheight="0"
+		scrolling="auto"	
+		src="${toolPlacement.toolUrl}?panel=Main">
+	</iframe>
+</div>
 #end
 #end
 
@@ -197,17 +197,17 @@
 ##
 #macro( includeLogo  ) 
 <div id="siteNavWrapper" class="${logoSiteClass}">
-	<div id="mastHead">
-		<div id="mastLogo">
-			<img title="Logo" alt="Logo" src="${logoSkinRepo}/${logoSkin}/images/logo_inst.gif" />
-		</div>
-		<div id="mastBanner">
-			<img title="Banner" alt="Banner" src="${logoSkinRepo}/${logoSkin}/images/banner_inst.gif" />
-		</div>
-		<div id="mastLogin">
-#includeLogin()
-		</div>
+<div id="mastHead">
+	<div id="mastLogo">
+		<img title="Logo" alt="Logo" src="${logoSkinRepo}/${logoSkin}/images/logo_inst.gif" />
 	</div>
+	<div id="mastBanner">
+		<img title="Banner" alt="Banner" src="${logoSkinRepo}/${logoSkin}/images/banner_inst.gif" />
+	</div>
+	<div id="mastLogin">
+#includeLogin()
+	</div>
+</div>
 </div>
 #end
 ##------------------------------------------------------------------------------------------
@@ -230,42 +230,42 @@
 ##			vcontext.put("loggedIn", Boolean.valueOf(loggedIn));
 #macro( includeLogin  )
 #if (!${loginTopLogin})
-	<div id="loginLinks">
+<div id="loginLinks">
 #if (${loggedIn})
-		<img style="cursor:pointer;" onclick="toggleSearch();return false;" src="/library/image/zoom.png" style="align:absmiddle" />
-			<a href="#" onclick="toggleSearch();return false;">Search</a> | 
-		<a href="https://falcon.iu.edu/iu/uits/oncourse-admins/occontact.html" target="_new">Contact Us</a> |
-		<a  href="${loginLogInOutUrl}" title="${loginMessage}">
+	<img style="cursor:pointer;" onclick="toggleSearch();return false;" src="/library/image/zoom.png" style="align:absmiddle" />
+		<a href="#" onclick="toggleSearch();return false;">Search</a> | 
+	<a href="https://falcon.iu.edu/iu/uits/oncourse-admins/occontact.html" target="_new">Contact Us</a> |
+	<a  href="${loginLogInOutUrl}" title="${loginMessage}">
 #else
-		<a id="loginlink" href="${loginLogInOutUrl}" title="${loginMessage}">
+	<a id="loginlink" href="${loginLogInOutUrl}" title="${loginMessage}">
 #end
 #if (${loginHasImage1}) 
-			<img src="${loginImage1}"/>
+		<img src="${loginImage1}"/>
 #else
-			${loginMessage}
+		${loginMessage}
 #end
-		</a>
+	</a>
 #if (${loginHasLogInOutUrl2})
-		<a href="${loginLogInOutUrl2}" title="${loginMessage2}">
+	<a href="${loginLogInOutUrl2}" title="${loginMessage2}">
 #if (${loginHasImage2}) 
-			<img alt="${loginMessage2}" src="${loginImage2}"/>
+		<img alt="${loginMessage2}" src="${loginImage2}"/>
 #else
-			${loginMessage2}
+		${loginMessage2}
 #end
-		</a>
+	</a>
 #end
-	</div>
+</div>
 #else
-	<form id="loginForm" method="post" action="${loginPortalPath}/xlogin" enctype="application/x-www-form-urlencoded">
-		<label for="eid">${loginEidWording}</label>
-		<input name="eid" id="eid" type="text" />
-		<label for="pw">${loginPwWording}</label>
-		<input name="pw" type="password" id="pw" />
-		<input name="submit" type="submit" id="submit" value="${loginWording}" />
-		<script type="text/javascript" language="JavaScript">
-			document.forms[0].eid.focus();
-		</script>
-	</form>
+<form id="loginForm" method="post" action="${loginPortalPath}/xlogin" enctype="application/x-www-form-urlencoded">
+	<label for="eid">${loginEidWording}</label>
+	<input name="eid" id="eid" type="text" />
+	<label for="pw">${loginPwWording}</label>
+	<input name="pw" type="password" id="pw" />
+	<input name="submit" type="submit" id="submit" value="${loginWording}" />
+	<script type="text/javascript" language="JavaScript">
+		document.forms[0].eid.focus();
+	</script>
+</form>
 #end
 #end
 ##------------------------------------------------------------------------------------------
@@ -291,75 +291,75 @@
 #macro( includeTabs  )
 <!-- start includeTabs -->
 <div class="${tabsCssClass}">
-	<div id="siteNav">
-		<div id="linkNav">
-			<a id="sitetabs" class="skip" name="sitetabs"></a>
-			<h1 class="skip">${rloader.sit_worksiteshead}</h1>
-			<ul id="siteLinkList">
+<div id="siteNav">
+	<div id="linkNav">
+		<a id="sitetabs" class="skip" name="sitetabs"></a>
+		<h1 class="skip">${rloader.sit_worksiteshead}</h1>
+		<ul id="siteLinkList">
 #foreach ( $site in $tabsSites ) 
 #if (${site.isCurrentSite})
 #if (${site.isMyWorkspace})
-				<li class="selectedTab"><a href="#"><span>${rloader.sit_mywor}</span></a></li>
+			<li class="selectedTab"><a href="#"><span>${rloader.sit_mywor}</span></a></li>
 #else
-				<li class="selectedTab"><a href="#"><span>${site.siteTitle}</span></a></li>
+			<li class="selectedTab"><a href="#"><span>${site.siteTitle}</span></a></li>
 #end
 #else
-				<li><a href="${site.siteUrl}" title="${site.siteTitle}">
+			<li><a href="${site.siteUrl}" title="${site.siteTitle}">
 #if (${site.isMyWorkspace})
-					<span>${rloader.sit_mywor}</span>
+				<span>${rloader.sit_mywor}</span>
 #else
-					<span>${site.siteTitle}</span>
+				<span>${site.siteTitle}</span>
 #end
-				</a></li>
+			</a></li>
 #end
 #end
 #if ($tabsMoreSitesShow)
-			<li><a href="#" onclick="$('div#selectNav').slideToggle()">${rloader.sit_more}</a></li>
+		<li><a href="#" onclick="$('div#selectNav').slideToggle()">${rloader.sit_more}</a></li>
 #end
-				<li style="display:none;border-width:0" class="fixTabsIE">
-					<a href="javascript:void(0);">#x20;</a>
-				</li>
-			</ul>
-		</div>
-		
-		
-#if ($tabsAddLogout)
-		<div class="galleryLogin">
-			<a href="$tabsLogoutUrl">${rloader.sit_log}</a>
-		</div>
+			<li style="display:none;border-width:0" class="fixTabsIE">
+				<a href="javascript:void(0);">#x20;</a>
+			</li>
+		</ul>
 	</div>
+	
+	
+#if ($tabsAddLogout)
+	<div class="galleryLogin">
+		<a href="$tabsLogoutUrl">${rloader.sit_log}</a>
+	</div>
+</div>
 
 #else
-	</div>
-	<div class="divColor" id="tabBottom">
-	</div>
+</div>
+<div class="divColor" id="tabBottom">
+</div>
 #end	
 <!-- IU MOVED -->
-		<div id="selectNav" style="display:none">
-			<div>
-			<span class="skip">${rloader.sit_selectmessage}</span>
+	<div id="selectNav" style="display:none">
+		<div>
+		<span class="skip">${rloader.sit_selectmessage}</span>
 #foreach( $termKey in $tabsMoreSortedTermList)
-			<div class="termContainer">
-			<h4>$termKey</h4>
-			<ul id="siteLinkList2">
+		<div class="termContainer">
+		<h4>$termKey</h4>
+		<ul id="siteLinkList2">
 #foreach( $site in $tabsMoreTerms.get($termKey))
 #if (${site.isMyWorkspace})
-				<li><a href="${site.siteUrl}" title="${rloader.sit_mywor}">
-					<span>${rloader.sit_mywor}</span>
-				</a></li>
+			<li><a href="${site.siteUrl}" title="${rloader.sit_mywor}">
+				<span>${rloader.sit_mywor}</span>
+			</a></li>
 #else
-				<li><a href="${site.siteUrl}" title="${site.siteTitle}">
-					<span>${site.siteTitle}</span>
-				</a></li>
+			<li><a href="${site.siteUrl}" title="${site.siteTitle}">
+				<span>${site.siteTitle}</span>
+			</a></li>
 #end
 #end
-			</ul>
-			</div> <!-- /termContainer -->
+		</ul>
+		</div> <!-- /termContainer -->
 #end	
-			</div>
 		</div>
+	</div>
 <!-- END IU  MOVED-->
-		
+	
 </div>
 <!-- end includeTabs -->
 #end
@@ -396,10 +396,10 @@
 ##		
 #macro( includePageNav   )
 <!-- start includePageNav -->
-	<div class="divColor" id="toolMenuWrap">
-		<div id="worksiteLogo">
+<div class="divColor" id="toolMenuWrap">
+	<div id="worksiteLogo">
 #if (!${pageNavPublished})
-			<p id="siteStatus">unpublished site</p>
+		<p id="siteStatus">unpublished site</p>
 #end
 #if ($pageNavType && $pageNavType != "project" )
 			<p id="siteType">$pageNavType</p>
@@ -431,7 +431,6 @@
    #else
 			<li>
 			<a href="${page.pageRefUrl}" title="${page.description}" ><span>${page.pageTitle}</span></a> <!-- Oncourse - added "title" attribute -->
-			<p class="hoverDescription" style="display:none">${page.description}</p> <!-- Oncourse - added <p> tag -->
 			</li>
    #end
   #end
