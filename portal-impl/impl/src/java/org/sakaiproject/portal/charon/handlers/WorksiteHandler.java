@@ -294,9 +294,7 @@ public class WorksiteHandler extends PageHandler
 	      						if (tCount > 0){
 	      							desc.append(" | ");
 	      						}
-							if ((t != null && t.getTool() != null && t.getTool().getDescription() != null) || t.getTool().getId() == 'sakai.iframe.site'){
-	      							desc.append(t.getTool().getDescription());
-							}
+	      						desc.append(t.getTool().getDescription());
 	      						tCount++;
 	      					}
 					}
