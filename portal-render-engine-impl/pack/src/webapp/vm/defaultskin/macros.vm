@@ -286,7 +286,7 @@ ${responseHead}
 				</li>
 #end
 #end
-#if ($tabsMoreSitesShow)
+#if ($tabsMoreSitesShow && $useDHTMLMore)
 				<li><a href="#" onclick="$('div#selectNav').slideToggle()" title="${rloader.sit_more}">${rloader.sit_more}</a></li>
 #end
 				<li style="display:none;border-width:0" class="fixTabsIE">
@@ -294,6 +294,18 @@ ${responseHead}
 				</li>
 			</ul>
 		</div> <!-- /linkNav -->
+
+#if ($tabsMoreSitesShow && !$useDHTMLMore)
+		<div id="selectNav">
+			<span class="skip">${rloader.sit_selectmessage}</span>
+			<select onchange="if (this.options[this.selectedIndex].value != '') { parent.location = this.options[this.selectedIndex].value; } else { this.selectedIndex = 0; }">
+				<option value="" selected="selected">${rloader.sit_more}</option>
+#foreach( $site in $tabsMoreSites )
+				<option title="${site.siteTitle}" value="${site.siteUrl}">${site.siteTitle}</option> 
+#end	
+			</select>
+		</div>
+#end
 
 #if ($tabsAddLogout)
 		<div class="galleryLogin">
@@ -308,7 +320,7 @@ ${responseHead}
 #end	
 
 
-
+#if ($useDHTMLMore)
 	<div id="selectNav" style="display:none">
 		<div>
 			<span class="skip">${rloader.sit_selectmessage}</span>
@@ -336,6 +348,8 @@ ${responseHead}
 	
 	</div> <!-- /selectNav -->
 
+#end
+	
 </div> <!-- /tabsCssClass -->
 #foreach ( $site in $tabsSites)
   #if (${site.isCurrentSite})

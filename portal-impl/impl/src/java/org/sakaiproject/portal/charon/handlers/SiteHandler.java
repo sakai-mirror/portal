@@ -547,7 +547,7 @@ public class SiteHandler extends WorksiteHandler
 			rcontext.put("tabsMoreSortedTermList", tabsMoreSortedTermList);
 			
 			
-				
+			rcontext.put("useDHTMLMore", Boolean.valueOf(ServerConfigurationService.getBoolean("portal.use.dhtml.more", true)));
 		
 
 			String cssClass = (siteType != null) ? "siteNavWrap " + siteType
