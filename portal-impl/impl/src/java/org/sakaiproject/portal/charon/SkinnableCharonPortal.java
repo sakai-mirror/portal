@@ -174,6 +174,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	public CapabilityMatrix cm = null;
 	public UAManager uam = null;
 
+	private boolean forceContainer = false;
+
 	public String getPortalContext()
 	{
 		return portalContext;
@@ -972,7 +974,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		// to skip container auth for this one, forcing things to be handled
 		// internaly, set the "extreme" login path
-		String loginPath = (skipContainer ? "/xlogin" : "/relogin");
+		
+		String loginPath = (!forceContainer  && skipContainer ? "/xlogin" : "/relogin");
 
 		String context = req.getContextPath() + req.getServletPath() + loginPath;
 		tool.help(req, res, context, loginPath);
@@ -1405,6 +1408,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	{
 		if (rcontext.uses(INCLUDE_BOTTOM))
 		{
+			rcontext.put("pagepopup", false);
+
 			String copyright = ServerConfigurationService
 					.getString("bottom.copyrighttext");
 			String service = ServerConfigurationService.getString("ui.service", "Sakai");
@@ -1781,6 +1786,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		}
 		portalService = org.sakaiproject.portal.api.cover.PortalService.getInstance();
 		M_log.info("init()");
+		
+		forceContainer = ServerConfigurationService.getBoolean("login.use.xlogin.to.relogin", true);
 
 		basicAuth = new BasicAuth();
 		basicAuth.init();

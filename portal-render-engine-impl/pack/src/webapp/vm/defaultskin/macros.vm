@@ -234,21 +234,25 @@ ${tool.toolRenderResult.getTitle()}
 #macro( includeLogin  )
 #if (!${loginTopLogin})
 	<div id="loginLinks">
-		<a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" >
 #if (${loginHasImage1}) 
+		<a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" >
 			<img src="${loginImage1}" alt="${loginMessage}"/>
+		</a>
 #else
+		<a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" >
 			${loginMessage}
+		</a>&nbsp;
 #end
-		</a>
 #if (${loginHasLogInOutUrl2})
-		<a href="${loginLogInOutUrl2}" title="${loginMessage2}" id="loginLink2" >
 #if (${loginHasImage2}) 
+		<a href="${loginLogInOutUrl2}" title="${loginMessage2}" id="loginLink2" >
 			<img src="${loginImage2}" alt="${loginMessage2}"/>
-#else
-			${loginMessage2}
-#end
 		</a>
+#else
+		<a href="${loginLogInOutUrl2}" title="${loginMessage2}" id="loginLink2" >
+			${loginMessage2}
+		</a>
+#end
 #end
 	</div>
 #else
@@ -666,6 +670,7 @@ ${tool.toolRenderResult.getTitle()}
 
 
 #macro( includeBottom )
+#if (!$pagepopup)
 <div id="footer">
 	<div class="footerExtNav" align="center">
 		|
@@ -684,4 +689,5 @@ ${tool.toolRenderResult.getTitle()}
 	${bottomNavService} - ${bottomNavServiceVersion} - Sakai ${bottomNavSakaiVersion} - Server ${bottomNavServer}
 	</div>
 </div>
+#end
 #end
