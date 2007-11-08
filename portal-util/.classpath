@@ -15,5 +15,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/entity-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/authz-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/tool-util"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/portal-api"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
