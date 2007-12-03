@@ -67,6 +67,8 @@ import org.sakaiproject.portal.charon.handlers.PDAHandler;
 import org.sakaiproject.portal.charon.handlers.PageHandler;
 import org.sakaiproject.portal.charon.handlers.PresenceHandler;
 import org.sakaiproject.portal.charon.handlers.ReLoginHandler;
+import org.sakaiproject.portal.charon.handlers.RoleSwitchHandler;
+import org.sakaiproject.portal.charon.handlers.RoleSwitchOutHandler;
 import org.sakaiproject.portal.charon.handlers.RssHandler;
 import org.sakaiproject.portal.charon.handlers.SiteHandler;
 import org.sakaiproject.portal.charon.handlers.SiteResetHandler;
@@ -1574,6 +1576,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		addHandler(new StaticStylesHandler());
 		addHandler(new StaticScriptsHandler());
 		addHandler(new DirectToolHandler());
+		addHandler(new RoleSwitchHandler());
+                addHandler(new RoleSwitchOutHandler());
 
 	}
 

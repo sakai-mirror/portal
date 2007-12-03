@@ -338,6 +338,25 @@ var sakaiPortalWindow = "";
 <div class="divColor" id="tabBottom">
 </div>
 #end	
+
+#if ($viewAsStudentLink)
+		<form name="swapRoleForm" class="inlineForm" method="post" action="$switchRoleUrl">
+			<div align="right" valign="center">
+			#if ($roleSwitchState)
+				<a href="$switchRoleUrl">$exitRoleSwap</a>
+			#else
+				$viewSiteAs
+				<select onchange="if (this.options[this.selectedIndex].value != '') { parent.location = this.options[this.selectedIndex].value; } else { this.selectedIndex = 0; }">
+					<option value="" selected="selected">$selectRole</option>
+				#foreach( $role in $siteRoles)
+					<option value="$switchRoleUrl$role$panelString">$role</option>
+				#end
+				</select>
+			#end
+			</div>
+		</form>
+#end
+
 <!-- IU MOVED -->
 	<div id="selectNav" style="display:none">
 		<div>
