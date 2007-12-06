@@ -43,7 +43,6 @@ import org.sakaiproject.portal.util.PortalSiteHelper;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.user.api.Preferences;
@@ -342,82 +341,10 @@ public class SiteHandler extends WorksiteHandler
 			// Get the user's My WorkSpace and its ID
 			Site myWorkspaceSite = siteHelper.getMyWorkspace(session);
 			String myWorkspaceSiteId = null;
-			// Check to see if we display a link in the UI for swapping the view
-			boolean rolecheck = false; // false by default
-			String roleswitchvalue = (String)session.getAttribute("roleswap/site/" + siteId);
-			boolean roleswitchstate = false; // determines if the site is in the switched state or not; false by default
 			if (myWorkspaceSite != null)
 			{
-				myWorkspaceSiteId = siteHelper.getSiteEffectiveId(myWorkspaceSite); // this line and the beginning of the if existed prior to this change
-				
-				if (!myWorkspaceSiteId.equals(siteId) && !SiteService.isSpecialSite(siteId) && !SiteService.isUserSite(siteId)) // make sure we're not a "My Workspace" site, a user specific site, or one of the "special" sites
-				{
-					Site activeSite = null;
-		            try
-		            {
-		            	activeSite = siteHelper.getSiteVisit(siteId); // active site
-		            	if (activeSite.getType() != null) // this filters out some of non-standard sites where swapping roles would not apply
-		            	{
-		            		String maintainRole = activeSite.getMaintainRole(); // the maintain role of the site
-				            Role userRole = activeSite.getUserRole(session.getUserId()); // the user's role in the site
-				            rolecheck = maintainRole.equals(userRole.getId()); // check if the roles are equals.  saves some time on code as well as being a security measure for rogue urls
-				            String switchRoleUrl = "";
-				            if (rolecheck)
-				            {
-				            	boolean roleswitchcheck = false;
-					            if (roleswitchvalue != null) 
-					            	roleswitchcheck = true;
-					            if (roleswitchcheck)
-					            {
-					            	String exitRoleSwap = "Exit Role Swap View";
-					            	rcontext.put("exitRoleSwap", exitRoleSwap);
-					            	// TODO: May be more ideal to get the active tool on the page for the url generation
-					            	String siteHome = "/" + activeSite.getToolForCommonId("sakai.iframe.site").getId();
-					            	switchRoleUrl = Web.serverUrl(req)
-									+ ServerConfigurationService.getString("portalPath")
-									+ "/role-switch-out/"
-									+ siteId
-									+ siteHome
-									+ "/?panel=Main";
-					            	roleswitchstate = true;
-					            }
-					            else
-					            {
-					            	// this block of code generates a list of roles for our dropdown in the UI
-					            	Iterator i = activeSite.getRoles().iterator();
-						        	List<String> siteRoles = new ArrayList<String>();
-						    		while (i.hasNext())
-						    		{
-						    			Role r = (Role) i.next();
-						    			if (userRole.getId()!=r.getId()) // We do not want to put the current user's role in the list.  Would force unnecessary securty checks later
-						    				siteRoles.add(r.getId());
-						    		}
-						    		rcontext.put("siteRoles", siteRoles);
-						    		String selectRole = "- Select Role -";
-						    		String viewSiteAs = "View site as: ";
-						    		rcontext.put("selectRole", selectRole);
-						    		rcontext.put("viewSiteAs", viewSiteAs);
-						    		
-					            	// TODO: May be more ideal to get the active tool on the page for the url generation
-					            	String siteHome = "/" + activeSite.getToolForCommonId("sakai.iframe.site").getId();
-					            	switchRoleUrl = Web.serverUrl(req)
-									+ ServerConfigurationService.getString("portalPath")
-									+ "/role-switch/"
-									+ siteId
-									+ siteHome
-									+ "/";
-					            	rcontext.put("panelString", "/?panel=Main");
-					            }
-								rcontext.put("switchRoleUrl", switchRoleUrl);
-				            }
-		            	}
-		            }
-		            catch(PermissionException pe) { }
-		            catch(IdUnusedException ie) { }
-				}
+				myWorkspaceSiteId = siteHelper.getSiteEffectiveId(myWorkspaceSite);
 			}
-			rcontext.put("roleSwitchState", roleswitchstate);
-			rcontext.put("viewAsStudentLink", Boolean.valueOf(rolecheck)); // this will tell our UI if we want the link for swapping roles to display
 
 			int prefTabs = 4;
 			int tabsToDisplay = prefTabs;
