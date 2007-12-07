@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Calendar;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -271,6 +272,10 @@ public class PageHandler extends BasePortalHandler
 
 			// rcontext.put("bottomNavSitNewWindow",
 			// Web.escapeHtml(rb.getString("site_newwindow")));
+			
+			/** Oncourse Add Acknowledgements **/
+			String acknowledgmentsUrl = ServerConfigurationService.getString("acknowledgmentsUrl");
+			rcontext.put("acknowledgmentsUrl", acknowledgmentsUrl);
 
 			if ((poweredByUrl != null) && (poweredByImage != null)
 					&& (poweredByAltText != null)
@@ -308,6 +313,12 @@ public class PageHandler extends BasePortalHandler
 			rcontext.put("bottomNavServiceVersion", serviceVersion);
 			rcontext.put("bottomNavSakaiVersion", sakaiVersion);
 			rcontext.put("bottomNavServer", server);
+			
+			 /****************Oncourse: produce the year automatically**************/
+            Calendar calendar = Calendar.getInstance();
+            int year = calendar.get(Calendar.YEAR);
+
+            rcontext.put("year", year);
 			
 			
 		}

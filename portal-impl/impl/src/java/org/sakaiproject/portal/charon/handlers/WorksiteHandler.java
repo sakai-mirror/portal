@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -43,6 +44,7 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.util.Web;
+import org.sakaiproject.entity.api.ResourceProperties;
 
 /**
  * 
@@ -270,12 +272,37 @@ public class WorksiteHandler extends PageHandler
 					m.put("isPage", Boolean.valueOf(true));
 					m.put("current", Boolean.valueOf(current));
 					m.put("ispopup", Boolean.valueOf(p.isPopUp()));
+					m.put("ispopupwithbrowsertoolbar", Boolean.valueOf(p.isPopUpWithBrowserToolbar()));
 					m.put("pagePopupUrl", pagePopupUrl);
 					m.put("pageTitle", Web.escapeHtml(p.getTitle()));
 					m.put("jsPageTitle", Web.escapeJavascript(p.getTitle()));
 					m.put("pageId", Web.escapeUrl(p.getId()));
 					m.put("jsPageId", Web.escapeJavascript(p.getId()));
 					m.put("pageRefUrl", pagerefUrl);
+					Iterator tools = pTools.iterator();
+					//Oncourse - get the tool descriptions for this page, typically only one per page, execpt for the Home page
+					StringBuffer desc = new StringBuffer();
+					if(Web.escapeHtml(p.getTitle()).equals("Home"))
+					{
+						desc.append("Home");
+					}
+					else
+					{
+	      					int tCount = 0;
+	      					while(tools.hasNext()){
+	      						ToolConfiguration t = (ToolConfiguration)tools.next();
+	      						if (tCount > 0){
+	      							desc.append(" | ");
+	      						}
+							if (t != null && t.getTool() != null && t.getTool().getDescription() != null && !t.getTool().getId().equals("sakai.iframe") && !t.getTool().getId().equals("sakai.news")){
+	      							desc.append(t.getTool().getDescription());
+							}
+	      						tCount++;
+	      					}
+					}
+					
+					m.put("description", desc.toString());
+					//End Oncourse
 					if (includeSummary) siteHelper.summarizePage(m, site, p);
 					l.add(m);
 					continue;

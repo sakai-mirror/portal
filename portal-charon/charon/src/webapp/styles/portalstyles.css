@@ -50,7 +50,7 @@ div.portletpresence {
 }
 
 #presenceTitle{
-	display:none;
+	/*display:none;  COMMENTED OUT IU B/C OVERRIDES NEEDED CLASS*/
 }
 
 div.portletpresencewrapper {

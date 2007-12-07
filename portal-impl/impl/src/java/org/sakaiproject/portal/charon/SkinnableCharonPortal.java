@@ -23,6 +23,7 @@ package org.sakaiproject.portal.charon;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Calendar;    /* Oncourse Added */
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -486,6 +487,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		String toolUrl = ServerConfigurationService.getToolUrl() + "/"
 				+ Web.escapeUrl(placement.getId()) + "/";
 		String titleString = Web.escapeHtml(placement.getTitle());
+		String toolId = Web.escapeHtml(placement.getToolId());
 
 		// Reset the tool state if requested
 		if ("true".equals(req.getParameter(portalService.getResetStateParam()))
@@ -582,6 +584,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		toolMap.put("toolShowResetButton", Boolean.valueOf(showResetButton));
 		toolMap.put("toolShowHelpButton", Boolean.valueOf(showHelpButton));
 		toolMap.put("toolHelpActionUrl", helpActionUrl);
+		toolMap.put("toolId", toolId);
 		return toolMap;
 	}
 
@@ -1195,6 +1198,10 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 			// rcontext.put("bottomNavSitNewWindow",
 			// Web.escapeHtml(rb.getString("site_newwindow")));
+			
+			/** Oncourse Add Acknowledgements **/
+			String acknowledgmentsUrl = ServerConfigurationService.getString("acknowledgmentsUrl");
+			rcontext.put("acknowledgmentsUrl", acknowledgmentsUrl);
 
 			if ((poweredByUrl != null) && (poweredByImage != null)
 					&& (poweredByAltText != null)
@@ -1231,6 +1238,14 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			rcontext.put("bottomNavServiceVersion", serviceVersion);
 			rcontext.put("bottomNavSakaiVersion", sakaiVersion);
 			rcontext.put("bottomNavServer", server);
+
+        /****************Oncourse: produce the year automatically**************/
+                        Calendar calendar = Calendar.getInstance();
+                        int year = calendar.get(Calendar.YEAR);
+ 
+                        rcontext.put("year", year);
+
+
 		}
 	}
 
@@ -1330,6 +1345,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				rcontext.put("loginMessage2", message2);
 				rcontext.put("loginImage2", image2);
 				rcontext.put("image1HasImage2", Boolean.valueOf(image2 != null));
+				rcontext.put("loggedIn", Boolean.valueOf(session.getUserId() != null));
 				// put out the links version
 
 				// else put out the fields that will send to the login interface
@@ -1429,6 +1445,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				m.put("isPage", Boolean.valueOf(true));
 				m.put("current", Boolean.valueOf(current));
 				m.put("ispopup", Boolean.valueOf(p.isPopUp()));
+				m.put("ispopupwithbrowsertoolbar", Boolean.valueOf(p.isPopUpWithBrowserToolbar()));
 				m.put("pagePopupUrl", pagePopupUrl);
 				m.put("pageTitle", Web.escapeHtml(p.getTitle()));
 				m.put("jsPageTitle", Web.escapeJavascript(p.getTitle()));

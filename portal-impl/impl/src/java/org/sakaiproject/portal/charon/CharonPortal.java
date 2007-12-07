@@ -1759,6 +1759,9 @@ public class CharonPortal extends HttpServlet
 		String[] poweredByImage = ServerConfigurationService.getStrings("powered.img");
 		String[] poweredByAltText = ServerConfigurationService.getStrings("powered.alt");
 
+		//		 IU Oncourse CL  - Add acknowledgements footer
+		String acknowledgementsUrl = ServerConfigurationService.getString("acknowledgementsUrl");
+		
 		out.println("<div id=\"footer\">");
 		out.println("	<div class=\"footerExtNav\" align=\"center\">");
 		out.println("	|");
@@ -1796,6 +1799,11 @@ public class CharonPortal extends HttpServlet
 							+ "</span><a href=\"http://sakaiproject.org\" target=\"_blank\">"
 							+ "<img border=\"0\" src=\"/library/image/sakai_powered.gif\" alt=\"Powered by Sakai\" /></a>");
 		}
+		
+		// IU Oncourse CL  - Add acknowledgements footer
+		out.println("<br/><a class=\"footerExtNav\" href=\""+ acknowledgementsUrl + "\" target=\"_blank\">Acknowledgements</a>");
+		// End Oncourse
+		
 		out.println("	</div>");
 		out.println("		<div class=\"sakaiCopyrightInfo\">" + copyright + "<br />");
 		out.println("		" + service + " - " + serviceVersion + " - Sakai " + sakaiVersion
@@ -2000,7 +2008,13 @@ public class CharonPortal extends HttpServlet
 		// put out the links version
 		if (!topLogin)
 		{
-			out.println("<div id=\"loginLinks\">");
+			out.println("<div id=\"loginLinkss\">");
+			//			IU Oncourse CL - Seach box, and Show 'Contact Us' link before Logout if user is logged in
+			if (session.getUserId() != null) {
+		        out.println("<img style=\"cursor:pointer;\" onclick=\"toggleSearch();return false;\" src=\"/library/image/zoom.png\" /><a href=\"#\" onclick=\"toggleSearch();return false;\">Search</a> | ");
+				out.println("<a href=\"https://falcon.iu.edu/iu/uits/oncourse-admins/occontact.html\" target=\"_new\">Contact Us</a> |");
+			}
+			// END IU
 			out.println("			<a href=\"" + logInOutUrl + "\" target=\"_parent\" title=\""
 					+ message + "\">"
 					+ ((image1 == null) ? message : "<img src=\"" + image1 + "\"/>")
@@ -2958,8 +2972,17 @@ public class CharonPortal extends HttpServlet
 				+ "/portal.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />");
 		out.println("    <meta http-equiv=\"Content-Style-Type\" content=\"text/css\" />"
 				+ "    <title>" + Web.escapeHtml(title) + "</title>"
+				+ "    <script type=\"text/javascript\" language=\"JavaScript\" src=\""		//IU ONLY -- ajax scripts for search box
+				+ getScriptPath()
+				+ "jquery-1.1.2.js\"></script>"												
 				+ "    <script type=\"text/javascript\" language=\"JavaScript\" src=\""
-				+ getScriptPath() + "headscripts.js\"></script>" + "  </head>");
+				+ getScriptPath()
+				+ "headscripts.js\"></script>"
+				+ "    <script type=\"text/javascript\" language=\"JavaScript\" src=\""
+				+ getScriptPath()
+				+ "searchbox.js\"></script>"
+				+ "  </head>");//END IU ONLY
+
 
 		// start the body
 		out

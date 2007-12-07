@@ -24,8 +24,11 @@ package org.sakaiproject.portal.charon.handlers;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -417,12 +420,20 @@ public class SiteHandler extends WorksiteHandler
 			rcontext.put("roleSwitchState", roleswitchstate);
 			rcontext.put("viewAsStudentLink", Boolean.valueOf(rolecheck)); // this will tell our UI if we want the link for swapping roles to display
 
-			int prefTabs = 4;
+
+			// ONCOURSE ONCOURSE ONCOURSE ONCOURSE ONCOURSE
+			int prefTabs = 5;
+			// ONCOURSE ONCOURSE ONCOURSE ONCOURSE ONCOURSE
 			int tabsToDisplay = prefTabs;
 
 			// Get the list of sites in the right order,
 			// My WorkSpace will be the first in the list
 			List<Site> mySites = siteHelper.getAllSites(req, session, true);
+			/** IU Oncourse **/
+			List<Site> allSites = new ArrayList<Site>();
+			allSites.addAll(mySites);
+			/** END IU Oncourse **/
+			
 			if (!loggedIn)
 			{
 				prefTabs = ServerConfigurationService.getInt(
@@ -493,6 +504,122 @@ public class SiteHandler extends WorksiteHandler
 					mySites.add(currentSelectedSite);
 				}
 			}
+			
+			/*** IU Oncourse**/
+			//get Sections
+			Map<String, List> termsToSites = new HashMap<String, List>();
+			Map<String, List> tabsMoreTerms = new HashMap<String, List>();
+			for (int i=0; i < allSites.size(); i++){
+				Site site = allSites.get(i);
+				ResourceProperties siteProperties = site.getProperties();
+				
+				String type = site.getType();
+				String term = null;
+				
+				if("course".equals(type)) {
+					term = siteProperties.getProperty("term");
+				} else
+				if ("project".equals(type)) {
+					term = "PROJECTS";
+				} else
+				if ("portfolio".equals(type)) {
+					term = "PORTFOLIOS";
+				} else
+				if ("admin".equals(type)) {
+					term = "ADMINISTRATION";
+				} else {
+					term = "OTHER";
+				}
+				
+				List<Site> currentList = new ArrayList();
+				if(termsToSites.containsKey(term)){
+					currentList = termsToSites.get(term);
+					termsToSites.remove(term);
+				} 
+				currentList.add(site);
+				termsToSites.put(term, currentList);
+			}
+			
+			class TermSorter implements Comparator<Map> {
+
+				public int compare(Map first, Map second) {
+					
+					if(first == null && second == null) return 0;
+					
+					String firstTitle = (String)first.get("siteTitle");
+					String secondTitle = (String)second.get("siteTitle");
+					
+					if(firstTitle != null)
+						return firstTitle.compareToIgnoreCase(secondTitle);
+					
+					return 0;
+					
+				}
+
+			
+				
+			}
+			
+			Comparator<Map> termSorter = new TermSorter();
+			
+			
+			//now loop through each section and convert the Lists to maps
+			for (String key : termsToSites.keySet()){
+				List<Site> currentList = termsToSites.get(key);
+				List<Map> temp = portal.convertSitesToMaps(req, currentList, prefix, siteId,
+						myWorkspaceSiteId,
+						/* includeSummary */false, /* expandSite */false,
+						/* resetTools */"true".equals(ServerConfigurationService
+								.getString(Portal.CONFIG_AUTO_RESET)),
+						/* doPages */true, /* toolContextPath */null, loggedIn);
+				
+				
+				Collections.sort(temp, termSorter);
+				
+				tabsMoreTerms.put(key, temp);
+			}
+				
+			String[] oncourseTerms = ServerConfigurationService.getStrings("oncourse.terms");
+			List<String> tabsMoreSortedTermList = new ArrayList<String>();
+			
+			//Order term column headers according to order specified in oncourse.terms
+			//Filter out terms for which user is not a member of any sites
+			for(int i=0; i < oncourseTerms.length; i++) {
+				
+				String[] parts = oncourseTerms[i].split(",");
+				
+				
+				if(tabsMoreTerms.containsKey(parts[3])) {
+					
+					tabsMoreSortedTermList.add(parts[3]);
+					
+				}
+				
+				
+			}
+			
+			if(tabsMoreTerms.containsKey("PROJECTS")) {
+				tabsMoreSortedTermList.add("PROJECTS");
+			}
+			
+			if(tabsMoreTerms.containsKey("PORTFOLIOS")) {
+				tabsMoreSortedTermList.add("PORTFOLIOS");
+			}
+			
+			if(tabsMoreTerms.containsKey("ADMINISTRATION")) {
+				tabsMoreSortedTermList.add("ADMINISTRATION");
+			}
+			
+			if(tabsMoreTerms.containsKey("OTHER")) {
+				tabsMoreSortedTermList.add("OTHER");
+			}
+			
+				
+			
+			rcontext.put("tabsMoreTerms", tabsMoreTerms);
+			rcontext.put("tabsMoreSortedTermList", tabsMoreSortedTermList);
+			
+			/** END IU Oncourse **/
 
 			String cssClass = (siteType != null) ? "siteNavWrap " + siteType
 					: "siteNavWrap";

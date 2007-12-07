@@ -20,6 +20,9 @@
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <title>${pageTitle}</title>
     <script type="text/javascript" language="JavaScript" src="${pageScriptPath}headscripts.js"></script>
+<script type="text/javascript" language="JavaScript" src="${pageScriptPath}jquery-1.1.2.js"></script>
+<script type="text/javascript" language="JavaScript" src="${pageScriptPath}searchbox.js"></script>
+
     
     
     
@@ -175,7 +178,11 @@
 #end
 
 #macro( includeTool $tool)
+#if (${tool.toolId.equals("sakai.privacy")})
+<div class="portlet" id="privacy_tool_popup" style="display:none">
+#else
 <div class="portlet">
+#end
 #includeToolTitle( $tool )
 #includeToolBody( $tool )
 </div>
@@ -227,10 +234,18 @@
 ##			vcontext.put("loginEiWording", eidWording);
 ##			vcontext.put("loginPwWording", pwWording);
 ##			vcontext.put("loginWording", loginWording);
+##			vcontext.put("loggedIn", Boolean.valueOf(loggedIn));
 #macro( includeLogin  )
 #if (!${loginTopLogin})
 	<div id="loginLinks">
-		<a href="${loginLogInOutUrl}" title="${loginMessage}">
+#if (${loggedIn})
+	<img style="cursor:pointer;" onclick="toggleSearch();return false;" src="/library/image/zoom.png" style="align:absmiddle" />
+		<a href="#" onclick="toggleSearch();return false;">Search</a> | 
+	<a href="https://falcon.iu.edu/iu/uits/oncourse-admins/occontact.html" target="_new">Contact Us</a> |
+	<a  href="${loginLogInOutUrl}" title="${loginMessage}">
+#else
+	<a id="loginlink" href="${loginLogInOutUrl}" title="${loginMessage}">
+#end
 #if (${loginHasImage1}) 
 			<img src="${loginImage1}"/>
 #else
@@ -268,6 +283,7 @@
 ##			m.put("isCurrentSite",Boolean.valueOf(s.getId().equals(siteId)));
 ##			m.put("siteTitle",Web.escapeHtml(s.getTitle()));
 ##			m.put("siteUrl",Web.escapeHtml(s.getTitle()));
+##		rcontext.put("tabsMoreTerms", tabsMoreSections);
 ##		rcontext.put("tabsSites",l);		
 ##		rcontext.put("tabsHasExtraTitle",Boolean.valueOf(extraTitle != null));
 ##			rcontext.put("tabsExtraTitle",Web.escapeHtml(extraTitle));
@@ -295,31 +311,25 @@
 				<li class="selectedTab"><a href="#"><span>${site.siteTitle}</span></a></li>
 #end
 #else
-				<li><a href="${site.siteUrl}" title="${site.siteTitle} ${rloader.sit_mywor}"
+				<li><a href="${site.siteUrl}" title="${site.siteTitle}">
 #if (${site.isMyWorkspace})
-					><span>${rloader.sit_mywor}</span></a>
+				<span>${rloader.sit_mywor}</span>
 #else
-					><span>${site.siteTitle}</span></a>
+				<span>${site.siteTitle}</span>
 #end
-				</li>
+			</a></li>
 #end
 #end
-				<li style="display:none;border-width:0" class="fixTabsIE">
-					<a href="javascript:void(0);">#x20;</a>
-				</li>
-			</ul>
-		</div>
 #if ($tabsMoreSitesShow)
-		<div id="selectNav">
-			<span class="skip">${rloader.sit_selectmessage}</span>
-			<select onchange="if (this.options[this.selectedIndex].value != '') { parent.location = this.options[this.selectedIndex].value; } else { this.selectedIndex = 0; }">
-				<option value="" selected="selected">${rloader.sit_more}</option>
-#foreach( $site in $tabsMoreSites )
-				<option title="${site.siteTitle}" value="${site.siteUrl}">${site.siteTitle}</option> 
-#end	
-			</select>
-		</div>
+		<li><a href="#" onclick="$('div#selectNav').slideToggle()">${rloader.sit_more}</a></li>
 #end
+			<li style="display:none;border-width:0" class="fixTabsIE">
+				<a href="javascript:void(0);">#x20;</a>
+			</li>
+		</ul>
+	</div>
+	
+	
 #if ($tabsAddLogout)
 		<div class="galleryLogin">
 			<a href="$tabsLogoutUrl">${rloader.sit_log}</a>
@@ -348,7 +358,33 @@
 			#end
 			</div>
 		</form>
+
+<!-- IU MOVED -->
+	<div id="selectNav" style="display:none">
+		<div>
+		<span class="skip">${rloader.sit_selectmessage}</span>
+#foreach( $termKey in $tabsMoreSortedTermList)
+		<div class="termContainer">
+		<h4>$termKey</h4>
+		<ul id="siteLinkList2">
+#foreach( $site in $tabsMoreTerms.get($termKey))
+#if (${site.isMyWorkspace})
+			<li><a href="${site.siteUrl}" title="${rloader.sit_mywor}">
+				<span>${rloader.sit_mywor}</span>
+			</a></li>
+#else
+			<li><a href="${site.siteUrl}" title="${site.siteTitle}">
+				<span>${site.siteTitle}</span>
+			</a></li>
 #end
+#end
+		</ul>
+		</div> <!-- /termContainer -->
+#end	
+		</div>
+	</div>
+<!-- END IU  MOVED-->
+	
 </div>
 <!-- end includeTabs -->
 #end
@@ -370,6 +406,7 @@
 ##                    m.put("isPage",Boolean.valueOf(true));
 ##                    m.put("current", Boolean.valueOf(current));
 ##                    m.put("ispopup", Boolean.valueOf(p.isPopUp()));
+##					  m.put("ispopupwithbrowsertoolbar", Boolean.valueOf(p.isPopUpWithBrowserToolbar()));
 ##                    m.put("pagePopupUrl", pagePopupUrl);
 ##                    m.put("pageTitle", Web.escapeHtml(p.getTitle()));
 ##                    m.put("jsPageTitle", Web.escapeJavascript(p.getTitle()));
@@ -408,13 +445,17 @@
   #else
    #if (${page.ispopup})
 				<li>
+				#if (${page.ispopupwithbrowsertoolbar})
+				<a href="javascript:;" onclick="window.open('${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=yes,scrollbars=yes,menubar=yes,status=yes,location=yes, width=800,height=600')">
+				#else
 				<a href="javascript:;" onclick="window.open('${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')">
+				#end
 				<span>${page.pageTitle}</span>
 				</a>
 				</li>
    #else
 			<li>
-			<a href="${page.pageRefUrl}" ><span>${page.pageTitle}</span></a>
+			<a href="${page.pageRefUrl}" title="${page.description}" ><span>${page.pageTitle}</span></a> <!-- Oncourse - added "title" attribute -->
 			</li>
    #end
   #end
@@ -595,24 +636,55 @@
 #end
 
 
-
+##Oncourse read information from a String array which related with the information in file sakai.properties
 #macro( includeBottom )
-<div id="footer">
-	<div class="footerExtNav" align="center">
-		|
+#set($i = 0)
+#set($wanted1 = "")
+#set($wanted2 = "")
+#set($wanted3 = "")
+#set($wanted4 = "")
+
 #foreach ( $bn in $bottomNav )
-		${bn}  | 
+	#if ($i == 0)
+		#set($wanted1 = $bn)
+	#elseif($i ==1)
+		#set($wanted2 = $bn)
+	#elseif($i ==2)
+		#set($wanted3 = $bn)
+	#else
+		#set($wanted4 = $bn)
+	#end
+
+	#set($i = $i + 1)
 #end
-	</div>
-	<div id="footerInfo">
+<div id="footerInfo">
+	<div class="footerExtNav">
+		<div class="footerBucketWrap">
+		<div class="footerBucket">
 #foreach ( $pb in $bottomNavPoweredBy )
 		<span class="skip">${rloader.site_newwindow}</span>	
+		<span class="skip">${rloader.site_newwindow}</span>	
 		<a href="${pb.poweredByUrl}" target="_blank">
-				<img border="0" src="${pb.poweredByImage}" alt="${pb.poweredByAltText}" /></a>
+				<img border="0" src="${pb.poweredByImage}" alt="${pb.poweredByAltText}" id="poweredByImg" /></a>
 #end
-	</div>
-	<div class="sakaiCopyrightInfo">${bottomNavCopyright}<br />
-	${bottomNavService} - ${bottomNavServiceVersion} - Sakai ${bottomNavSakaiVersion} - Server ${bottomNavServer}
+		</div>
+		<div class="footerBucket">
+					${bottomNavService} - ${bottomNavServiceVersion} - Sakai ${bottomNavSakaiVersion} - Server ${bottomNavServer}
+		</div>
+		<div class="footerBucket">
+## Oncourse Add Acknowledgements
+					<a href="${acknowledgmentsUrl}" target="_blank">Acknowledgements</a>
+## End Oncourse				
+		</div>
+		</div>
+
+		<div id="blockiu">
+			<a href="http://www.indiana.edu" target="_blank" title="Indiana Univeristy">
+			<img border="0" src="/library/image/blockiu_white.gif" alt="Block IU" width="22" height="28"/></a>
+		</div>
+		<div class="sakaiCopyrightInfo">
+			${wanted1} &copy;  ${year} The ${wanted2} of ${wanted3} | ${wanted4}
+		</div>
 	</div>
 </div>
 #end
