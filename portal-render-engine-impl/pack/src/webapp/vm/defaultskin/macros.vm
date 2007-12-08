@@ -268,7 +268,7 @@ ${tool.toolRenderResult.getTitle()}
 ##			m.put("isCurrentSite",Boolean.valueOf(s.getId().equals(siteId)));
 ##			m.put("siteTitle",Web.escapeHtml(s.getTitle()));
 ##			m.put("siteUrl",Web.escapeHtml(s.getTitle()));
-##		rcontext.put("tabsSites",l);		
+##		rcontext.put("tabsSites",map);		
 ##		rcontext.put("tabsHasExtraTitle",Boolean.valueOf(extraTitle != null));
 ##			rcontext.put("tabsExtraTitle",Web.escapeHtml(extraTitle));
 ##			
@@ -287,7 +287,7 @@ ${tool.toolRenderResult.getTitle()}
 			<a id="sitetabs" class="skip" name="sitetabs"></a>
 			<h1 class="skip">${rloader.sit_worksiteshead}</h1>
 			<ul id="siteLinkList">
-#foreach ( $site in $tabsSites ) 
+#foreach ( $site in $tabsSites.tabsSites ) 
 #if (${site.isCurrentSite})
 #if (${site.isMyWorkspace})
 				<li class="selectedTab"><a href="#"><span>${rloader.sit_mywor}</span></a></li>
@@ -302,18 +302,18 @@ ${tool.toolRenderResult.getTitle()}
 #end
 #end
 #end
-#if ($tabsMoreSitesShow && $useDHTMLMore)
+#if ($tabsSites.tabsMoreSitesShow && $useDHTMLMore)
 				<li class="more-tab"><a href="#" onclick="return dhtml_more_tabs();" title="${rloader.sit_more}"><span class="outer"><span class="inner">${rloader.sit_more_tab}</span></span></a></li>
 #end
 			</ul>
 		</div> <!-- /linkNav -->
 
-#if ($tabsMoreSitesShow && !$useDHTMLMore)
+#if ($tabsSites.tabsMoreSitesShow && !$useDHTMLMore)
 		<div id="selectNav">
 			<span class="skip">${rloader.sit_selectmessage}</span>
 			<select onchange="if (this.options[this.selectedIndex].value != '') { parent.location = this.options[this.selectedIndex].value; } else { this.selectedIndex = 0; }">
 				<option value="" selected="selected">${rloader.sit_more}</option>
-#foreach( $site in $tabsMoreSites )
+#foreach( $site in $tabsSites.tabsMoreSites )
 				<option title="${site.siteTitle}" value="${site.siteUrl}">${site.siteTitle}</option> 
 #end	
 			</select>
@@ -338,7 +338,7 @@ ${tool.toolRenderResult.getTitle()}
 		<div>
 			<span class="skip">${rloader.sit_selectmessage}</span>
 
-			#foreach( $termKey in $tabsMoreSortedTermList)
+			#foreach( $termKey in $tabsSites.tabsMoreSortedTermList)
 			<div class="termContainer">
    #if ( !$termKey || $termKey == "" )
 				<h4>${rloader.sit_notermkey}</h4>
@@ -346,7 +346,7 @@ ${tool.toolRenderResult.getTitle()}
 				<h4>$termKey</h4>
 			#end
 			<ul>
-#foreach( $site in $tabsMoreTerms.get($termKey))
+#foreach( $site in $tabsSites.tabsMoreTerms.get($termKey))
 #if (${site.isMyWorkspace})
 				<li><a href="${site.siteUrl}" title="${rloader.sit_mywor}">
 					<span>${rloader.sit_mywor}</span>
@@ -368,7 +368,7 @@ ${tool.toolRenderResult.getTitle()}
 #end
 	
 </div> <!-- /tabsCssClass -->
-#foreach ( $site in $tabsSites)
+#foreach ( $site in $tabsSites.tabsSites)
   #if (${site.isCurrentSite})
     #if ( $site.isChild )
       <ul id="siteHierarchy"> 

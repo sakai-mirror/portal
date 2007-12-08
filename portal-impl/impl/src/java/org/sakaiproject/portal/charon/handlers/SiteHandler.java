@@ -430,7 +430,7 @@ public class SiteHandler extends WorksiteHandler
 				siteView.setToolContextPath(null);
 				rcontext.put("tabsSites", siteView.getRenderContextObject());
 			} else {
-				SiteView siteView = portal.getSiteHelper().getSitesView(SiteView.View.DHTML_MORE_VIEW, req, session, siteId);
+				SiteView siteView = portal.getSiteHelper().getSitesView(SiteView.View.DEFAULT_SITE_VIEW, req, session, siteId);
 				siteView.setPrefix(prefix);
 				siteView.setToolContextPath(null);
 				rcontext.put("tabsSites", siteView.getRenderContextObject());
