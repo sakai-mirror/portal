@@ -355,6 +355,8 @@ public class SiteHandler extends WorksiteHandler
 				myWorkspaceSiteId = siteHelper.getSiteEffectiveId(myWorkspaceSite); // this line and the beginning of the if existed prior to this change
 				
 				// check for the site.roleswap permission
+log.debug("RoleSwap Portal permission check: " + SiteService.allowRoleSwap(siteId));
+log.debug("RoleSwap Portal roleswitch value: " + roleswitchvalue);
 				if (SiteService.allowRoleSwap(siteId) || (!SiteService.allowRoleSwap(siteId) && roleswitchvalue != null))
 				{
 					Site activeSite = null;
