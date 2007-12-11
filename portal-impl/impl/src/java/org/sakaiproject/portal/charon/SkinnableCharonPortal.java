@@ -887,6 +887,35 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		rcontext.put("pageSiteType", siteType);
 		rcontext.put("toolParamResetState", portalService.getResetStateParam());
 
+		// ADDED for Timeout Alert DHTML popup
+		// timeoutAlertEnabled - set via a sakai.properties property to determine if timeout alert popup enabled
+		// portalUrl - url to ping the portal so session is refreshed (via an AJAX call so current page not affected)
+		// countdownStartTime - how long should popup be displayed
+		// inactiveTimeout - how long to wait before popup displayed 
+		boolean timeoutAlertEnabled = ServerConfigurationService.getBoolean("timeoutAlert.enabled", false);
+		boolean loggedIn = SessionManager.getCurrentSessionUserId() != null;
+		
+		if (timeoutAlertEnabled && loggedIn) {
+			final int countdownStartTime = ServerConfigurationService.getInt("timeoutAlert.countdownStartTime", 0);
+			if (countdownStartTime == 0)
+				timeoutAlertEnabled = false;
+			else {
+				final int totalSessionTime = SessionManager.getCurrentSession().getMaxInactiveInterval();
+		
+				final int waitTime = totalSessionTime - countdownStartTime;
+		
+				rcontext.put("timeoutAlertHelpUrl", ServerConfigurationService.getPortalUrl() + "/help/main?help=sakai.timeout.alert");
+				rcontext.put("portalUrl", ServerConfigurationService.getPortalUrl());
+				rcontext.put("countdownStartTime", countdownStartTime);
+		
+				rcontext.put("inactiveTimeout", (totalSessionTime - countdownStartTime)*1000);
+			}
+		}
+		
+		// need to put here just in case timeout alert is enabled but countdownStartTime property not set or is zero
+		rcontext.put("timeoutAlertEnabled", timeoutAlertEnabled && loggedIn);
+
+
 		return rcontext;
 	}
 
