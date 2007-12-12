@@ -381,12 +381,6 @@ log.debug("RoleSwap Portal roleswitch value: " + roleswitchvalue);
 								+ siteId
 								+ "/?panel=Main";
 				            	roleswitchstate = true;
-				            	switchRoleUrl = Web.serverUrl(req)
-								+ ServerConfigurationService.getString("portalPath")
-								+ "/role-switch-out/"
-								+ siteId
-								+ "/?panel=Main";
-				            	roleswitchstate = true;
 				            }
 				            else
 				            {
