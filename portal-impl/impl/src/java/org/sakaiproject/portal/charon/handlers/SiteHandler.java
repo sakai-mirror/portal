@@ -385,7 +385,6 @@ log.debug("RoleSwap Portal roleswitch value: " + roleswitchvalue);
 								+ ServerConfigurationService.getString("portalPath")
 								+ "/role-switch-out/"
 								+ siteId
-								+ siteHome
 								+ "/?panel=Main";
 				            	roleswitchstate = true;
 				            }
@@ -406,7 +405,6 @@ log.debug("RoleSwap Portal roleswitch value: " + roleswitchvalue);
 					    		rcontext.put("selectRole", selectRole);
 					    		rcontext.put("viewSiteAs", viewSiteAs);
 					    		
-				            	String siteHome = "/" + activeSite.getToolForCommonId("sakai.iframe.site").getId();
 				            	switchRoleUrl = Web.serverUrl(req)
 								+ ServerConfigurationService.getString("portalPath")
 								+ "/role-switch/"
