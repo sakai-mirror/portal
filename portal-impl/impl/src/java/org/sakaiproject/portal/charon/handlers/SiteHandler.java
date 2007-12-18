@@ -355,8 +355,6 @@ public class SiteHandler extends WorksiteHandler
 				myWorkspaceSiteId = siteHelper.getSiteEffectiveId(myWorkspaceSite); // this line and the beginning of the if existed prior to this change
 				
 				// check for the site.roleswap permission
-log.debug("RoleSwap Portal permission check: " + SiteService.allowRoleSwap(siteId));
-log.debug("RoleSwap Portal roleswitch value: " + roleswitchvalue);
 				if (SiteService.allowRoleSwap(siteId) || (!SiteService.allowRoleSwap(siteId) && roleswitchvalue != null))
 				{
 					Site activeSite = null;
@@ -374,11 +372,13 @@ log.debug("RoleSwap Portal roleswitch value: " + roleswitchvalue);
 				            {
 				            	String exitRoleSwap = "Exit Role Swap View";
 				            	rcontext.put("exitRoleSwap", exitRoleSwap);
-				            	
+				            	// TODO: May be more ideal to get the active tool on the page for the url generation
+				            	String siteHome = "/" + activeSite.getToolForCommonId("sakai.iframe.site").getId();
 				            	switchRoleUrl = Web.serverUrl(req)
 								+ ServerConfigurationService.getString("portalPath")
 								+ "/role-switch-out/"
 								+ siteId
+								+ siteHome
 								+ "/?panel=Main";
 				            	roleswitchstate = true;
 				            }
@@ -399,10 +399,13 @@ log.debug("RoleSwap Portal roleswitch value: " + roleswitchvalue);
 					    		rcontext.put("selectRole", selectRole);
 					    		rcontext.put("viewSiteAs", viewSiteAs);
 					    		
+				            	// TODO: May be more ideal to get the active tool on the page for the url generation
+				            	String siteHome = "/" + activeSite.getToolForCommonId("sakai.iframe.site").getId();
 				            	switchRoleUrl = Web.serverUrl(req)
 								+ ServerConfigurationService.getString("portalPath")
 								+ "/role-switch/"
 								+ siteId
+								+ siteHome
 								+ "/";
 				            	rcontext.put("panelString", "/?panel=Main");
 				            }
