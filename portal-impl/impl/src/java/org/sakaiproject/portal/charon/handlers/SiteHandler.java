@@ -23,11 +23,8 @@ package org.sakaiproject.portal.charon.handlers;
 
 import java.io.IOException;
 import java.util.ArrayList;
-<<<<<<< .working
 import java.util.Collections;
 import java.util.Comparator;
-=======
->>>>>>> .merge-right.r39001
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
