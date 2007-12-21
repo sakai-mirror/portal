@@ -1,7 +1,16 @@
+#*
+
+This entire macro file is commented out as we have move all macros into the file
+
+
 ##
 ## emit the top of the page 
 ##
 ##------------------------------------------------------------------------------------------
+
+WARNING MACRO NOW DISABLED
+
+
 #macro( start_response  )
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -98,6 +107,7 @@ ${tool.toolRenderResult.getTitle()}
 ##		toolMap.put("toolShowHelpButton", Boolean.valueOf(showHelpButton));
 ##		toolMap.put("toolHelpActionUrl", helpActionUrl);
 ##
+WARNING MACRO NOW DISABLED
 
 
 #macro( includeToolTitle $toolPlacement )
@@ -199,6 +209,9 @@ ${tool.toolRenderResult.getTitle()}
 ##		vcontext.put("logoSiteType", siteType);
 ##		vcontext.put("logoSiteClass", cssClass);
 ##
+
+WARNING MACRO NOW DISABLED
+
 #macro( includeLogo  ) 
 <div id="siteNavWrapper" class="${logoSiteClass}">
 	<div id="mastHead">
@@ -231,6 +244,9 @@ ${tool.toolRenderResult.getTitle()}
 ##			vcontext.put("loginEiWording", eidWording);
 ##			vcontext.put("loginPwWording", pwWording);
 ##			vcontext.put("loginWording", loginWording);
+
+WARNING MACRO NOW DISABLED
+
 #macro( includeLogin  )
 #if (!${loginTopLogin})
 	<div id="loginLinks">
@@ -279,6 +295,9 @@ ${tool.toolRenderResult.getTitle()}
 ##		rcontext.put("tabsAddLogout",Boolean.valueOf(addLogout));
 ##			rcontext.put("tabsLogoutUrl",logoutUrl);
 ##------------------------------------------------------------------------------------------
+
+WARNING MACRO NOW DISABLED
+
 #macro( includeTabs  )
 <!-- start includeTabs -->
 <div class="${tabsCssClass}">
@@ -394,6 +413,9 @@ ${tool.toolRenderResult.getTitle()}
 ## includeWorksite
 ##
 ##------------------------------------------------------------------------------------------
+
+WARNING MACRO NOW DISABLED
+
 #macro( includeWorksite  ) 
 #includePage()
 #end
@@ -419,6 +441,9 @@ ${tool.toolRenderResult.getTitle()}
 ##
 ##		rcontext.put("pageNavPresenceUrk",presenceUrl);
 ##		
+
+WARNING MACRO NOW DISABLED
+
 #macro( includePageNav )
 #if ( $sitePages.pageNavToolsCount > 1 || ! $sitePages.pageMaxIfSingle ) 
 <!-- start includePageNav -->
@@ -502,6 +527,9 @@ ${tool.toolRenderResult.getTitle()}
 ## rcontext.put("pageColumn0Tools", toolList);
 ## rcontext.put("pageColumn1Tools", toolList);
 ##------------------------------------------------------------------------------------------
+
+WARNING MACRO NOW DISABLED
+
 #macro( includePageBody ) 	
 <!-- start includePageBody -->		
 #if ( $sitePages.pageMaxIfSingle )
@@ -547,6 +575,9 @@ ${tool.toolRenderResult.getTitle()}
 ## rcontext.put("pageColumn0Tools", toolList);
 ## rcontext.put("pageColumn1Tools", toolList);
 ##------------------------------------------------------------------------------------------
+
+WARNING MACRO NOW DISABLED
+
 #macro( includePage ) 	
 <!-- start includePage -->		
 <div id="container" $pageSiteType >
@@ -563,6 +594,9 @@ ${tool.toolRenderResult.getTitle()}
 ##		rcontext.put("gallaryLoggedIn", Boolean.valueOf(loggedIn));
 ##
 ##------------------------------------------------------------------------------------------
+
+WARNING MACRO NOW DISABLED
+
 #macro( includeGalleryNav  )
 <!-- start includeGalleryNav -->
 <div id="portalOuterContainer">
@@ -595,6 +629,9 @@ ${tool.toolRenderResult.getTitle()}
 ##
 ## includeGalleryLogin
 ##------------------------------------------------------------------------------------------
+
+WARNING MACRO NOW DISABLED
+
 #macro( includeGalleryLogin  )
 <!-- start includeGalleryLogin -->
 <div class="siteNavBlock">	
@@ -616,6 +653,9 @@ ${tool.toolRenderResult.getTitle()}
 ##        rcontext.put("siteNavAccessibilityURL",accessibilityURL);
 ##        
 ##        rcontext.put("siteNavLoggedIn",Boolean.valueOf(loggedIn));
+
+WARNING MACRO NOW DISABLED
+
 #macro( includeSiteNav  )
 <!-- start includeSiteNav -->
 <div id="portalOuterContainer">
@@ -657,6 +697,7 @@ ${tool.toolRenderResult.getTitle()}
 #end
 
 
+WARNING MACRO NOW DISABLED
 
 #macro( includeBottom )
 #if (!$pagepopup)
@@ -682,3 +723,8 @@ ${tool.toolRenderResult.getTitle()}
 <!-- dont compact -->
 #end
 #end
+
+
+End co commenting out
+
+*#

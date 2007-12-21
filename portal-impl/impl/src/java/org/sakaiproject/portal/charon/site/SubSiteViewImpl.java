@@ -21,11 +21,14 @@
 
 package org.sakaiproject.portal.charon.site;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.PreferencesService;
@@ -59,7 +62,23 @@ public class SubSiteViewImpl extends AbstractSiteViewImpl
 	 */
 	public Object getRenderContextObject()
 	{
-		List l = siteHelper.convertSitesToMaps(request, mySites, prefix, currentSiteId, 
+		// Subsites should be a list of sites, with this site as their parent.
+		if ( currentSiteId == null || currentSiteId.trim().length() == 0 ) {
+			return null;
+		}
+		List<Site> csites = new ArrayList<Site>();
+		for ( Site s : mySites) {
+			ResourceProperties rp = s.getProperties();
+			String ourParent = rp.getProperty(SiteService.PROP_PARENT_ID);
+			if ( currentSiteId.equals(ourParent) ) {
+				csites.add(s);
+			}
+		}
+		if ( csites.size() == 0 ) {
+			return null;
+		}
+		
+		List l = siteHelper.convertSitesToMaps(request, csites, prefix, currentSiteId, 
 				/* myWorkspaceSiteId */ null,
 				/* includeSummary */ false, 
 				/* expandSite */ false, 
