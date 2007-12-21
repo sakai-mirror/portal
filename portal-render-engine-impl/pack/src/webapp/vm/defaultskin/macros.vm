@@ -116,7 +116,7 @@
 	    
 			<div style="font-size:14pt; text-align:center;">
 				${rloader.timeoutAlert_countdown_less_than}
-				<span id="minutes"></span>
+				<span id="minutes"></span>&nbsp;
 				${rloader.timeoutAlert_countdown_message}
 			</div>
 			<br />
