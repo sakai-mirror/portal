@@ -52,6 +52,7 @@ import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.api.PortalRenderEngine;
 import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.portal.api.PortalSiteHelper;
+import org.sakaiproject.portal.api.SiteNeighbourhoodService;
 import org.sakaiproject.portal.api.SiteView;
 import org.sakaiproject.portal.api.StoredState;
 import org.sakaiproject.portal.charon.handlers.AtomHandler;
@@ -151,7 +152,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 	private static final String INCLUDE_TITLE = "include-title";
 
-	private PortalSiteHelper siteHelper = new PortalSiteHelperImpl(this);
+	private PortalSiteHelper siteHelper = null;
+
 
 	// private HashMap<String, PortalHandler> handlerMap = new HashMap<String,
 	// PortalHandler>();
@@ -194,6 +196,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		}
 		
 	};
+
 
 	public String getPortalContext()
 	{
@@ -1494,12 +1497,13 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	public void init(ServletConfig config) throws ServletException
 	{
 		super.init(config);
-
 		portalContext = config.getInitParameter("portal.context");
 		if (portalContext == null || portalContext.length() == 0)
 		{
 			portalContext = DEFAULT_PORTAL_CONTEXT;
 		}
+		siteHelper = new PortalSiteHelperImpl(this);
+		
 		portalService = org.sakaiproject.portal.api.cover.PortalService.getInstance();
 		M_log.info("init()");
 		
@@ -1755,6 +1759,14 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	public PortalSiteHelper getSiteHelper()
 	{
 		return this.siteHelper;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.portal.api.Portal#getSiteNeighbourhoodService()
+	 */
+	public SiteNeighbourhoodService getSiteNeighbourhoodService()
+	{
+		return portalService.getSiteNeighbourhoodService();
 	}
 	
 

@@ -19,40 +19,32 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.portal.charon.site;
+package org.sakaiproject.portal.api;
+
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.portal.api.SiteNeighbourhoodService;
-import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.user.api.PreferencesService;
 
 /**
+ * The SiteNeighbourhoodService provides a list of sites in the neighbourhood of the current context.
+ * This might be all sites, or it might be just the children, siblings and drect parents of a site.
+ * It is returned as a flat list.
  * @author ieb
  *
  */
-public class AllSitesViewImpl extends AbstractSiteViewImpl
+public interface SiteNeighbourhoodService
 {
 
-	public AllSitesViewImpl(PortalSiteHelperImpl siteHelper, SiteNeighbourhoodService siteNeighbourhoodService,
-			HttpServletRequest request, Session session, String currentSiteId, SiteService siteService,
-			ServerConfigurationService serverConfigurationService, PreferencesService preferencesService)
-	{
-		super(siteHelper, siteNeighbourhoodService, request, session, currentSiteId, siteService,
-				serverConfigurationService, preferencesService);
-	}
-
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.portal.api.SiteView#getRenderContextObject()
+	/**
+	 * Get a list of sites at the current node as defined by the request
+	 * @param request
+	 * @param session
+	 * @param includeMyWorksite
+	 * @return
 	 */
-	public Object getRenderContextObject()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
+	List<Site> getSitesAtNode(HttpServletRequest request, Session session, boolean includeMyWorksite);
 
 }

@@ -370,4 +370,9 @@ public interface Portal
 	 * @return
 	 */
 	PortalSiteHelper getSiteHelper();
+
+	/**
+	 * @return
+	 */
+	SiteNeighbourhoodService getSiteNeighbourhoodService();
 }

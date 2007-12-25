@@ -45,6 +45,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.PageFilter;
 import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalSiteHelper;
+import org.sakaiproject.portal.api.SiteNeighbourhoodService;
 import org.sakaiproject.portal.api.SiteView;
 import org.sakaiproject.portal.api.SiteView.View;
 import org.sakaiproject.portal.charon.ToolHelperImpl;
@@ -178,52 +179,6 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		return gatewaySites;
 	}
 
-	// Get the sites which are to be displayed for the gateway
-	/**
-	 * @return
-	 */
-	private List<Site> getGatewaySites()
-	{
-		List<Site> mySites = new ArrayList<Site>();
-		String[] gatewaySiteIds = getGatewaySiteList();
-		if (gatewaySiteIds == null)
-		{
-			return mySites; // An empty list - deal with this higher up in the
-			// food chain
-		}
-
-		// Loop throught the sites making sure they exist and are visitable
-		for (int i = 0; i < gatewaySiteIds.length; i++)
-		{
-			String siteId = gatewaySiteIds[i];
-
-			Site site = null;
-			try
-			{
-				site = getSiteVisit(siteId);
-			}
-			catch (IdUnusedException e)
-			{
-				continue;
-			}
-			catch (PermissionException e)
-			{
-				continue;
-			}
-
-			if (site != null)
-			{
-				mySites.add(site);
-			}
-		}
-
-		if (mySites.size() < 1)
-		{
-			log.warn("No suitable gateway sites found, gatewaySiteList preference had "
-					+ gatewaySiteIds.length + " sites.");
-		}
-		return mySites;
-	}
 
 	/*
 	 * Get All Sites which indicate the current site as their parent
@@ -622,201 +577,6 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		return properties;
 	}
 
-	/**
-	 * Get All Sites for the current user. If the user is not logged in we
-	 * return the list of publically viewable gateway sites.
-	 * 
-	 * @param includeMyWorkspace
-	 *        When this is true - include the user's My Workspace as the first
-	 *        parameter. If false, do not include the MyWorkspace anywhere in
-	 *        the list. Some uses - such as the portlet styled portal or the rss
-	 *        styled portal simply want all of the sites with the MyWorkspace
-	 *        first. Other portals like the basic tabbed portal treats My
-	 *        Workspace separately from all of the rest of the workspaces.
-	 * @see org.sakaiproject.portal.api.PortalSiteHelper#getAllSites(javax.servlet.http.HttpServletRequest,
-	 *      org.sakaiproject.tool.api.Session, boolean)
-	 */
-	public List<Site> getAllSites(HttpServletRequest req, Session session,
-			boolean includeMyWorkspace)
-	{
-
-		boolean loggedIn = session.getUserId() != null;
-		List<Site> mySites;
-
-		// collect the Publically Viewable Sites
-		if (!loggedIn)
-		{
-			mySites = getGatewaySites();
-			return mySites;
-		}
-
-		// collect the user's sites
-		mySites = SiteService.getSites(
-				org.sakaiproject.site.api.SiteService.SelectionType.ACCESS, null, null,
-				null, org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, null);
-
-		// collect the user's preferences
-		List prefExclude = new ArrayList();
-		List prefOrder = new ArrayList();
-		if (session.getUserId() != null)
-		{
-			Preferences prefs = PreferencesService.getPreferences(session.getUserId());
-			ResourceProperties props = prefs.getProperties("sakai:portal:sitenav");
-
-			List l = props.getPropertyList("exclude");
-			if (l != null)
-			{
-				prefExclude = l;
-			}
-
-			l = props.getPropertyList("order");
-			if (l != null)
-			{
-				prefOrder = l;
-			}
-		}
-
-		// remove all in exclude from mySites
-		mySites.removeAll(prefExclude);
-
-		// Prepare to put sites in the right order
-		Vector<Site> ordered = new Vector<Site>();
-		Set<String> added = new HashSet<String>();
-
-		// First, place or remove MyWorkspace as requested
-		Site myWorkspace = getMyWorkspace(session);
-		if (myWorkspace != null)
-		{
-			if (includeMyWorkspace)
-			{
-				ordered.add(myWorkspace);
-				added.add(myWorkspace.getId());
-			}
-			else
-			{
-				int pos = listIndexOf(myWorkspace.getId(), mySites);
-				if (pos != -1) mySites.remove(pos);
-			}
-		}
-
-		// re-order mySites to have order first, the rest later
-		for (Iterator i = prefOrder.iterator(); i.hasNext();)
-		{
-			String id = (String) i.next();
-
-			// find this site in the mySites list
-			int pos = listIndexOf(id, mySites);
-			if (pos != -1)
-			{
-				// move it from mySites to order, ignoring child sites
-				Site s = mySites.get(pos);
-				ResourceProperties rp = s.getProperties();
-				String ourParent = rp.getProperty(PROP_PARENT_ID);
-				// System.out.println("Pref Site:"+s.getTitle()+"
-				// parent="+ourParent);
-				if (ourParent == null && !added.contains(s.getId()))
-				{
-					ordered.add(s);
-					added.add(s.getId());
-				}
-			}
-		}
-
-		// We only do the child processing if we have less than 200 sites
-		boolean haveChildren = false;
-		int siteCount = mySites.size();
-
-		// pick up the rest of the top-level-sites
-		for (int i = 0; i < mySites.size(); i++)
-		{
-			Site s = mySites.get(i);
-			if (added.contains(s.getId())) continue;
-			ResourceProperties rp = s.getProperties();
-			String ourParent = rp.getProperty(PROP_PARENT_ID);
-			// System.out.println("Top Site:"+s.getTitle()+"
-			// parent="+ourParent);
-			if (siteCount > 200 || ourParent == null)
-			{
-				// System.out.println("Added at root");
-				ordered.add(s);
-				added.add(s.getId());
-			}
-			else
-			{
-				haveChildren = true;
-			}
-		}
-
-		// If and only if we have some child nodes, we repeatedly
-		// pull up children nodes to be behind their parents
-		// This is O N**2 - so if we had thousands of sites it
-		// it would be costly - hence we only do it for < 200 sites
-		// and limited depth - that makes it O(N) not O(N**2)
-		boolean addedSites = true;
-		int depth = 0;
-		while (depth < 20 && addedSites && haveChildren)
-		{
-			depth++;
-			addedSites = false;
-			haveChildren = false;
-			for (int i = mySites.size() - 1; i >= 0; i--)
-			{
-				Site s = mySites.get(i);
-				if (added.contains(s.getId())) continue;
-				ResourceProperties rp = s.getProperties();
-				String ourParent = rp.getProperty(PROP_PARENT_ID);
-				if (ourParent == null) continue;
-				haveChildren = true;
-				// System.out.println("Child Site:"+s.getTitle()+"
-				// parent="+ourParent);
-				// Search the already added pages for a parent
-				// or sibling node
-				boolean found = false;
-				int j = -1;
-				for (j = ordered.size() - 1; j >= 0; j--)
-				{
-					Site ps = ordered.get(j);
-					// See if this site is our parent
-					if (ourParent.equals(ps.getId()))
-					{
-						found = true;
-						break;
-					}
-					// See if this site is our sibling
-					rp = ps.getProperties();
-					String peerParent = rp.getProperty(PROP_PARENT_ID);
-					if (ourParent.equals(peerParent))
-					{
-						found = true;
-						break;
-					}
-				}
-
-				// We want to insert *after* the identified node
-				j = j + 1;
-				if (found && j >= 0 && j < ordered.size())
-				{
-					// System.out.println("Added after parent");
-					ordered.insertElementAt(s, j);
-					added.add(s.getId());
-					addedSites = true; // Worth going another level deeper
-				}
-			}
-		} // End while depth
-
-		// If we still have children drop them at the end
-		if (haveChildren) for (int i = 0; i < mySites.size(); i++)
-		{
-			Site s = mySites.get(i);
-			if (added.contains(s.getId())) continue;
-			// System.out.println("Orphan Site:"+s.getId()+" "+s.getTitle());
-			ordered.add(s);
-		}
-
-		// All done
-		mySites = ordered;
-		return mySites;
-	}
 
 	/**
 	 * @see org.sakaiproject.portal.api.PortalSiteHelper#getMyWorkspace(org.sakaiproject.tool.api.Session)
@@ -1042,29 +802,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		}
 	}
 
-	/**
-	 * Find the site in the list that has this id - return the position.
-	 * 
-	 * @param value
-	 *        The site id to find.
-	 * @param siteList
-	 *        The list of Site objects.
-	 * @return The index position in siteList of the site with site id = value,
-	 *         or -1 if not found.
-	 */
-	private int listIndexOf(String value, List siteList)
-	{
-		for (int i = 0; i < siteList.size(); i++)
-		{
-			Site site = (Site) siteList.get(i);
-			if (site.equals(value))
-			{
-				return i;
-			}
-		}
 
-		return -1;
-	}
 
 	/**
 	 * Retrieve the list of pages in this site, checking to see if the user has
@@ -1163,23 +901,24 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		switch (view)
 		{
 			case ALL_SITES_VIEW:
-				return new AllSitesViewImpl(this, request, session, siteId, SiteService
+				return new AllSitesViewImpl(this,  portal.getSiteNeighbourhoodService(), request, session, siteId, SiteService
 						.getInstance(), ServerConfigurationService.getInstance(),
 						PreferencesService.getInstance());
 			case DEFAULT_SITE_VIEW:
-				return new DefaultSiteViewImpl(this, request, session, siteId, SiteService
+				return new DefaultSiteViewImpl(this, portal.getSiteNeighbourhoodService(), request, session, siteId, SiteService
 						.getInstance(), ServerConfigurationService.getInstance(),
 						PreferencesService.getInstance());
 			case DHTML_MORE_VIEW:
-				return new MoreSiteViewImpl(this, request, session, siteId, SiteService
+				return new MoreSiteViewImpl(this,portal.getSiteNeighbourhoodService(), request, session, siteId, SiteService
 						.getInstance(), ServerConfigurationService.getInstance(),
 						PreferencesService.getInstance());
 			case SUB_SITES_VIEW:
-				return new SubSiteViewImpl(this, request, session, siteId, SiteService
+				return new SubSiteViewImpl(this, portal.getSiteNeighbourhoodService(), request, session, siteId, SiteService
 						.getInstance(), ServerConfigurationService.getInstance(),
 						PreferencesService.getInstance());
 		}
 		return null;
 	}
+
 
 }

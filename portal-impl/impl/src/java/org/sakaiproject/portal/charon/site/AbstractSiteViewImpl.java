@@ -29,6 +29,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.portal.api.SiteNeighbourhoodService;
 import org.sakaiproject.portal.api.SiteView;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -71,7 +72,7 @@ public abstract class AbstractSiteViewImpl implements SiteView
 
 	protected boolean resetTools = false;
 
-	public AbstractSiteViewImpl(PortalSiteHelperImpl siteHelper,
+	public AbstractSiteViewImpl(PortalSiteHelperImpl siteHelper, SiteNeighbourhoodService siteNeighbourhoodService, 
 			HttpServletRequest request, Session session, String currentSiteId, SiteService siteService,
 			ServerConfigurationService serverConfigurationService, PreferencesService preferencesService)
 	{
@@ -82,7 +83,12 @@ public abstract class AbstractSiteViewImpl implements SiteView
 		this.session = session;
 		this.preferencesService = preferencesService;
 		this.serverConfigurationService = serverConfigurationService;
-		mySites = siteHelper.getAllSites(request, session, true);
+		
+		
+		
+		mySites = siteNeighbourhoodService.getSitesAtNode(request, session, true);
+		
+		
 		loggedIn = session.getUserId() != null;
 		Site myWorkspaceSite = siteHelper.getMyWorkspace(session);
 		if (myWorkspaceSite != null)

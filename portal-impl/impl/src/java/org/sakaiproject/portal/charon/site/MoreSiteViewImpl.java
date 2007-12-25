@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.portal.api.Portal;
+import org.sakaiproject.portal.api.SiteNeighbourhoodService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
@@ -55,12 +56,12 @@ public class MoreSiteViewImpl extends DefaultSiteViewImpl
 	 * @param serverConfigurationService
 	 * @param preferencesService
 	 */
-	public MoreSiteViewImpl(PortalSiteHelperImpl siteHelper, HttpServletRequest request,
+	public MoreSiteViewImpl(PortalSiteHelperImpl siteHelper,  SiteNeighbourhoodService siteNeighbourhoodService, HttpServletRequest request,
 			Session session, String currentSiteId, SiteService siteService,
 			ServerConfigurationService serverConfigurationService,
 			PreferencesService preferencesService)
 	{
-		super(siteHelper, request, session, currentSiteId, siteService,
+		super(siteHelper, siteNeighbourhoodService, request, session, currentSiteId, siteService,
 				serverConfigurationService, preferencesService);
 	}
 
