@@ -14,36 +14,12 @@
 #if (! $currentPlacement && $isPDA )
     <meta name="viewport" content="width=320, user-scalable=no" />
 #end
-#if ( ${bufferedResponse} && ${responseHead} ) 
-<!-- Head material from Tool (will include title and headscripts) -->
-${responseHead}
-<!-- End of Head material from Tool -->
-	#if (  $pageColumn0Tools )
-		#foreach ( $tool in $pageColumn0Tools ) 
-			#if ( $tool ) 
-				#if ( $tool.toolRenderResult ) 
-${tool.toolRenderResult.getTitle()}
-				#end
-			#end
-		#end
-	#end
-	#if ($pageTwoColumn)
-		#if (  $pageColumn1Tools )
-			#foreach ( $tool in $pageColumn1Tools ) 
-				#if ( $tool ) 
-					#if ( $tool.toolRenderResult ) 
-${tool.toolRenderResult.getTitle()}
-					#end
-				#end
-			#end
-		#end
-	#end
-#else 
-    <title>${pageTitle}</title>
-     <script type="text/javascript" language="JavaScript" src="${pageScriptPath}headscripts.js"></script>
-     <script type="text/javascript" language="JavaScript" src="${pageScriptPath}jquery-1.1.2.js"></script>
-#end
+<title>${pageTitle}</title>
+<!-- I dont' think we need these in the frame top
+<script type="text/javascript" language="JavaScript" src="${pageScriptPath}headscripts.js"></script>
+<script type="text/javascript" language="JavaScript" src="${pageScriptPath}jquery-1.1.2.js"></script>
 <script type="text/javascript" language="JavaScript" src="/portal/scripts/portalscripts.js"></script>
+-->
 
 #if ( ${styleable} )
 <script type="text/javascript" 
@@ -137,24 +113,21 @@ ${tool.toolRenderResult.getTitle()}
 							<ul id="siteLinkList">
 						#foreach ( $site in $tabsSites.tabsSites ) 
 							#if (${site.isCurrentSite} || ${site.isMyWorkspace})
-								#if ( ${site.isCurrentSite} ) 
-								  <li class="selectedTab">
-								#else
-								  <li>
-								#end
 								#if (${site.isMyWorkspace})
-							<a href="${site.siteUrl}" title="${rloader.sit_mywor}" target="_top"><span>${rloader.sit_mywor}</span></a></li>
+							<li><a href="${site.siteUrl}" title="${rloader.sit_mywor}" target="_top"><span>${rloader.sit_mywor}</span></a></li>
 								#else
-							<a href="${site.siteUrl}" title="${site.siteTitle}" target="_top"><span>${site.siteTitle}</span></a></li>
+							<li><a href="${site.siteUrl}" title="${site.siteTitle}" target="_top"><span>${site.siteTitle}</span></a></li>
 								#end
 							#end
 						#end
+                                                <li class="selectedTab">
+                                                  <a href="${sakaiFrameReset}" title="${rloader.sit_reset}" target="_top"><span>${sakaiFrameTitle}</span></a></li>
 						</ul>
 					</div> <!-- /linkNav -->
 					## JSR-168 Edit Button 
-        				#if ( $frameTopEditUrl )
+        				#if ( $sakaiFrameEdit )
 					    <span class="portletTitle"><span class="action">
-                                                 <a accesskey="e" id="jsr-edit" href="${frameTopEditUrl}" target="_top"
+                                                 <a accesskey="e" id="jsr-edit" href="${sakaiFrameEdit}" target="_top"
                                                       title="${rloader.sit_edit}"><img src="/library/image/transparent.gif"  
                                                       alt="${rloader.sit_edit}" border="0"></a>
 					    </span></span>

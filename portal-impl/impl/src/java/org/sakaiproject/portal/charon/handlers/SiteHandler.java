@@ -129,6 +129,10 @@ public class SiteHandler extends WorksiteHandler
 			String siteId, String pageId, String toolContextPath) throws ToolException,
 			IOException
 	{
+
+		boolean doFrameTop = "true".equals(req.getParameter("sakai.frame.top"));
+System.out.println("doFrameTop="+doFrameTop);
+
 		// default site if not set
 		if (siteId == null)
 		{
@@ -248,18 +252,46 @@ public class SiteHandler extends WorksiteHandler
 		// the 'full' top area
 		includeSiteNav(rcontext, req, session, siteId);
 
-		includeWorksite(rcontext, res, req, session, site, page, toolContextPath, "site");
+		if ( ! doFrameTop ) 
+		{
+			includeWorksite(rcontext, res, req, session, site, page, toolContextPath, "site");
 
-		// Include sub-sites if appropriate
-		// TODO: Thing through whether we want reset tools or not
-		portal.includeSubSites(rcontext, req, session,
-			siteId,  req.getContextPath() + req.getServletPath(), "site",
-			/* resetTools */ false );
+			// Include sub-sites if appropriate
+			// TODO: Thing through whether we want reset tools or not
+			portal.includeSubSites(rcontext, req, session,
+				siteId,  req.getContextPath() + req.getServletPath(), "site",
+				/* resetTools */ false );
 
-		portal.includeBottom(rcontext);
+			portal.includeBottom(rcontext);
+		}
+
+System.out.println("sakai.frame.edit="+req.getParameter("sakai.frame.edit"));
+System.out.println("sakai.frame.title="+req.getParameter("sakai.frame.title"));
+System.out.println("sakai.frame.reset="+req.getParameter("sakai.frame.reset"));
+
+		rcontext.put("currentUrlPath",Web.serverUrl(req) + req.getContextPath() + req.getPathInfo());
+		rcontext.put("sakaiFrameEdit",req.getParameter("sakai.frame.edit"));
+		rcontext.put("sakaiFrameTitle",req.getParameter("sakai.frame.title"));
+		rcontext.put("sakaiFrameReset",req.getParameter("sakai.frame.reset"));
+
+		// TODO: Make behavior conditional on a property
+		// Retrieve the maximized URL and clear it from the global session
+		String maximizedUrl = (String) session.getAttribute("sakai-maximized-url");
+		if (maximizedUrl != null ) rcontext.put("frameMaximizedUrl",maximizedUrl);
+		session.setAttribute("sakai-maximized-url",null);
 
 		// end the response
-		portal.sendResponse(rcontext, res, "site", null);
+		if ( doFrameTop ) 
+		{
+			portal.sendResponse(rcontext, res, "ftop", null);
+			// clear the last page visited
+			session.setAttribute(Portal.ATTR_SITE_PAGE + siteId, null);
+		}
+		else
+		{
+			portal.sendResponse(rcontext, res, "site", null);
+		}
+
 		StoredState ss = portalService.getStoredState();
 		if (ss != null && toolContextPath.equals(ss.getToolContextPath()))
 		{

@@ -88,6 +88,7 @@ import org.sakaiproject.portal.render.api.RenderResult;
 import org.sakaiproject.portal.render.cover.ToolRenderService;
 import org.sakaiproject.portal.util.ErrorReporter;
 import org.sakaiproject.portal.util.ToolURLManagerImpl;
+import org.sakaiproject.portal.util.URLUtils;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -666,8 +667,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			if (SecurityService.unlock(SiteService.SECURE_UPDATE_SITE, site
 					.getReference()))
 			{
-				toolMap.put("toolJSR168Edit", Web.serverUrl(req)
-						+ result.getJSR168EditUrl());
+				String editUrl = Web.serverUrl(req) + result.getJSR168EditUrl();
+				toolMap.put("toolJSR168Edit", editUrl);
+				toolMap.put("toolJSR168EditEncode", URLUtils.encodeUrl(editUrl));
 			}
 		}
 
@@ -676,6 +678,10 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		toolMap.put("toolUrl", toolUrl);
 		if (isPortletPlacement(placement))
 		{
+			// TODO: This should be controlled by a property set on the tool - Chuck
+			System.out.println("Pre-loading content...");
+			result.getContent();
+
 			toolMap.put("toolPlacementIDJS", "_self");
 		}
 		else
@@ -684,7 +690,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 					+ placement.getId()));
 		}
 		toolMap.put("toolResetActionUrl", resetActionUrl);
+		toolMap.put("toolResetActionUrlEncode", URLUtils.encodeUrl(resetActionUrl));
 		toolMap.put("toolTitle", titleString);
+		toolMap.put("toolTitleEncode", URLUtils.encodeUrl(titleString));
 		toolMap.put("toolShowResetButton", Boolean.valueOf(showResetButton));
 		toolMap.put("toolShowHelpButton", Boolean.valueOf(showHelpButton));
 		toolMap.put("toolHelpActionUrl", helpActionUrl);

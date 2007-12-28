@@ -1,3 +1,36 @@
+#set ($toolCount=0)
+#if ( $frameMaximizedUrl && $pageColumn0Tools )
+  #foreach ( $tool in $pageColumn0Tools ) 
+    #if ( $tool ) 
+      #set ($toolCount =$toolCount + 1)       
+      #set($frameResetUrl = ${tool.toolResetActionUrlEncode})
+      #set($frameTitle = ${tool.toolTitleEncode})
+      #if (${tool.toolJSR168Edit} )
+        #set($jsr168EditUrl = ${tool.toolJSR168Edit})
+      #end
+    #end
+  #end
+#end
+#if ( $frameMaximizedUrl && $toolCount == 1 )
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN"
+   "http://www.w3.org/TR/html4/frameset.dtd">
+<html>
+<head>
+    <title>${pageTitle}</title>
+</head>
+<body>
+  <frameset rows="140, *">
+#if ( ${jsr168EditUrl} )
+      <frame src="${currentUrlPath}?sakai.frame.top=true&sakai.frame.title=${frameTitle}&sakai.frame.reset=${frameResetUrl}&sakai.frame.edit=${jsr168EditUrl}" 
+             frameborder="0" scrolling="no" noresize>
+#else
+      <frame src="${currentUrlPath}?sakai.frame.top=true&sakai.frame.title=${frameTitle}&sakai.frame.reset=${frameResetUrl}" 
+         frameborder="0" scrolling="no" noresize>
+#end
+      <frame src="${frameMaximizedUrl}" frameborder="0">
+  </frameset>
+</html>
+#else
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
@@ -580,3 +613,4 @@ ${tool.toolRenderResult.getTitle()}
 <!-- end site.vm -->
 	</body>
 </html>
+#end
