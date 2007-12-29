@@ -114,23 +114,31 @@
 						#foreach ( $site in $tabsSites.tabsSites ) 
 							#if (${site.isCurrentSite} || ${site.isMyWorkspace})
 								#if (${site.isMyWorkspace})
-							<li><a href="${site.siteUrl}" title="${rloader.sit_mywor}" target="_top"><span>${rloader.sit_mywor}</span></a></li>
+							<li><a href="${site.siteUrl}?sakai.frame.suppress" title="${rloader.sit_mywor}" target="_top"><span>${rloader.sit_mywor}</span></a></li>
 								#else
-							<li><a href="${site.siteUrl}" title="${site.siteTitle}" target="_top"><span>${site.siteTitle}</span></a></li>
+									#if ( ${sakaiSingleTool} )
+                                                			  <li class="selectedTab">
+									#else
+									  <li>
+									#end
+							<a href="${site.siteUrl}?sakai.frame.suppress=true" title="${site.siteTitle}" target="_top"><span>${site.siteTitle}</span></a></li>
 								#end
 							#end
 						#end
-                                                <li class="selectedTab">
+						## If we are a single tool - only show the Site tab - not the tool tab - the Site tab becomes the "reset"
+						#if ( ! ${sakaiSingleTool} ) 
+                                                  <li class="selectedTab">
 						  ## For JSR-168 portlets target must be top - for Sakai tools target must be the content frame
                                                   #if ( ${sakaiFrameReset} )
-        						#if ( $sakaiFrameEdit )
-                                                		<a href="${sakaiFrameReset}" title="${rloader.sit_reset}" target="_top"><span>${sakaiFrameTitle}</span></a></li>
+        						#if ( $sakaiFramePortlet )
+                                                	<a href="${sakaiFrameReset}" title="${rloader.sit_reset}" target="_top"><span>${sakaiFrameTitle}</span></a></li>
 							#else
-                                                    		<a href="${sakaiFrameReset}" title="${rloader.sit_reset}" target="sakai-content"><span>${sakaiFrameTitle}</span></a></li>
+                                                    	<a href="${sakaiFrameReset}" title="${rloader.sit_reset}" target="sakai-content"><span>${sakaiFrameTitle}</span></a></li>
 							#end
 						  #else
-                                                    <a href="#"><span>${sakaiFrameTitle}</span></a></li>
+                                                   	<a href="#"><span>${sakaiFrameTitle}</span></a></li>
 						  #end
+						#end
 						</ul>
 					</div> <!-- /linkNav -->
 					## JSR-168 Edit Button 

@@ -2,7 +2,12 @@
 #set ( $frameEditParam = "")
 #set ( $frameIsPortlet = "")
 #set ( $frameResetParam = "")
+#set ( $frameOnlyOneTool = "")
+#if ( $sitePages.pageNavToolsCount == 1 ) 
+  #set ( $frameOnlyOneTool = "&sakai.frame.single.tool=true")
+#end
 ##if ( $frameMaximizedUrl && $pageColumn0Tools )
+##if ( ($sakaiOriginalPageId || $sitePages.pageNavToolsCount == 1) && $pageColumn0Tools )
 #if ( $pageColumn0Tools )
   #foreach ( $tool in $pageColumn0Tools ) 
     #if ( $tool ) 
@@ -26,7 +31,8 @@
     #end
   #end
 #end
-#if ( $frameMaximizedUrl && $toolCount == 1 )
+##if ( ! $sakaiFrameSuppress && $sakaiOriginalPageId && $frameMaximizedUrl && $toolCount == 1 )
+#if ( ! $sakaiFrameSuppress && $frameMaximizedUrl && $toolCount == 1 )
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN"
    "http://www.w3.org/TR/html4/frameset.dtd">
 <html>
@@ -36,7 +42,7 @@
 </head>
 <body>
   <frameset rows="140, *">
-      <frame src="${currentUrlPath}?sakai.frame.top=true&sakai.frame.title=${frameTitle}${frameIsPortlet}${frameResetParam}${frameEditParam}"
+      <frame src="${currentUrlPath}?sakai.frame.top=true&sakai.frame.title=${frameTitle}${frameIsPortlet}${frameResetParam}${frameEditParam}${frameOnlyOneTool}"
              frameborder="0" scrolling="no" noresize>
       <frame src="${frameMaximizedUrl}" frameborder="0" name="sakai-content">
   </frameset>
