@@ -121,7 +121,16 @@
 							#end
 						#end
                                                 <li class="selectedTab">
-                                                  <a href="${sakaiFrameReset}" title="${rloader.sit_reset}" target="_top"><span>${sakaiFrameTitle}</span></a></li>
+						  ## For JSR-168 portlets target must be top - for Sakai tools target must be the content frame
+                                                  #if ( ${sakaiFrameReset} )
+        						#if ( $sakaiFrameEdit )
+                                                		<a href="${sakaiFrameReset}" title="${rloader.sit_reset}" target="_top"><span>${sakaiFrameTitle}</span></a></li>
+							#else
+                                                    		<a href="${sakaiFrameReset}" title="${rloader.sit_reset}" target="sakai-content"><span>${sakaiFrameTitle}</span></a></li>
+							#end
+						  #else
+                                                    <a href="#"><span>${sakaiFrameTitle}</span></a></li>
+						  #end
 						</ul>
 					</div> <!-- /linkNav -->
 					## JSR-168 Edit Button 

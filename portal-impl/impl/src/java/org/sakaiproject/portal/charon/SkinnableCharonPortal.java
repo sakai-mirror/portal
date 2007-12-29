@@ -683,6 +683,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			result.getContent();
 
 			toolMap.put("toolPlacementIDJS", "_self");
+			toolMap.put("isPortletPlacement", Boolean.TRUE);
 		}
 		else
 		{

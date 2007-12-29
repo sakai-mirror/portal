@@ -1,12 +1,27 @@
 #set ($toolCount=0)
-#if ( $frameMaximizedUrl && $pageColumn0Tools )
+#set ( $frameEditParam = "")
+#set ( $frameIsPortlet = "")
+#set ( $frameResetParam = "")
+##if ( $frameMaximizedUrl && $pageColumn0Tools )
+#if ( $pageColumn0Tools )
   #foreach ( $tool in $pageColumn0Tools ) 
     #if ( $tool ) 
       #set ($toolCount =$toolCount + 1)       
-      #set($frameResetUrl = ${tool.toolResetActionUrlEncode})
       #set($frameTitle = ${tool.toolTitleEncode})
+      ## Do for all non-portlet tools :)
+      #if ( ! ${frameMaximizedUrl} )
+        #if ( ! ${tool.isPortletPlacement} ) 
+          #set($frameMaximizedUrl = "${tool.toolUrl}?panel=Main" )
+        #end
+      #end 
+      #if ( ${isPortletPlacement} )
+        #set($frameIsPortlet = "&sakai.frame.portlet=true" )
+      #end
+      #if( ${tool.toolShowResetButton} )
+        #set($frameResetParam = "&sakai.frame.reset=${tool.toolResetActionUrlEncode}" )
+      #end
       #if (${tool.toolJSR168Edit} )
-        #set($jsr168EditUrl = ${tool.toolJSR168Edit})
+        #set($frameEditParam = "&sakai.frame.edit=${tool.toolJSR168Edit}" )
       #end
     #end
   #end
@@ -16,18 +31,14 @@
    "http://www.w3.org/TR/html4/frameset.dtd">
 <html>
 <head>
+    ## TODO: Should this be frameTitle ??
     <title>${pageTitle}</title>
 </head>
 <body>
   <frameset rows="140, *">
-#if ( ${jsr168EditUrl} )
-      <frame src="${currentUrlPath}?sakai.frame.top=true&sakai.frame.title=${frameTitle}&sakai.frame.reset=${frameResetUrl}&sakai.frame.edit=${jsr168EditUrl}" 
+      <frame src="${currentUrlPath}?sakai.frame.top=true&sakai.frame.title=${frameTitle}${frameIsPortlet}${frameResetParam}${frameEditParam}"
              frameborder="0" scrolling="no" noresize>
-#else
-      <frame src="${currentUrlPath}?sakai.frame.top=true&sakai.frame.title=${frameTitle}&sakai.frame.reset=${frameResetUrl}" 
-         frameborder="0" scrolling="no" noresize>
-#end
-      <frame src="${frameMaximizedUrl}" frameborder="0">
+      <frame src="${frameMaximizedUrl}" frameborder="0" name="sakai-content">
   </frameset>
 </html>
 #else

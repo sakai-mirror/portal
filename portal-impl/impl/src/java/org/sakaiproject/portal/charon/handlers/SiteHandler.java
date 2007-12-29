@@ -268,11 +268,13 @@ System.out.println("doFrameTop="+doFrameTop);
 System.out.println("sakai.frame.edit="+req.getParameter("sakai.frame.edit"));
 System.out.println("sakai.frame.title="+req.getParameter("sakai.frame.title"));
 System.out.println("sakai.frame.reset="+req.getParameter("sakai.frame.reset"));
+System.out.println("sakai.frame.portlet="+req.getParameter("sakai.frame.portlet"));
 
 		rcontext.put("currentUrlPath",Web.serverUrl(req) + req.getContextPath() + req.getPathInfo());
 		rcontext.put("sakaiFrameEdit",req.getParameter("sakai.frame.edit"));
 		rcontext.put("sakaiFrameTitle",req.getParameter("sakai.frame.title"));
 		rcontext.put("sakaiFrameReset",req.getParameter("sakai.frame.reset"));
+		rcontext.put("sakaiFramePortlet",req.getParameter("sakai.frame.portlet"));
 
 		// TODO: Make behavior conditional on a property
 		// Retrieve the maximized URL and clear it from the global session
