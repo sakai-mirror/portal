@@ -129,7 +129,7 @@ public class SiteHandler extends WorksiteHandler
 			IOException
 	{
 
-		boolean doFrameTop = "true".equals(req.getParameter("ftop"));
+		boolean doFrameTop = "true".equals(req.getParameter("sakai.frame.top"));
 System.out.println("doFrameTop="+doFrameTop);
 		// Save the siteId
 		String originalPageId = pageId;
