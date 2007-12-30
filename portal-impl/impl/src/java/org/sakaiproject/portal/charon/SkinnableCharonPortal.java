@@ -678,9 +678,12 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		toolMap.put("toolUrl", toolUrl);
 		if (isPortletPlacement(placement))
 		{
-			// TODO: Preloading should be controlled by a property set on the tool - Chuck
-			System.out.println("Pre-loading content...");
-			result.getContent();
+			// If the tool has requested it, pre-fetch render output.
+			String doPreFetch  = placement.getConfig().getProperty(Portal.JSR_168_PRE_RENDER);
+			if ( "true".equals(doPreFetch) ) 
+			{
+				result.getContent();
+			}
                 
 			toolMap.put("toolPlacementIDJS", "_self");
 			toolMap.put("isPortletPlacement", Boolean.TRUE);

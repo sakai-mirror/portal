@@ -269,7 +269,6 @@ public class SiteHandler extends WorksiteHandler
 		// This allows us to generate a link where we see the tool buttons - this is
 		// set on site URLs when in the frame top frame
 		rcontext.put("sakaiFrameSuppress",req.getParameter("sakai.frame.suppress"));
-System.out.println("sakai.frame.suppress="+req.getParameter("sakai.frame.suppress"));
 
 		// TODO: Make behavior conditional on a property - Move this to includeTool
 		// Retrieve the maximized URL and clear it from the global session
@@ -286,12 +285,6 @@ System.out.println("sakai.frame.suppress="+req.getParameter("sakai.frame.suppres
 			rcontext.put("sakaiFrameReset",req.getParameter("sakai.frame.reset"));
 			rcontext.put("sakaiFramePortlet",req.getParameter("sakai.frame.portlet"));
 			rcontext.put("sakaiSinglePage",req.getParameter("sakai.frame.single.page"));
-System.out.println("sakai.frame.edit="+req.getParameter("sakai.frame.edit"));
-System.out.println("sakai.frame.title="+req.getParameter("sakai.frame.title"));
-System.out.println("sakai.frame.reset="+req.getParameter("sakai.frame.reset"));
-System.out.println("sakai.frame.portlet="+req.getParameter("sakai.frame.portlet"));
-System.out.println("sakai.frame.single.page="+req.getParameter("sakai.frame.single.page"));
-
 
 			portal.sendResponse(rcontext, res, "site-frame-top", null);
 		}

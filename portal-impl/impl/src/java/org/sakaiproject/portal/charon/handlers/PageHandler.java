@@ -255,20 +255,27 @@ public class PageHandler extends BasePortalHandler
 			// appropriate materials into the context
 			if ( toolCount == 1 )
 			{
-				rcontext.put("singleToolMap",singleToolMap);
-                        	String maximizedUrl = (String) session.getAttribute("sakai-maximized-url");
-                        	session.setAttribute("sakai-maximized-url",null);
-
 				boolean framesetRequested = false;
 
-                        	if (maximizedUrl != null ) {
+				rcontext.put("singleToolMap",singleToolMap);
+				
+                        	String maximizedUrl = (String) session.getAttribute(Portal.ATTR_MAXIMIZED_URL);
+                        	session.setAttribute(Portal.ATTR_MAXIMIZED_URL,null);
+
+                        	if (maximizedUrl != null ) 
+				{
 					framesetRequested = true;
 					rcontext.put("frameMaximizedUrl",maximizedUrl);
 				}
 	
 				// If tool configuration property is set for tool - do request
+				String toolConfigMax = singleTool.getConfig().getProperty(Portal.PREFER_MAXIMIZE);
+				if ( "true".equals(toolConfigMax)) framesetRequested = true;
+	
+				// Check to see if we are configured to always request maximized view
+				// or if we are forbidden to do maximized view
 				String framesetConfig  = ServerConfigurationService
-					.getString("portal.frameset");
+					.getString(Portal.FRAMESET_SUPPORT);
 
 				if ( "always".equals(framesetConfig) ) framesetRequested = true;
 				if ( "never".equals(framesetConfig) ) framesetRequested = false;
