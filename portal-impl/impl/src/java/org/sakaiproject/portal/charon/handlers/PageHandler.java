@@ -272,6 +272,13 @@ public class PageHandler extends BasePortalHandler
 
 				if ( "always".equals(framesetConfig) ) framesetRequested = true;
 				if ( "never".equals(framesetConfig) ) framesetRequested = false;
+
+				// JSR-168 portlets cannot be in a frameset unless they asked for
+				// a maximized URL
+				if ( singleToolMap.get("isPortletPlacement") != null && maximizedUrl == null )
+				{
+					framesetRequested = false;
+				}
 				
 				if ( framesetRequested ) rcontext.put("sakaiFrameSetRequested",Boolean.TRUE);	
 			}

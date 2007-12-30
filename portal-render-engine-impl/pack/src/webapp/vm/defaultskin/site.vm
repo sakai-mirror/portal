@@ -1,51 +1,41 @@
-#set ($toolCount=0)
-#set ( $frameEditParam = "")
-#set ( $frameIsPortlet = "")
-#set ( $frameResetParam = "")
-#set ( $frameOnlyOneTool = "")
-#if ( $sitePages.pageNavToolsCount == 1 ) 
-  #set ( $frameOnlyOneTool = "&sakai.frame.single.page=true")
-#end
-#if ( $pageColumn0Tools )
-  #foreach ( $tool in $pageColumn0Tools ) 
-    #if ( $tool ) 
-      #set ($toolCount =$toolCount + 1)       
-      #set($frameTitle = ${tool.toolTitleEncode})
-      ## Do for all non-portlet tools :)
-      #if ( ! ${frameMaximizedUrl} )
-        #if ( ! ${tool.isPortletPlacement} ) 
-          #set($frameMaximizedUrl = "${tool.toolUrl}?panel=Main" )
-        #end
-      #end 
-      #if ( ${tool.isPortletPlacement} )
-        #set($frameIsPortlet = "&sakai.frame.portlet=true" )
-      #end
-      #if( ${tool.toolShowResetButton} )
-        #set($frameResetParam = "&sakai.frame.reset=${tool.toolResetActionUrlEncode}" )
-      #end
-      #if (${tool.toolJSR168Edit} )
-        #set($frameEditParam = "&sakai.frame.edit=${tool.toolJSR168Edit}" )
-      #end
-    #end
-  #end
-#end
-##if ( ! $sakaiFrameSuppress && $sakaiOriginalPageId && $frameMaximizedUrl && $toolCount == 1 )
-## We ignore frame suppress if there is only one tool
-#if ( ( ! $sakaiFrameSuppress || $sitePages.pageNavToolsCount == 1 ) && $frameMaximizedUrl && $toolCount == 1 )
+## Generate a frameset if it was requested and not suppressed - if there is only one page
+## in this site - we don't suppress
+#if ( $singleToolMap && $sakaiFrameSetRequested && ( ! $sakaiFrameSuppress || $sitePages.pageNavToolsCount == 1 ) )
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN"
    "http://www.w3.org/TR/html4/frameset.dtd">
 <html>
 <head>
-    ## TODO: Should this be frameTitle ??
     <title>${pageTitle}</title>
 </head>
 <body>
+  #set ( $frameEditParam = "")
+  #set ( $frameIsPortlet = "")
+  #set ( $frameResetParam = "")
+  #set ( $frameOnePageSite = "")
+  #if ( $sitePages.pageNavToolsCount == 1 ) 
+    #set ( $frameOnePageSite = "&sakai.frame.single.page=true")
+  #end
+  #set($frameTitle = ${singleToolMap.toolTitleEncode})
+  #if ( ! ${frameMaximizedUrl} )
+    #set($frameMaximizedUrl = "${singleToolMap.toolUrl}?panel=Main" )
+  #end 
+  #if ( ${singleToolMap.isPortletPlacement} )
+    #set($frameIsPortlet = "&sakai.frame.portlet=true" )
+  #end
+  #if( ${singleToolMap.toolShowResetButton} )
+    #set($frameResetParam = "&sakai.frame.reset=${singleToolMap.toolResetActionUrlEncode}" )
+  #end
+  #if (${singleToolMap.toolJSR168Edit} )
+    #set($frameEditParam = "&sakai.frame.edit=${singleToolMap.toolJSR168Edit}" )
+  #end
+  ## TODO:  Get the height from some CSS place or a property
   <frameset rows="140, *">
-      <frame src="${currentUrlPath}?sakai.frame.top=true&sakai.frame.title=${frameTitle}${frameIsPortlet}${frameResetParam}${frameEditParam}${frameOnlyOneTool}"
+      <frame src="${currentUrlPath}?sakai.frame.top=true&sakai.frame.title=${frameTitle}${frameIsPortlet}${frameResetParam}${frameEditParam}${frameOnePageSite}"
              frameborder="0" scrolling="no" noresize>
       <frame src="${frameMaximizedUrl}" frameborder="0" name="sakai-content">
   </frameset>
 </html>
+## Normal Display - non Frame Set
 #else
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
