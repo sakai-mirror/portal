@@ -160,7 +160,7 @@ public class PageHandler extends BasePortalHandler
 				.getSkin(), req);
 
 		
-		includePage(rcontext, res, req, page, toolContextPath, "contentFull");
+		includePage(rcontext, res, req, session, page, toolContextPath, "contentFull");
 
 		portal.sendResponse(rcontext, res, "page", null);
 		StoredState ss = portalService.getStoredState();
@@ -173,9 +173,13 @@ public class PageHandler extends BasePortalHandler
 	}
 
 	public void includePage(PortalRenderContext rcontext, HttpServletResponse res,
-			HttpServletRequest req, SitePage page, String toolContextPath,
-			String wrapperClass) throws IOException
+			HttpServletRequest req, Session session, SitePage page, 
+			String toolContextPath, String wrapperClass) throws IOException
 	{
+		int toolCount = 0;
+		Map singleToolMap = null;
+		ToolConfiguration singleTool = null;
+
 		if (rcontext.uses(INCLUDE_PAGE))
 		{
 
@@ -215,6 +219,9 @@ public class PageHandler extends BasePortalHandler
 					Map m = portal.includeTool(res, req, placement);
 					if (m != null)
 					{
+						toolCount++;
+						singleTool = placement;
+						singleToolMap = m;
 						toolList.add(m);
 					}
 				}
@@ -235,14 +242,41 @@ public class PageHandler extends BasePortalHandler
 					Map m = portal.includeTool(res, req, placement);
 					if (m != null)
 					{
+						toolCount++;
+						singleTool = placement;
+						singleToolMap = m;
 						toolList.add(m);
 					}
 				}
 				rcontext.put("pageColumn1Tools", toolList);
 			}
+
+			// Determine if this page can be in a frame set, if so place the 
+			// appropriate materials into the context
+			if ( toolCount == 1 )
+			{
+				rcontext.put("singleToolMap",singleToolMap);
+                        	String maximizedUrl = (String) session.getAttribute("sakai-maximized-url");
+                        	session.setAttribute("sakai-maximized-url",null);
+
+				boolean framesetRequested = false;
+
+                        	if (maximizedUrl != null ) {
+					framesetRequested = true;
+					rcontext.put("frameMaximizedUrl",maximizedUrl);
+				}
+	
+				// If tool configuration property is set for tool - do request
+				String framesetConfig  = ServerConfigurationService
+					.getString("portal.frameset");
+
+				if ( "always".equals(framesetConfig) ) framesetRequested = true;
+				if ( "never".equals(framesetConfig) ) framesetRequested = false;
+				
+				if ( framesetRequested ) rcontext.put("sakaiFrameSetRequested",Boolean.TRUE);	
+			}
 			
 			//Add footer variables to page template context- SAK-10312
-
 			rcontext.put("pagepopup", page.isPopUp());
 
 			if (!page.isPopUp())

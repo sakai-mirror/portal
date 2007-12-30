@@ -4,10 +4,8 @@
 #set ( $frameResetParam = "")
 #set ( $frameOnlyOneTool = "")
 #if ( $sitePages.pageNavToolsCount == 1 ) 
-  #set ( $frameOnlyOneTool = "&sakai.frame.single.tool=true")
+  #set ( $frameOnlyOneTool = "&sakai.frame.single.page=true")
 #end
-##if ( $frameMaximizedUrl && $pageColumn0Tools )
-##if ( ($sakaiOriginalPageId || $sitePages.pageNavToolsCount == 1) && $pageColumn0Tools )
 #if ( $pageColumn0Tools )
   #foreach ( $tool in $pageColumn0Tools ) 
     #if ( $tool ) 
@@ -19,7 +17,7 @@
           #set($frameMaximizedUrl = "${tool.toolUrl}?panel=Main" )
         #end
       #end 
-      #if ( ${isPortletPlacement} )
+      #if ( ${tool.isPortletPlacement} )
         #set($frameIsPortlet = "&sakai.frame.portlet=true" )
       #end
       #if( ${tool.toolShowResetButton} )
@@ -32,7 +30,8 @@
   #end
 #end
 ##if ( ! $sakaiFrameSuppress && $sakaiOriginalPageId && $frameMaximizedUrl && $toolCount == 1 )
-#if ( ! $sakaiFrameSuppress && $frameMaximizedUrl && $toolCount == 1 )
+## We ignore frame suppress if there is only one tool
+#if ( ( ! $sakaiFrameSuppress || $sitePages.pageNavToolsCount == 1 ) && $frameMaximizedUrl && $toolCount == 1 )
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN"
    "http://www.w3.org/TR/html4/frameset.dtd">
 <html>

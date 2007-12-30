@@ -438,7 +438,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		{
 			if (session.getUserId() == null)
 			{
-				errorMessage = "No permission for anynymous user to view site: " + siteId;
+				errorMessage = "No permission for anonymous user to view site: " + siteId;
 			}
 			else
 			{
@@ -678,10 +678,10 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		toolMap.put("toolUrl", toolUrl);
 		if (isPortletPlacement(placement))
 		{
-			// TODO: This should be controlled by a property set on the tool - Chuck
+			// TODO: Preloading should be controlled by a property set on the tool - Chuck
 			System.out.println("Pre-loading content...");
 			result.getContent();
-
+                
 			toolMap.put("toolPlacementIDJS", "_self");
 			toolMap.put("isPortletPlacement", Boolean.TRUE);
 		}

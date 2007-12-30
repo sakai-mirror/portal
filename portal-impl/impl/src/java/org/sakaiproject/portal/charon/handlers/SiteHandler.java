@@ -130,9 +130,6 @@ public class SiteHandler extends WorksiteHandler
 	{
 
 		boolean doFrameTop = "true".equals(req.getParameter("sakai.frame.top"));
-System.out.println("doFrameTop="+doFrameTop);
-		// Save the siteId
-		String originalPageId = pageId;
 
 		// default site if not set
 		if (siteId == null)
@@ -266,37 +263,37 @@ System.out.println("doFrameTop="+doFrameTop);
 			portal.includeBottom(rcontext);
 		}
 
-System.out.println("sakai.frame.edit="+req.getParameter("sakai.frame.edit"));
-System.out.println("sakai.frame.title="+req.getParameter("sakai.frame.title"));
-System.out.println("sakai.frame.reset="+req.getParameter("sakai.frame.reset"));
-System.out.println("sakai.frame.portlet="+req.getParameter("sakai.frame.portlet"));
-System.out.println("sakai.frame.suppress="+req.getParameter("sakai.frame.suppress"));
-System.out.println("sakai.frame.single.tool="+req.getParameter("sakai.frame.single.tool"));
-
 		rcontext.put("currentUrlPath",Web.serverUrl(req) + req.getContextPath() + req.getPathInfo());
-		rcontext.put("sakaiFrameEdit",req.getParameter("sakai.frame.edit"));
-		rcontext.put("sakaiFrameTitle",req.getParameter("sakai.frame.title"));
-		rcontext.put("sakaiFrameReset",req.getParameter("sakai.frame.reset"));
-		rcontext.put("sakaiFramePortlet",req.getParameter("sakai.frame.portlet"));
-		rcontext.put("sakaiSingleTool",req.getParameter("sakai.frame.single.tool"));
 
 		// Indicate that no matter what - we are to suppress the use of the top frame
+		// This allows us to generate a link where we see the tool buttons - this is
+		// set on site URLs when in the frame top frame
 		rcontext.put("sakaiFrameSuppress",req.getParameter("sakai.frame.suppress"));
+System.out.println("sakai.frame.suppress="+req.getParameter("sakai.frame.suppress"));
 
-		// TODO: Make behavior conditional on a property
+		// TODO: Make behavior conditional on a property - Move this to includeTool
 		// Retrieve the maximized URL and clear it from the global session
 		String maximizedUrl = (String) session.getAttribute("sakai-maximized-url");
 		if (maximizedUrl != null ) rcontext.put("frameMaximizedUrl",maximizedUrl);
 		session.setAttribute("sakai-maximized-url",null);
 
-		// Indicate the siteid from the parameter and derived siteId
-		rcontext.put("sakaiOriginalPageId",originalPageId);
 		// end the response
 		if ( doFrameTop ) 
 		{
+			// Place the proper values in context for the Frame Top panel
+			rcontext.put("sakaiFrameEdit",req.getParameter("sakai.frame.edit"));
+			rcontext.put("sakaiFrameTitle",req.getParameter("sakai.frame.title"));
+			rcontext.put("sakaiFrameReset",req.getParameter("sakai.frame.reset"));
+			rcontext.put("sakaiFramePortlet",req.getParameter("sakai.frame.portlet"));
+			rcontext.put("sakaiSinglePage",req.getParameter("sakai.frame.single.page"));
+System.out.println("sakai.frame.edit="+req.getParameter("sakai.frame.edit"));
+System.out.println("sakai.frame.title="+req.getParameter("sakai.frame.title"));
+System.out.println("sakai.frame.reset="+req.getParameter("sakai.frame.reset"));
+System.out.println("sakai.frame.portlet="+req.getParameter("sakai.frame.portlet"));
+System.out.println("sakai.frame.single.page="+req.getParameter("sakai.frame.single.page"));
+
+
 			portal.sendResponse(rcontext, res, "site-frame-top", null);
-			// clear the last page visited -- No longer necessary -- Chuck
-			// session.setAttribute(Portal.ATTR_SITE_PAGE + siteId, null);
 		}
 		else
 		{
