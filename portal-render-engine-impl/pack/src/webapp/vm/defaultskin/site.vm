@@ -1,6 +1,6 @@
 ## Generate a frameset if it was requested and not suppressed - if there is only one page
 ## in this site - we don't suppress
-#if ( $singleToolMap && $sakaiFrameSetRequested && ( ! $sakaiFrameSuppress || $sitePages.pageNavToolsCount == 1 ) )
+#if ( $singleToolMap && $sakaiFrameSetRequested && $tabsSites && ( ! $sakaiFrameSuppress || $sitePages.pageNavToolsCount == 1 ) )
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN"
    "http://www.w3.org/TR/html4/frameset.dtd">
 <html>
