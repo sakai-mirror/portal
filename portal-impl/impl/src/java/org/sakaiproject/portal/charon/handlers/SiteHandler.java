@@ -130,6 +130,7 @@ public class SiteHandler extends WorksiteHandler
 	{
 
 		boolean doFrameTop = "true".equals(req.getParameter("sakai.frame.top"));
+		boolean doFrameSuppress = "true".equals(req.getParameter("sakai.frame.suppress"));
 
 		// default site if not set
 		if (siteId == null)
@@ -145,7 +146,9 @@ public class SiteHandler extends WorksiteHandler
 		}
 
 		// if no page id, see if there was a last page visited for this site
-		if (pageId == null)
+		// if we are coming back from minimized navigation - go to the default tool
+		// Not the previous tool
+		if (pageId == null && ! doFrameSuppress )
 		{
 			pageId = (String) session.getAttribute(Portal.ATTR_SITE_PAGE + siteId);
 		}
