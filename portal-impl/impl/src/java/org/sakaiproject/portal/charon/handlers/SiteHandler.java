@@ -426,13 +426,10 @@ public class SiteHandler extends WorksiteHandler
 				            {
 				            	String exitRoleSwap = "Exit Role Swap View";
 				            	rcontext.put("exitRoleSwap", exitRoleSwap);
-				            	// TODO: May be more ideal to get the active tool on the page for the url generation
-				            	String siteHome = "/" + activeSite.getToolForCommonId("sakai.iframe.site").getId();
 				            	switchRoleUrl = Web.serverUrl(req)
 								+ ServerConfigurationService.getString("portalPath")
 								+ "/role-switch-out/"
 								+ siteId
-								+ siteHome
 								+ "/?panel=Main";
 				            	roleswitchstate = true;
 				            }
@@ -453,13 +450,10 @@ public class SiteHandler extends WorksiteHandler
 					    		rcontext.put("selectRole", selectRole);
 					    		rcontext.put("viewSiteAs", viewSiteAs);
 					    		
-				            	// TODO: May be more ideal to get the active tool on the page for the url generation
-				            	String siteHome = "/" + activeSite.getToolForCommonId("sakai.iframe.site").getId();
 				            	switchRoleUrl = Web.serverUrl(req)
 								+ ServerConfigurationService.getString("portalPath")
 								+ "/role-switch/"
 								+ siteId
-								+ siteHome
 								+ "/";
 				            	rcontext.put("panelString", "/?panel=Main");
 				            }

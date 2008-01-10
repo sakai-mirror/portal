@@ -18,19 +18,19 @@ public class RoleSwitchHandler extends BasePortalHandler
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
 	{
-		if ((parts.length > 4) && (parts[1].equals("role-switch")))
+		if ((parts.length > 3) && (parts[1].equals("role-switch")))
 		{
 			try
 			{
-				String siteUrl = req.getContextPath() + "/directtool"
-						+ Web.makePath(parts, 3, parts.length-1);
+				String siteUrl = req.getContextPath() + "/site"
+						+ Web.makePath(parts, 2, parts.length-1);
 				// Make sure to add the parameters such as panel=Main
 				String queryString = req.getQueryString();
 				if (queryString != null)
 				{
 					siteUrl = siteUrl + "?" + queryString;
 				}
-				session.setAttribute("roleswap/site/" + parts[2] , parts[4]); // set the session attribute with the roleid
+				session.setAttribute("roleswap/site/" + parts[2] , parts[3]); // set the session attribute with the roleid
 				res.sendRedirect(siteUrl);
 				return NEXT;
 			}
