@@ -36,7 +36,7 @@
     #end
 #end
 </head>
-<body class="portalBody">
+<body class="portalBody frameTop">
 #if ( $pageTop )
 	<script type="text/javascript" language="JavaScript">
 	var sakaiPortalWindow = "";
