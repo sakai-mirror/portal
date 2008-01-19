@@ -1,3 +1,41 @@
+## Generate a frameset if it was requested and not suppressed - if there is only one page
+## in this site - we don't suppress
+#if ( $singleToolMap && $sakaiFrameSetRequested && $tabsSites && ( ! $sakaiFrameSuppress || $sitePages.pageNavToolsCount == 1 ) )
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN"
+   "http://www.w3.org/TR/html4/frameset.dtd">
+<html>
+<head>
+    <title>${pageTitle}</title>
+</head>
+<frameset rows="140, *">
+  ## TODO:  Get the height from some CSS place or a property
+  #set ( $frameEditParam = "")
+  #set ( $frameIsPortlet = "")
+  #set ( $frameResetParam = "")
+  #set ( $frameOnePageSite = "")
+  #if ( $sitePages.pageNavToolsCount == 1 ) 
+    #set ( $frameOnePageSite = "&sakai.frame.single.page=true")
+  #end
+  #set($frameTitle = ${singleToolMap.toolTitleEncode})
+  #if ( ! ${frameMaximizedUrl} )
+    #set($frameMaximizedUrl = "${singleToolMap.toolUrl}?panel=Main" )
+  #end 
+  #if ( ${singleToolMap.isPortletPlacement} )
+    #set($frameIsPortlet = "&sakai.frame.portlet=true" )
+  #end
+  #if( ${singleToolMap.toolShowResetButton} )
+    #set($frameResetParam = "&sakai.frame.reset=${singleToolMap.toolResetActionUrlEncode}" )
+  #end
+  #if (${singleToolMap.toolJSR168Edit} )
+    #set($frameEditParam = "&sakai.frame.edit=${singleToolMap.toolJSR168Edit}" )
+  #end
+    <frame src="${currentUrlPath}?sakai.frame.top=true&sakai.frame.title=${frameTitle}${frameIsPortlet}${frameResetParam}${frameEditParam}${frameOnePageSite}"
+             frameborder="0" scrolling="no" noresize >
+    <frame src="${frameMaximizedUrl}" frameborder="0" name="sakai-content" >
+</frameset>
+</html>
+## Normal Display - non Frame Set
+#else
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
@@ -41,7 +79,7 @@ ${tool.toolRenderResult.getTitle()}
 #else 
     <title>${pageTitle}</title>
      <script type="text/javascript" language="JavaScript" src="${pageScriptPath}headscripts.js"></script>
-     <script type="text/javascript" language="JavaScript" src="${pageScriptPath}jquery-1.1.2.js"></script>
+     <script type="text/javascript" language="JavaScript" src="${pageScriptPath}jquery.js"></script>
 #end
 <script type="text/javascript" language="JavaScript" src="/portal/scripts/portalscripts.js"></script>
 
@@ -580,3 +618,4 @@ ${tool.toolRenderResult.getTitle()}
 <!-- end site.vm -->
 	</body>
 </html>
+#end
