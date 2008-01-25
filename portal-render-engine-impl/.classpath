@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry excluding="**/.DS_Store" kind="src" path="impl/src/java"/>
+	<classpathentry kind="src" path="pack/src/test"/>
 	<classpathentry kind="var" path="JRE_LIB" sourcepath="JRE_SRC"/>
 	<classpathentry kind="var" path="M2_REPO/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar"/>
 	<classpathentry kind="var" path="M2_REPO/javax/servlet/servlet-api/2.4/servlet-api-2.4.jar"/>
@@ -19,5 +20,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/portal-render-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/portal-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/portal-util"/>
+	<classpathentry kind="var" path="M2_REPO/httpunit/httpunit/1.6.2/httpunit-1.6.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
