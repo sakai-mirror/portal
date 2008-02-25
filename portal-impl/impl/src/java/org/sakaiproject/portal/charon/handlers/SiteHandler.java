@@ -22,6 +22,7 @@
 package org.sakaiproject.portal.charon.handlers;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.alias.cover.AliasService;
+import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.cover.EntityManager;
@@ -469,6 +471,65 @@ public class SiteHandler extends WorksiteHandler
 			}
 
 			boolean loggedIn = session.getUserId() != null;
+			
+			// Check to see if we display a link in the UI for swapping the view
+			boolean roleswapcheck = false; // This variable will tell the UI if we will display any role swapping component; false by default
+			String roleswitchvalue = (String)session.getAttribute("roleswap/site/" + siteId); // checks the session for a role swap value
+			boolean roleswitchstate = false; // This variable determines if the site is in the switched state or not; false by default
+			// check for the site.roleswap permission
+			if (SiteService.allowRoleSwap(siteId) || (!SiteService.allowRoleSwap(siteId) && roleswitchvalue != null))
+			{
+				Site activeSite = null;
+	            try
+	            {
+	            	activeSite = portal.getSiteHelper().getSiteVisit(siteId); // active site
+	            }
+            	catch(IdUnusedException ie)
+	            {
+	            	activeSite = null;
+	            }
+	            catch(PermissionException pe)
+	            {
+	            	activeSite = null;
+	            }
+            	if (activeSite.getType() != null) // this filters out some of non-standard sites where swapping roles would not apply
+            	{
+		            Role userRole = activeSite.getUserRole(session.getUserId()); // the user's role in the site
+		            String switchRoleUrl = "";
+		            if (roleswitchvalue != null && !userRole.equals(roleswitchvalue))
+		            {
+		            	switchRoleUrl = ServerConfigurationService.getPortalUrl()
+						+ "/role-switch-out/"
+						+ siteId
+						+ "/?panel=Main";
+		            	roleswitchstate = true; // We're in a switched state, so set to true
+		            }
+		            else
+		            {
+		            	// this block of code generates a list of roles for our dropdown in the UI
+		            	Iterator i = activeSite.getRoles().iterator();
+			        	List<String> siteRoles = new ArrayList<String>();
+			    		while (i.hasNext())
+			    		{
+			    			Role r = (Role) i.next();
+			    			if (userRole.getId()!=r.getId()) // We do not want to put the current user's role in the list.  Would force unnecessary security checks later
+			    				siteRoles.add(r.getId());
+			    		}
+			    		rcontext.put("siteRoles", siteRoles);
+			    		
+		            	switchRoleUrl = ServerConfigurationService.getPortalUrl()
+						+ "/role-switch/"
+						+ siteId
+						+ "/";
+		            	rcontext.put("panelString", "/?panel=Main");
+		            }
+		            roleswapcheck = true; // We made it this far, so set to true to display a component
+					rcontext.put("switchRoleUrl", switchRoleUrl);
+            	}
+			}
+
+			rcontext.put("viewAsStudentLink", Boolean.valueOf(roleswapcheck)); // this will tell our UI if we want the link for swapping roles to display
+			rcontext.put("roleSwitchState", roleswitchstate); // this will tell our UI if we are in a role swapped state or not
 
 			int tabsToDisplay = configuredTabsToDisplay;
 
