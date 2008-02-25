@@ -22,5 +22,7 @@
 	<classpathentry kind="var" path="M2_REPO/castor/castor/1.0/castor-1.0.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/sakaiproject/sakai-entity-api/SNAPSHOT/sakai-entity-api-SNAPSHOT.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/sakaiproject/sakai-component/SNAPSHOT/sakai-component-SNAPSHOT.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/alias-api"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/entity-api"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
