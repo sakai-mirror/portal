@@ -42,9 +42,11 @@ import org.sakaiproject.tool.api.ToolException;
 public class ErrorDoneHandler extends BasePortalHandler
 {
 
+	private static final String URL_FRAGMENT = "error-reported";
+
 	public ErrorDoneHandler()
 	{
-		urlFragment = "error-reported";
+		setUrlFragment(ErrorDoneHandler.URL_FRAGMENT);
 	}
 
 	@Override
@@ -58,7 +60,7 @@ public class ErrorDoneHandler extends BasePortalHandler
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
 	{
-		if ((parts.length >= 2) && (parts[1].equals("error-reported")))
+		if ((parts.length >= 2) && (parts[1].equals(ErrorDoneHandler.URL_FRAGMENT)))
 		{
 			try
 			{

@@ -38,16 +38,18 @@ import org.sakaiproject.tool.api.Session;
  */
 public class AtomHandler extends BasePortalHandler
 {
+	private static final String URL_FRAGMENT = "atom";
+
 	public AtomHandler()
 	{
-		urlFragment = "atom";
+		setUrlFragment(AtomHandler.URL_FRAGMENT);
 	}
 
 	@Override
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
 	{
-		if ((parts.length >= 2) && parts[1].equals("atom"))
+		if ((parts.length >= 2) && parts[1].equals(AtomHandler.URL_FRAGMENT))
 		{
 			try
 			{

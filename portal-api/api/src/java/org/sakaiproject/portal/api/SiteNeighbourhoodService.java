@@ -19,49 +19,32 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.portal.charon.handlers;
+package org.sakaiproject.portal.api;
+
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
-import org.sakaiproject.portal.api.PortalHandlerException;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.tool.api.Session;
 
 /**
- * 
+ * The SiteNeighbourhoodService provides a list of sites in the neighbourhood of the current context.
+ * This might be all sites, or it might be just the children, siblings and drect parents of a site.
+ * It is returned as a flat list.
  * @author ieb
- * @since Sakai 2.4
- * @version $Rev$
- * 
+ *
  */
-public class LoginGalleryHandler extends BasePortalHandler
+public interface SiteNeighbourhoodService
 {
-	public LoginGalleryHandler()
-	{
-		urlFragment = "login_gallery";
-	}
 
-	@Override
-	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
-			Session session) throws PortalHandlerException
-	{
-
-		if ((parts.length == 2) && (parts[1].equals("login_gallery")))
-		{
-			try
-			{
-				portal.doLogin(req, res, session, "/gallery", false);
-				return END;
-			}
-			catch (Exception ex)
-			{
-				throw new PortalHandlerException(ex);
-			}
-		}
-		else
-		{
-			return NEXT;
-		}
-	}
+	/**
+	 * Get a list of sites at the current node as defined by the request
+	 * @param request
+	 * @param session
+	 * @param includeMyWorksite
+	 * @return
+	 */
+	List<Site> getSitesAtNode(HttpServletRequest request, Session session, boolean includeMyWorksite);
 
 }

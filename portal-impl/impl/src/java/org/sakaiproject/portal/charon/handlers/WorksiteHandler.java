@@ -22,10 +22,6 @@
 package org.sakaiproject.portal.charon.handlers;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -39,10 +35,8 @@ import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
-import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolException;
-import org.sakaiproject.util.Web;
 
 /**
  * 
@@ -57,9 +51,11 @@ public class WorksiteHandler extends PageHandler
 
 	private static final String INCLUDE_PAGE_NAV = "include-page-nav";
 
+	private static final String URL_FRAGMENT = "worksite";
+
 	public WorksiteHandler()
 	{
-		urlFragment = "worksite";
+		setUrlFragment(WorksiteHandler.URL_FRAGMENT);
 	}
 
 	@Override
@@ -73,10 +69,10 @@ public class WorksiteHandler extends PageHandler
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
 	{
-		if ((parts.length >= 3) && (parts[1].equals("worksite")))
+		if ((parts.length >= 3) && (parts[1].equals(WorksiteHandler.URL_FRAGMENT)))
 		{
 			// Indicate that we are the controlling portal
-			session.setAttribute("sakai-controlling-portal",urlFragment);
+			session.setAttribute("sakai-controlling-portal",WorksiteHandler.URL_FRAGMENT);
 			try
 			{
 				// recognize an optional page/pageid
@@ -115,7 +111,7 @@ public class WorksiteHandler extends PageHandler
 		Site site = null;
 		try
 		{
-			site = siteHelper.getSiteVisit(siteId);
+			site = portal.getSiteHelper().getSiteVisit(siteId);
 		}
 		catch (IdUnusedException e)
 		{
@@ -138,7 +134,7 @@ public class WorksiteHandler extends PageHandler
 
 		// Lookup the page in the site - enforcing access control
 		// business rules
-		SitePage page = siteHelper.lookupSitePage(portal,pageId, site);
+		SitePage page = portal.getSiteHelper().lookupSitePage(pageId, site);
 		if (page == null)
 		{
 			portal.doError(req, res, session, Portal.ERROR_WORKSITE);
@@ -158,14 +154,26 @@ public class WorksiteHandler extends PageHandler
 				.getSkin(), req);
 
 		includeWorksite(rcontext, res, req, session, site, page, toolContextPath,
-				"worksite");
+				getUrlFragment());
 
 		portal.includeBottom(rcontext);
 
-		// end the response
+
 		portal.sendResponse(rcontext, res, "worksite", null);
 	}
 
+	/**
+	 * @param rcontext
+	 * @param res
+	 * @param req
+	 * @param session
+	 * @param site
+	 * @param page
+	 * @param toolContextPath
+	 * @param portalPrefix
+	 * @return
+	 * @throws IOException
+	 */
 	public void includeWorksite(PortalRenderContext rcontext, HttpServletResponse res,
 			HttpServletRequest req, Session session, Site site, SitePage page,
 			String toolContextPath, String portalPrefix) throws IOException
@@ -175,7 +183,7 @@ public class WorksiteHandler extends PageHandler
 			if (rcontext.uses(INCLUDE_PAGE_NAV))
 			{
     				boolean loggedIn = session.getUserId() != null;
-				Map pageMap = portal.pageListToMap(req, loggedIn, site, page, toolContextPath, 
+				Map pageMap = portal.getSiteHelper().pageListToMap(req, loggedIn, site, page, toolContextPath, 
 					portalPrefix, 
 					/* doPages */true,
 					/* resetTools */"true".equals(ServerConfigurationService
@@ -185,8 +193,7 @@ public class WorksiteHandler extends PageHandler
 			}
 
 			// add the page
-			includePage(rcontext, res, req, page, toolContextPath, "content");
+			includePage(rcontext, res, req, session, page, toolContextPath, "content");
 		}
-
 	}
 }

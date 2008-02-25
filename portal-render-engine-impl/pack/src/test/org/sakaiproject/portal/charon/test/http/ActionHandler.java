@@ -19,49 +19,31 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.portal.charon.handlers;
+package org.sakaiproject.portal.charon.test.http;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
-import org.sakaiproject.portal.api.PortalHandlerException;
-import org.sakaiproject.tool.api.Session;
+import org.xml.sax.SAXException;
+
+import com.meterware.httpunit.WebConversation;
+import com.meterware.httpunit.WebForm;
+import com.meterware.httpunit.WebResponse;
 
 /**
- * 
  * @author ieb
- * @since Sakai 2.4
- * @version $Rev$
- * 
+ *
  */
-public class LogoutGalleryHandler extends BasePortalHandler
+public interface ActionHandler
 {
-	public LogoutGalleryHandler()
-	{
-		urlFragment = "logout_gallery";
-	}
 
-	@Override
-	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
-			Session session) throws PortalHandlerException
-	{
-
-		if ((parts.length == 2) && (parts[1].equals("logout_gallery")))
-		{
-			try
-			{
-				portal.doLogout(req, res, session, "/gallery");
-				return END;
-			}
-			catch (Exception ex)
-			{
-				throw new PortalHandlerException(ex);
-			}
-		}
-		else
-		{
-			return NEXT;
-		}
-	}
+	/**
+	 * @param wc
+	 * @param f
+	 * @param action 
+	 * @return
+	 * @throws SAXException 
+	 * @throws IOException 
+	 */
+	WebResponse post(WebConversation wc, WebForm f, String action) throws IOException, SAXException;
 
 }

@@ -51,9 +51,11 @@ import org.sakaiproject.util.Web;
  */
 public class ToolHandler extends BasePortalHandler
 {
+	private static final String URL_FRAGMENT = "tool";
+
 	public ToolHandler()
 	{
-		urlFragment = "tool";
+		setUrlFragment(ToolHandler.URL_FRAGMENT);
 	}
 
 	@Override
@@ -69,7 +71,7 @@ public class ToolHandler extends BasePortalHandler
 	{
 		// recognize and dispatch the 'tool' option: [1] = "tool", [2] =
 		// placement id (of a site's tool placement), rest for the tool
-		if ((parts.length > 2) && (parts[1].equals("tool")))
+		if ((parts.length > 2) && (parts[1].equals(getUrlFragment())))
 		{
 			try
 			{

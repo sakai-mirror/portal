@@ -27,9 +27,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
-import java.util.Set;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 
@@ -39,10 +36,15 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import net.sourceforge.wurfl.wurflapi.CapabilityMatrix;
+import net.sourceforge.wurfl.wurflapi.ObjectsManager;
+import net.sourceforge.wurfl.wurflapi.UAManager;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.PageFilter;
@@ -51,6 +53,9 @@ import org.sakaiproject.portal.api.PortalHandler;
 import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.api.PortalRenderEngine;
 import org.sakaiproject.portal.api.PortalService;
+import org.sakaiproject.portal.api.PortalSiteHelper;
+import org.sakaiproject.portal.api.SiteNeighbourhoodService;
+import org.sakaiproject.portal.api.SiteView;
 import org.sakaiproject.portal.api.StoredState;
 import org.sakaiproject.portal.charon.handlers.AtomHandler;
 import org.sakaiproject.portal.charon.handlers.DirectToolHandler;
@@ -59,19 +64,14 @@ import org.sakaiproject.portal.charon.handlers.ErrorReportHandler;
 import org.sakaiproject.portal.charon.handlers.GalleryHandler;
 import org.sakaiproject.portal.charon.handlers.GalleryResetHandler;
 import org.sakaiproject.portal.charon.handlers.HelpHandler;
-import org.sakaiproject.portal.charon.handlers.LoginGalleryHandler;
 import org.sakaiproject.portal.charon.handlers.LoginHandler;
-import org.sakaiproject.portal.charon.handlers.LogoutGalleryHandler;
 import org.sakaiproject.portal.charon.handlers.LogoutHandler;
-import org.sakaiproject.portal.charon.handlers.NavLoginGalleryHandler;
 import org.sakaiproject.portal.charon.handlers.NavLoginHandler;
 import org.sakaiproject.portal.charon.handlers.OpmlHandler;
 import org.sakaiproject.portal.charon.handlers.PDAHandler;
 import org.sakaiproject.portal.charon.handlers.PageHandler;
 import org.sakaiproject.portal.charon.handlers.PresenceHandler;
 import org.sakaiproject.portal.charon.handlers.ReLoginHandler;
-import org.sakaiproject.portal.charon.handlers.RoleSwitchHandler;
-import org.sakaiproject.portal.charon.handlers.RoleSwitchOutHandler;
 import org.sakaiproject.portal.charon.handlers.RssHandler;
 import org.sakaiproject.portal.charon.handlers.SiteHandler;
 import org.sakaiproject.portal.charon.handlers.SiteResetHandler;
@@ -82,12 +82,13 @@ import org.sakaiproject.portal.charon.handlers.ToolResetHandler;
 import org.sakaiproject.portal.charon.handlers.WorksiteHandler;
 import org.sakaiproject.portal.charon.handlers.WorksiteResetHandler;
 import org.sakaiproject.portal.charon.handlers.XLoginHandler;
+import org.sakaiproject.portal.charon.site.PortalSiteHelperImpl;
 import org.sakaiproject.portal.render.api.RenderResult;
 import org.sakaiproject.portal.render.cover.ToolRenderService;
+import org.sakaiproject.portal.util.BrowserDetector;
 import org.sakaiproject.portal.util.ErrorReporter;
-import org.sakaiproject.portal.util.PortalSiteHelper;
 import org.sakaiproject.portal.util.ToolURLManagerImpl;
-import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.portal.util.URLUtils;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -109,8 +110,6 @@ import org.sakaiproject.util.BasicAuth;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Web;
-
-import net.sourceforge.wurfl.wurflapi.*;
 
 /**
  * <p/> Charon is the Sakai Site based portal.
@@ -151,7 +150,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 	private static final String INCLUDE_TITLE = "include-title";
 
-	private PortalSiteHelper siteHelper = new PortalSiteHelper();
+	private PortalSiteHelper siteHelper = null;
+
 
 	// private HashMap<String, PortalHandler> handlerMap = new HashMap<String,
 	// PortalHandler>();
@@ -194,6 +194,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		}
 		
 	};
+
 
 	public String getPortalContext()
 	{
@@ -352,10 +353,14 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	}
 
 	/*
+	 * 
+	 * 
 	 * Include the children of a site
 	 */
 
-    	public void includeSubSites(PortalRenderContext rcontext, HttpServletRequest req,
+	// TODO: Extract to a provider
+	
+   public void includeSubSites(PortalRenderContext rcontext, HttpServletRequest req,
 			Session session, String siteId, String toolContextPath, 
 			String prefix, boolean resetTools) 
 		// throws ToolException, IOException
@@ -377,6 +382,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		}
 		if ( site == null ) return;
 
+		
+		
+		
 		ResourceProperties rp = site.getProperties();
 		String showSub = rp.getProperty(PROP_SHOW_SUBSITES);
                	// System.out.println("Checking subsite pref:"+site.getTitle()+" pref="+pref+" show="+showSub);
@@ -386,20 +394,17 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		{
 			if ( ! "true".equals(showSub) ) return;
 		}
-	
-		List<Site> mySites = siteHelper.getSubSites(site);
-		if ( mySites == null || mySites.size() < 1 ) return;
 
-		List l = convertSitesToMaps(req, mySites, prefix, siteId, 
-				/* myWorkspaceSiteId */ null,
-				/* includeSummary */ false, 
-				/* expandSite */ false, 
-				resetTools, 
-				/* doPages */ false, 
-				toolContextPath,
-				(session.getUserId() != null ));
-		rcontext.put("subSites", l);
-
+		SiteView siteView = siteHelper.getSitesView(SiteView.View.SUB_SITES_VIEW,req, session, siteId);
+		if ( siteView.isEmpty() ) return;
+		
+		siteView.setPrefix(prefix);
+		siteView.setToolContextPath(toolContextPath);
+		siteView.setResetTools(resetTools);
+				
+		if( !siteView.isEmpty() ) {
+			rcontext.put("subSites", siteView.getRenderContextObject());
+		}
 	}
 
 	/*
@@ -430,7 +435,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		{
 			if (session.getUserId() == null)
 			{
-				errorMessage = "No permission for anynymous user to view site: " + siteId;
+				errorMessage = "No permission for anonymous user to view site: " + siteId;
 			}
 			else
 			{
@@ -505,17 +510,30 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		if (site != null)
 		{
-			Map m = convertSiteToMap(req, site, prefix, siteId, myWorkspaceSiteId,
-					includeSummary,
-					/* expandSite */true, resetTools, doPages, toolContextPath, loggedIn);
-			if (m != null) rcontext.put("currentSite", m);
+			SiteView siteView = siteHelper.getSitesView(SiteView.View.CURRENT_SITE_VIEW, req, session, siteId );
+			siteView.setPrefix(prefix);
+			siteView.setResetTools(resetTools);
+			siteView.setToolContextPath(toolContextPath);
+			siteView.setIncludeSummary(includeSummary);
+			siteView.setDoPages(doPages);
+			if ( !siteView.isEmpty() ) {
+				rcontext.put("currentSite", siteView.getRenderContextObject());
+			}
 		}
 
-		List mySites = siteHelper.getAllSites(req, session, true);
-		List l = convertSitesToMaps(req, mySites, prefix, siteId, myWorkspaceSiteId,
-				includeSummary, expandSite, resetTools, doPages, toolContextPath,
-				loggedIn);
-		rcontext.put("allSites", l);
+		//List l = siteHelper.convertSitesToMaps(req, mySites, prefix, siteId, myWorkspaceSiteId,
+		//		includeSummary, expandSite, resetTools, doPages, toolContextPath,
+		//		loggedIn);
+
+		SiteView siteView = siteHelper.getSitesView(SiteView.View.ALL_SITES_VIEW, req, session, siteId );
+		siteView.setPrefix(prefix);
+		siteView.setResetTools(resetTools);
+		siteView.setToolContextPath(toolContextPath);
+		siteView.setIncludeSummary(includeSummary);
+		siteView.setDoPages(doPages);
+		siteView.setExpandSite(expandSite);
+		
+		rcontext.put("allSites", siteView.getRenderContextObject());
 
 		includeLogin(rcontext, req, session);
 		includeBottom(rcontext);
@@ -526,7 +544,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	public boolean isPortletPlacement(Placement placement)
 	{
 		if (placement == null) return false;
-		Properties toolProps = placement.getTool().getFinalConfig();
+		Tool t = placement.getTool();
+		Properties toolProps = t.getFinalConfig();
 		if (toolProps == null) return false;
 		String portletContext = toolProps
 				.getProperty(PortalService.TOOL_PORTLET_CONTEXT_PATH);
@@ -648,8 +667,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			if (SecurityService.unlock(SiteService.SECURE_UPDATE_SITE, site
 					.getReference()))
 			{
-				toolMap.put("toolJSR168Edit", Web.serverUrl(req)
-						+ result.getJSR168EditUrl());
+				String editUrl = Web.serverUrl(req) + result.getJSR168EditUrl();
+				toolMap.put("toolJSR168Edit", editUrl);
+				toolMap.put("toolJSR168EditEncode", URLUtils.encodeUrl(editUrl));
 			}
 		}
 
@@ -658,7 +678,15 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		toolMap.put("toolUrl", toolUrl);
 		if (isPortletPlacement(placement))
 		{
+			// If the tool has requested it, pre-fetch render output.
+			String doPreFetch  = placement.getConfig().getProperty(Portal.JSR_168_PRE_RENDER);
+			if ( "true".equals(doPreFetch) ) 
+			{
+				result.getContent();
+			}
+                
 			toolMap.put("toolPlacementIDJS", "_self");
+			toolMap.put("isPortletPlacement", Boolean.TRUE);
 		}
 		else
 		{
@@ -666,7 +694,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 					+ placement.getId()));
 		}
 		toolMap.put("toolResetActionUrl", resetActionUrl);
+		toolMap.put("toolResetActionUrlEncode", URLUtils.encodeUrl(resetActionUrl));
 		toolMap.put("toolTitle", titleString);
+		toolMap.put("toolTitleEncode", URLUtils.encodeUrl(titleString));
 		toolMap.put("toolShowResetButton", Boolean.valueOf(showResetButton));
 		toolMap.put("toolShowHelpButton", Boolean.valueOf(showHelpButton));
 		toolMap.put("toolHelpActionUrl", helpActionUrl);
@@ -674,169 +704,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		return toolMap;
 	}
 
-	public List<Map> convertSitesToMaps(HttpServletRequest req, List mySites,
-			String prefix, String currentSiteId, String myWorkspaceSiteId,
-			boolean includeSummary, boolean expandSite, boolean resetTools,
-			boolean doPages, String toolContextPath, boolean loggedIn)
-	{
-		List<Map> l = new ArrayList<Map>();
-		Map<String,Integer> depthChart = new HashMap<String,Integer>();
-		boolean motdDone = false;
-		for (Iterator i = mySites.iterator(); i.hasNext();)
-		{
-			Site s = (Site) i.next();
-
-			// The first site is the current site
-			if (currentSiteId == null) currentSiteId = s.getId();
-
-			ResourceProperties rp = s.getProperties();
-			String ourParent = rp.getProperty(PROP_PARENT_ID);
-                	// System.out.println("Depth Site:"+s.getTitle()+" parent="+ourParent);
-			Integer cDepth = new Integer(0);
-			if ( ourParent != null ) 
-			{
-				Integer pDepth = depthChart.get(ourParent);
-				if ( pDepth != null ) 
-				{
-					cDepth = pDepth + 1;
-				}
-			}
-			// System.out.println("Depth = "+cDepth);
-			depthChart.put(s.getId(),cDepth);
-
-			Map m = convertSiteToMap(req, s, prefix, currentSiteId, myWorkspaceSiteId,
-					includeSummary, expandSite, resetTools, doPages, toolContextPath,
-					loggedIn);
-
-			// Add the Depth of the site
-			m.put("depth",cDepth);
-
-			if (includeSummary && m.get("rssDescription") == null)
-			{
-				if (!motdDone)
-				{
-					siteHelper.summarizeTool(m, s, "sakai.motd");
-					motdDone = true;
-				}
-				else
-				{
-					siteHelper.summarizeTool(m, s, "sakai.announcements");
-				}
-
-			}
-			l.add(m);
-		}
-		return l;
-	}
-
-	public Map convertSiteToMap(HttpServletRequest req, Site s, String prefix,
-			String currentSiteId, String myWorkspaceSiteId, boolean includeSummary,
-			boolean expandSite, boolean resetTools, boolean doPages,
-			String toolContextPath, boolean loggedIn)
-	{
-		if (s == null) return null;
-		Map<String, Object> m = new HashMap<String, Object>();
-
-		// In case the effective is different than the actual site
-		String effectiveSite = siteHelper.getSiteEffectiveId(s);
-
-		boolean isCurrentSite = currentSiteId != null
-                                && (s.getId().equals(currentSiteId) || effectiveSite
-                                                .equals(currentSiteId));
-		m.put("isCurrentSite", Boolean.valueOf(isCurrentSite));
-		m.put("isMyWorkspace", Boolean.valueOf(myWorkspaceSiteId != null
-				&& (s.getId().equals(myWorkspaceSiteId) || effectiveSite
-						.equals(myWorkspaceSiteId))));
-		m.put("siteTitle", Web.escapeHtml(s.getTitle()));
-		m.put("siteDescription", Web.escapeHtml(s.getDescription()));
-		String siteUrl = Web.serverUrl(req)
-				+ ServerConfigurationService.getString("portalPath") + "/";
-		if (prefix != null) siteUrl = siteUrl + prefix + "/";
-		// siteUrl = siteUrl + Web.escapeUrl(siteHelper.getSiteEffectiveId(s));
-		m.put("siteUrl", siteUrl + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)));
-
-		ResourceProperties rp = s.getProperties();
-		String ourParent = rp.getProperty(PROP_PARENT_ID);
-		boolean isChild = ourParent != null;
-		m.put("isChild",Boolean.valueOf(isChild) ) ;
-		m.put("parentSite",ourParent);
-
-		// Get the current site hierarchy
-		if ( isChild && isCurrentSite )
-		{
-			List<Site> pwd = getPwd(s,ourParent);
-			if ( pwd != null )
-			{
- 				List<Map> l = new ArrayList<Map>();
-				for(int i=0;i<pwd.size(); i++ )
-				{
-					Site site = pwd.get(i);
-					// System.out.println("PWD["+i+"]="+site.getId()+" "+site.getTitle());
-					Map<String, Object> pm = new HashMap<String, Object>();
-					pm.put("siteTitle", Web.escapeHtml(site.getTitle()));
-					pm.put("siteUrl", siteUrl + Web.escapeUrl(siteHelper.getSiteEffectiveId(site)));
-					l.add(pm);
-				}
-				m.put("pwd",l);
-			}
-		}
-
-		if (includeSummary)
-		{
-			siteHelper.summarizeTool(m, s, "sakai.announce");
-		}
-		if (expandSite)
-		{
-			Map pageMap = pageListToMap(req, loggedIn, s, /* SitePage */null,
-					toolContextPath, prefix, doPages, resetTools, includeSummary);
-			m.put("sitePages", pageMap);
-		}
-
-		return m;
-	}
-
-	public List<Site> getPwd(Site s,String ourParent)
-	{
-		if ( ourParent == null ) return null;
-
-		// System.out.println("Getting Current Working Directory for "+s.getId()+" "+s.getTitle());
-
-		int depth = 0;
-		Vector<Site> pwd = new Vector<Site>();
-		Set<String> added = new HashSet<String>();
-
-		// Add us to the list at the top (will become the end)
-		pwd.add(s);  
-		added.add(s.getId());
-
-		// Make sure we don't go on forever
-		while( ourParent != null && depth < 8 ) 
-		{
-			depth++;
-			Site site = null;
-			try
-			{
-				site = SiteService.getSiteVisit(ourParent);
-			}
-			catch (Exception e)
-			{
-				break; 
-			}
-			// We have no patience with loops
-			if ( added.contains(site.getId()) ) break; 
-
-			// System.out.println("Adding Parent "+site.getId()+" "+site.getTitle());
-			pwd.insertElementAt(site,0);  // Push down stack
-			added.add(site.getId());
-
-			ResourceProperties rp = site.getProperties();
-			ourParent = rp.getProperty(PROP_PARENT_ID);
-		}
-
-		// PWD is only defined for > 1 site
-		if ( pwd.size() < 2 ) return null;
-		return pwd;
-	}
 
 	/**
 	 * Respond to navigation / access requests.
@@ -875,37 +742,19 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 			// recognize what to do from the path
 			String option = req.getPathInfo();
-			
-			
 
+			String[] parts = {};
 
-			// if missing, set it to home or gateway
-			if ((option == null) || ("/".equals(option)))
+			if (option == null || "/".equals(option))
 			{
-				
-
-				if (session.getUserId() == null)
-				{
-					String siteId = null;
-					if (siteHelper.doGatewaySiteList())
-					{
-						List<Site> mySites = siteHelper.getAllSites(req, session, true);
-						if (mySites.size() > 0) siteId = mySites.get(0).getId();
-					}
-					if (siteId == null)
-					{
-						siteId = ServerConfigurationService.getGatewaySiteId();
-					}
-					option = "/"+handlerPrefix+"/" + siteId;
-				}
-				else
-				{
-					option = "/"+handlerPrefix+"/" + SiteService.getUserSiteId(session.getUserId());
-				}
+				// Use the default handler prefix
+				parts = new String[]{"", handlerPrefix};
 			}
-
-			// get the parts (the first will be "")
-			String[] parts = option.split("/");
+			else
+			{
+				//get the parts (the first will be "")
+				parts = option.split("/");
+			}
 
 			Map<String, PortalHandler> handlerMap = portalService.getHandlerMap(this);
 			PortalHandler ph = handlerMap.get(parts[1]);
@@ -1022,24 +871,12 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	public void doLogout(HttpServletRequest req, HttpServletResponse res,
 			Session session, String returnPath) throws ToolException
 	{
-		// where to go after
-		if (returnPath == null)
+		String loggedOutUrl = ServerConfigurationService.getLoggedOutUrl();
+		if ( returnPath != null ) 
 		{
-			// if no path, use the configured logged out URL
-			String loggedOutUrl = ServerConfigurationService.getLoggedOutUrl();
-			session.setAttribute(Tool.HELPER_DONE_URL, loggedOutUrl);
+			loggedOutUrl = loggedOutUrl + returnPath;
 		}
-		else
-		{
-			// if we have a path, use a return based on the request and this
-			// path
-			// Note: this is currently used only as "/gallery"
-			// - we should really add a
-			// ServerConfigurationService.getGalleryLoggedOutUrl()
-			// and change the returnPath to a normal/gallery indicator -ggolden
-			String loggedOutUrl = Web.returnUrl(req, returnPath);
-			session.setAttribute(Tool.HELPER_DONE_URL, loggedOutUrl);
-		}
+		session.setAttribute(Tool.HELPER_DONE_URL, loggedOutUrl);
 
 		ActiveTool tool = ActiveToolManager.getActiveTool("sakai.login");
 		String context = req.getContextPath() + req.getServletPath() + "/logout";
@@ -1135,6 +972,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		rcontext.put("pageScriptPath", getScriptPath());
 		rcontext.put("pageTop", Boolean.valueOf(true));
 		rcontext.put("rloader", rloader);
+		rcontext.put("browser", new BrowserDetector(request));
 		// rcontext.put("sitHelp", Web.escapeHtml(rb.getString("sit_help")));
 		// rcontext.put("sitReset", Web.escapeHtml(rb.getString("sit_reset")));
 
@@ -1627,176 +1465,25 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		}
 	}
 
-	/*
-	 * Produce a page and/or a tool list doPage = true is best for the
-	 * tabs-based portal and for RSS - these think in terms of pages doPage =
-	 * false is best for the portlet-style - it unrolls all of the tools unless
-	 * a page is marked as a popup. If the page is a popup - it is left a page
-	 * and marked as such. restTools = true - generate resetting tool URLs.
+
+
+	/**
+	 * @param rcontext
+	 * @param res
+	 * @param req
+	 * @param session
+	 * @param site
+	 * @param page
+	 * @param toolContextPath
+	 * @param portalPrefix
+	 * @return
+	 * @throws IOException
 	 */
-	public Map pageListToMap(HttpServletRequest req, boolean loggedIn, Site site,
-			SitePage page, String toolContextPath, String portalPrefix, boolean doPages,
-			boolean resetTools, boolean includeSummary)
-	{
-
-		Map<String, Object> theMap = new HashMap<String, Object>();
-
-		String pageUrl = Web.returnUrl(req, "/" + portalPrefix + "/"
-				+ Web.escapeUrl(siteHelper.getSiteEffectiveId(site)) + "/page/");
-		String toolUrl = Web.returnUrl(req, "/" + portalPrefix + "/"
-				+ Web.escapeUrl(siteHelper.getSiteEffectiveId(site)));
-		if (resetTools)
-		{
-			toolUrl = toolUrl + "/tool-reset/";
-		}
-		else
-		{
-			toolUrl = toolUrl + "/tool/";
-		}
-
-		String pagePopupUrl = Web.returnUrl(req, "/page/");
-		boolean showHelp = ServerConfigurationService.getBoolean("display.help.menu",
-				true);
-		String iconUrl = site.getIconUrlFull();
-		boolean published = site.isPublished();
-		String type = site.getType();
-
-		theMap.put("pageNavPublished", Boolean.valueOf(published));
-		theMap.put("pageNavType", type);
-		theMap.put("pageNavIconUrl", iconUrl);
-		// theMap.put("pageNavSitToolsHead",
-		// Web.escapeHtml(rb.getString("sit_toolshead")));
-
-		// order the pages based on their tools and the tool order for the
-		// site type
-		// List pages = site.getOrderedPages();
-		List pages = siteHelper.getPermittedPagesInOrder(this,site);
-
-		List<Map> l = new ArrayList<Map>();
-
-		for (Iterator i = pages.iterator(); i.hasNext();)
-		{
-
-			SitePage p = (SitePage) i.next();
-			// check if current user has permission to see page
-			// we will draw page button if it have permission to see at least
-			// one tool on the page
-			List pTools = p.getTools();
-			ToolConfiguration firstTool = null;
-			if ( pTools != null && pTools.size() > 0 ) {
-				firstTool = (ToolConfiguration) pTools.get(0);
-			}
-			String toolsOnPage = null;
-
-			boolean current = (page != null && p.getId().equals(page.getId()) && !p
-					.isPopUp());
-			String pagerefUrl = pageUrl + Web.escapeUrl(p.getId());
-
-			if (doPages || p.isPopUp())
-			{
-				Map<String, Object> m = new HashMap<String, Object>();
-				m.put("isPage", Boolean.valueOf(true));
-				m.put("current", Boolean.valueOf(current));
-				m.put("ispopup", Boolean.valueOf(p.isPopUp()));
-				m.put("pagePopupUrl", pagePopupUrl);
-				m.put("pageTitle", Web.escapeHtml(p.getTitle()));
-				m.put("jsPageTitle", Web.escapeJavascript(p.getTitle()));
-				m.put("pageId", Web.escapeUrl(p.getId()));
-				m.put("jsPageId", Web.escapeJavascript(p.getId()));
-				m.put("pageRefUrl", pagerefUrl);
-				if (toolsOnPage != null) m.put("toolsOnPage", toolsOnPage);
-				if (includeSummary) siteHelper.summarizePage(m, site, p);
-				if ( firstTool != null ) {
-					String menuClass = firstTool.getToolId();
-					menuClass = "icon-"+menuClass.replace('.','-');
-					m.put("menuClass", menuClass);
-				} else {
-					m.put("menuClass", "icon-default-tool" );					
-				}
-				m.put("pageProps", createPageProps(p));
-				// this is here to allow the tool reorder to work
-				m.put("_sitePage", p);
-				l.add(m);
-				continue;
-			}
-
-			// Loop through the tools again and Unroll the tools
-			Iterator iPt = pTools.iterator();
-
-			while (iPt.hasNext())
-			{
-				ToolConfiguration placement = (ToolConfiguration) iPt.next();
-
-				String toolrefUrl = toolUrl + Web.escapeUrl(placement.getId());
-
-				Map<String, Object> m = new HashMap<String, Object>();
-				m.put("isPage", Boolean.valueOf(false));
-				m.put("toolId", Web.escapeUrl(placement.getId()));
-				m.put("jsToolId", Web.escapeJavascript(placement.getId()));
-				m.put("toolRegistryId", placement.getToolId());
-				m.put("toolTitle", Web.escapeHtml(placement.getTitle()));
-				m.put("jsToolTitle", Web.escapeJavascript(placement.getTitle()));
-				m.put("toolrefUrl", toolrefUrl);
-				String menuClass = placement.getToolId();
-				menuClass = "icon-"+menuClass.replace('.', '-');
-				m.put("menuClass", menuClass);
-				// this is here to allow the tool reorder to work if requried.
-				m.put("_placement", placement);
-				l.add(m);
-			}
-
-		}
-		
-		if ( pageFilter != null ) {
-			l = pageFilter.filterPlacements(l,site);
-		}
-		
-		theMap.put("pageNavTools", l);
-		theMap.put("pageMaxIfSingle",ServerConfigurationService.getBoolean("portal.experimental.maximizesinglepage", false));
-		theMap.put("pageNavToolsCount", Integer.valueOf(l.size()));
-
-		String helpUrl = ServerConfigurationService.getHelpUrl(null);
-		theMap.put("pageNavShowHelp", Boolean.valueOf(showHelp));
-		theMap.put("pageNavHelpUrl", helpUrl);
-		theMap.put("helpMenuClass", "icon-sakai-help");
-		theMap.put("subsiteClass", "icon-sakai-subsite");
-		
-
-		// theMap.put("pageNavSitContentshead",
-		// Web.escapeHtml(rb.getString("sit_contentshead")));
-
-		// Handle Presense
-		boolean showPresence = ServerConfigurationService.getBoolean(
-				"display.users.present", true);
-		String presenceUrl = Web.returnUrl(req, "/presence/"
-				+ Web.escapeUrl(site.getId()));
-
-		// theMap.put("pageNavSitPresenceTitle",
-		// Web.escapeHtml(rb.getString("sit_presencetitle")));
-		// theMap.put("pageNavSitPresenceFrameTitle",
-		// Web.escapeHtml(rb.getString("sit_presenceiframetit")));
-		theMap.put("pageNavShowPresenceLoggedIn", Boolean.valueOf(showPresence
-				&& loggedIn));
-		theMap.put("pageNavPresenceUrl", presenceUrl);
-
-		return theMap;
-	}
-
-   protected Map createPageProps(SitePage p) {
-      Map properties = new HashMap();
-      for (Iterator<String> i=p.getProperties().getPropertyNames();i.hasNext();) {
-         String propName = i.next();
-         properties.put(propName, p.getProperties().get(propName));
-      }
-
-      return properties;
-   }
-
 	public void includeWorksite(PortalRenderContext rcontext, HttpServletResponse res,
 			HttpServletRequest req, Session session, Site site, SitePage page,
 			String toolContextPath, String portalPrefix) throws IOException
 	{
-		worksiteHandler.includeWorksite(rcontext, res, req, session, site, page,
+		 worksiteHandler.includeWorksite(rcontext, res, req, session, site, page,
 				toolContextPath, portalPrefix);
 	}
 
@@ -1810,12 +1497,13 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	public void init(ServletConfig config) throws ServletException
 	{
 		super.init(config);
-
 		portalContext = config.getInitParameter("portal.context");
 		if (portalContext == null || portalContext.length() == 0)
 		{
 			portalContext = DEFAULT_PORTAL_CONTEXT;
 		}
+		siteHelper = new PortalSiteHelperImpl(this);
+		
 		portalService = org.sakaiproject.portal.api.cover.PortalService.getInstance();
 		M_log.info("init()");
 		
@@ -1853,22 +1541,17 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		addHandler(galleryHandler);
 		addHandler(new GalleryResetHandler());
 		addHandler(new NavLoginHandler());
-		addHandler(new NavLoginGalleryHandler());
 		addHandler(new PresenceHandler());
 		addHandler(new HelpHandler());
 		addHandler(new ReLoginHandler());
 		addHandler(new LoginHandler());
 		addHandler(new XLoginHandler());
-		addHandler(new LoginGalleryHandler());
 		addHandler(new LogoutHandler());
-		addHandler(new LogoutGalleryHandler());
 		addHandler(new ErrorDoneHandler());
 		addHandler(new ErrorReportHandler());
 		addHandler(new StaticStylesHandler());
 		addHandler(new StaticScriptsHandler());
 		addHandler(new DirectToolHandler());
-		addHandler(new RoleSwitchHandler());
-		addHandler(new RoleSwitchOutHandler());
 
 	}
 
@@ -2065,6 +1748,22 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	public void setPageFilter(PageFilter pageFilter)
 	{
 		this.pageFilter = pageFilter;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.portal.api.Portal#getSiteHelper()
+	 */
+	public PortalSiteHelper getSiteHelper()
+	{
+		return this.siteHelper;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.portal.api.Portal#getSiteNeighbourhoodService()
+	 */
+	public SiteNeighbourhoodService getSiteNeighbourhoodService()
+	{
+		return portalService.getSiteNeighbourhoodService();
 	}
 	
 
