@@ -27,9 +27,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
-import java.util.Set;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 
@@ -39,10 +36,15 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import net.sourceforge.wurfl.wurflapi.CapabilityMatrix;
+import net.sourceforge.wurfl.wurflapi.ObjectsManager;
+import net.sourceforge.wurfl.wurflapi.UAManager;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.PageFilter;
@@ -62,11 +64,8 @@ import org.sakaiproject.portal.charon.handlers.ErrorReportHandler;
 import org.sakaiproject.portal.charon.handlers.GalleryHandler;
 import org.sakaiproject.portal.charon.handlers.GalleryResetHandler;
 import org.sakaiproject.portal.charon.handlers.HelpHandler;
-import org.sakaiproject.portal.charon.handlers.LoginGalleryHandler;
 import org.sakaiproject.portal.charon.handlers.LoginHandler;
-import org.sakaiproject.portal.charon.handlers.LogoutGalleryHandler;
 import org.sakaiproject.portal.charon.handlers.LogoutHandler;
-import org.sakaiproject.portal.charon.handlers.NavLoginGalleryHandler;
 import org.sakaiproject.portal.charon.handlers.NavLoginHandler;
 import org.sakaiproject.portal.charon.handlers.OpmlHandler;
 import org.sakaiproject.portal.charon.handlers.PDAHandler;
@@ -86,10 +85,10 @@ import org.sakaiproject.portal.charon.handlers.XLoginHandler;
 import org.sakaiproject.portal.charon.site.PortalSiteHelperImpl;
 import org.sakaiproject.portal.render.api.RenderResult;
 import org.sakaiproject.portal.render.cover.ToolRenderService;
+import org.sakaiproject.portal.util.BrowserDetector;
 import org.sakaiproject.portal.util.ErrorReporter;
 import org.sakaiproject.portal.util.ToolURLManagerImpl;
 import org.sakaiproject.portal.util.URLUtils;
-import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -111,8 +110,6 @@ import org.sakaiproject.util.BasicAuth;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Web;
-
-import net.sourceforge.wurfl.wurflapi.*;
 
 /**
  * <p/> Charon is the Sakai Site based portal.
@@ -532,7 +529,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		siteView.setPrefix(prefix);
 		siteView.setResetTools(resetTools);
 		siteView.setToolContextPath(toolContextPath);
-		
+		siteView.setIncludeSummary(includeSummary);
+		siteView.setDoPages(doPages);
+		siteView.setExpandSite(expandSite);
 		
 		rcontext.put("allSites", siteView.getRenderContextObject());
 
@@ -546,7 +545,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	{
 		if (placement == null) return false;
 		Tool t = placement.getTool();
-		M_log.warn("Got Tool as "+t+" for "+placement);
 		Properties toolProps = t.getFinalConfig();
 		if (toolProps == null) return false;
 		String portletContext = toolProps
@@ -744,32 +742,19 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 			// recognize what to do from the path
 			String option = req.getPathInfo();
-			
-			
 
+			String[] parts = {};
 
-			// if missing, set it to home or gateway
-			if ((option == null) || ("/".equals(option)))
+			if (option == null || "/".equals(option))
 			{
-				
-
-				if (session.getUserId() == null)
-				{
-					String siteId = siteHelper.getGatewaySiteId();
-					if (siteId == null)
-					{
-						siteId = ServerConfigurationService.getGatewaySiteId();
-					}
-					option = "/"+handlerPrefix+"/" + siteId;
-				}
-				else
-				{
-					option = "/"+handlerPrefix+"/" + SiteService.getUserSiteId(session.getUserId());
-				}
+				// Use the default handler prefix
+				parts = new String[]{"", handlerPrefix};
 			}
-
-			// get the parts (the first will be "")
-			String[] parts = option.split("/");
+			else
+			{
+				//get the parts (the first will be "")
+				parts = option.split("/");
+			}
 
 			Map<String, PortalHandler> handlerMap = portalService.getHandlerMap(this);
 			PortalHandler ph = handlerMap.get(parts[1]);
@@ -886,24 +871,12 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	public void doLogout(HttpServletRequest req, HttpServletResponse res,
 			Session session, String returnPath) throws ToolException
 	{
-		// where to go after
-		if (returnPath == null)
+		String loggedOutUrl = ServerConfigurationService.getLoggedOutUrl();
+		if ( returnPath != null ) 
 		{
-			// if no path, use the configured logged out URL
-			String loggedOutUrl = ServerConfigurationService.getLoggedOutUrl();
-			session.setAttribute(Tool.HELPER_DONE_URL, loggedOutUrl);
+			loggedOutUrl = loggedOutUrl + returnPath;
 		}
-		else
-		{
-			// if we have a path, use a return based on the request and this
-			// path
-			// Note: this is currently used only as "/gallery"
-			// - we should really add a
-			// ServerConfigurationService.getGalleryLoggedOutUrl()
-			// and change the returnPath to a normal/gallery indicator -ggolden
-			String loggedOutUrl = Web.returnUrl(req, returnPath);
-			session.setAttribute(Tool.HELPER_DONE_URL, loggedOutUrl);
-		}
+		session.setAttribute(Tool.HELPER_DONE_URL, loggedOutUrl);
 
 		ActiveTool tool = ActiveToolManager.getActiveTool("sakai.login");
 		String context = req.getContextPath() + req.getServletPath() + "/logout";
@@ -999,6 +972,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		rcontext.put("pageScriptPath", getScriptPath());
 		rcontext.put("pageTop", Boolean.valueOf(true));
 		rcontext.put("rloader", rloader);
+		rcontext.put("browser", new BrowserDetector(request));
 		// rcontext.put("sitHelp", Web.escapeHtml(rb.getString("sit_help")));
 		// rcontext.put("sitReset", Web.escapeHtml(rb.getString("sit_reset")));
 
@@ -1493,11 +1467,23 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 
 
+	/**
+	 * @param rcontext
+	 * @param res
+	 * @param req
+	 * @param session
+	 * @param site
+	 * @param page
+	 * @param toolContextPath
+	 * @param portalPrefix
+	 * @return
+	 * @throws IOException
+	 */
 	public void includeWorksite(PortalRenderContext rcontext, HttpServletResponse res,
 			HttpServletRequest req, Session session, Site site, SitePage page,
 			String toolContextPath, String portalPrefix) throws IOException
 	{
-		worksiteHandler.includeWorksite(rcontext, res, req, session, site, page,
+		 worksiteHandler.includeWorksite(rcontext, res, req, session, site, page,
 				toolContextPath, portalPrefix);
 	}
 
@@ -1555,15 +1541,12 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		addHandler(galleryHandler);
 		addHandler(new GalleryResetHandler());
 		addHandler(new NavLoginHandler());
-		addHandler(new NavLoginGalleryHandler());
 		addHandler(new PresenceHandler());
 		addHandler(new HelpHandler());
 		addHandler(new ReLoginHandler());
 		addHandler(new LoginHandler());
 		addHandler(new XLoginHandler());
-		addHandler(new LoginGalleryHandler());
 		addHandler(new LogoutHandler());
-		addHandler(new LogoutGalleryHandler());
 		addHandler(new ErrorDoneHandler());
 		addHandler(new ErrorReportHandler());
 		addHandler(new StaticStylesHandler());

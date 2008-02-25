@@ -48,11 +48,9 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolException;
 
 /**
- * 
  * @author ieb
  * @since Sakai 2.4
  * @version $Rev$
- * 
  */
 public class PageHandler extends BasePortalHandler
 {
@@ -61,13 +59,12 @@ public class PageHandler extends BasePortalHandler
 
 	private static final Log log = LogFactory.getLog(PageHandler.class);
 
+	private static final String URL_FRAGMENT = "page";
 
 	public PageHandler()
 	{
-		urlFragment = "page";
+		setUrlFragment(PageHandler.URL_FRAGMENT);
 	}
-	
-
 
 	@Override
 	public int doPost(String[] parts, HttpServletRequest req, HttpServletResponse res,
@@ -80,7 +77,7 @@ public class PageHandler extends BasePortalHandler
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
 	{
-		if ((parts.length == 3) && (parts[1].equals("page")))
+		if ((parts.length == 3) && (parts[1].equals(PageHandler.URL_FRAGMENT)))
 		{
 			try
 			{
@@ -159,10 +156,10 @@ public class PageHandler extends BasePortalHandler
 		PortalRenderContext rcontext = portal.startPageContext(siteType, title, page
 				.getSkin(), req);
 
-		
 		includePage(rcontext, res, req, session, page, toolContextPath, "contentFull");
 
 		portal.sendResponse(rcontext, res, "page", null);
+
 		StoredState ss = portalService.getStoredState();
 		if (ss != null && toolContextPath.equals(ss.getToolContextPath()))
 		{
@@ -172,13 +169,22 @@ public class PageHandler extends BasePortalHandler
 
 	}
 
+	/**
+	 * @param rcontext
+	 * @param res
+	 * @param req
+	 * @param session
+	 * @param page
+	 * @param toolContextPath
+	 * @param wrapperClass
+	 * @return
+	 * @throws IOException
+	 */
 	public void includePage(PortalRenderContext rcontext, HttpServletResponse res,
-			HttpServletRequest req, Session session, SitePage page, 
+			HttpServletRequest req, Session session, SitePage page,
 			String toolContextPath, String wrapperClass) throws IOException
 	{
 		int toolCount = 0;
-		Map singleToolMap = null;
-		ToolConfiguration singleTool = null;
 
 		if (rcontext.uses(INCLUDE_PAGE))
 		{
@@ -209,7 +215,8 @@ public class PageHandler extends BasePortalHandler
 
 					if (site != null)
 					{
-						boolean thisTool = portal.getSiteHelper().allowTool(site, placement);
+						boolean thisTool = portal.getSiteHelper().allowTool(site,
+								placement);
 						// System.out.println(" Allow Tool Display -" +
 						// placement.getTitle() + " retval = " + thisTool);
 						if (!thisTool) continue; // Skip this tool if not
@@ -220,8 +227,6 @@ public class PageHandler extends BasePortalHandler
 					if (m != null)
 					{
 						toolCount++;
-						singleTool = placement;
-						singleToolMap = m;
 						toolList.add(m);
 					}
 				}
@@ -243,54 +248,13 @@ public class PageHandler extends BasePortalHandler
 					if (m != null)
 					{
 						toolCount++;
-						singleTool = placement;
-						singleToolMap = m;
 						toolList.add(m);
 					}
 				}
 				rcontext.put("pageColumn1Tools", toolList);
 			}
 
-			// Determine if this page can be in a frame set, if so place the 
-			// appropriate materials into the context
-			if ( toolCount == 1 )
-			{
-				boolean framesetRequested = false;
-
-				rcontext.put("singleToolMap",singleToolMap);
-				
-                        	String maximizedUrl = (String) session.getAttribute(Portal.ATTR_MAXIMIZED_URL);
-                        	session.setAttribute(Portal.ATTR_MAXIMIZED_URL,null);
-
-                        	if (maximizedUrl != null ) 
-				{
-					framesetRequested = true;
-					rcontext.put("frameMaximizedUrl",maximizedUrl);
-				}
-	
-				// If tool configuration property is set for tool - do request
-				String toolConfigMax = singleTool.getConfig().getProperty(Portal.PREFER_MAXIMIZE);
-				if ( "true".equals(toolConfigMax)) framesetRequested = true;
-	
-				// Check to see if we are configured to always request maximized view
-				// or if we are forbidden to do maximized view
-				String framesetConfig  = ServerConfigurationService
-					.getString(Portal.FRAMESET_SUPPORT);
-
-				if ( "always".equals(framesetConfig) ) framesetRequested = true;
-				if ( "never".equals(framesetConfig) ) framesetRequested = false;
-
-				// JSR-168 portlets cannot be in a frameset unless they asked for
-				// a maximized URL
-				if ( singleToolMap.get("isPortletPlacement") != null && maximizedUrl == null )
-				{
-					framesetRequested = false;
-				}
-				
-				if ( framesetRequested ) rcontext.put("sakaiFrameSetRequested",Boolean.TRUE);	
-			}
-			
-			//Add footer variables to page template context- SAK-10312
+			// Add footer variables to page template context- SAK-10312
 			rcontext.put("pagepopup", page.isPopUp());
 
 			if (!page.isPopUp())
@@ -364,8 +328,9 @@ public class PageHandler extends BasePortalHandler
 				rcontext.put("bottomNavSakaiVersion", sakaiVersion);
 				rcontext.put("bottomNavServer", server);
 			}
-			
+
 		}
 	}
+
 
 }

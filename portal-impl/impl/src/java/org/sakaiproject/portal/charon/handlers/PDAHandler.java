@@ -25,7 +25,6 @@ import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.ServletContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,7 +32,6 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.Portal;
-import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.util.ByteArrayServletResponse;
@@ -48,8 +46,6 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.Web;
-
-import net.sourceforge.wurfl.wurflapi.*;
 
 /**
  * 
@@ -70,9 +66,11 @@ public class PDAHandler extends PageHandler
 
 	private static final Log log = LogFactory.getLog(PDAHandler.class);
 
+	private static final String URL_FRAGMENT = "pda";
+
 	public PDAHandler()
 	{
-		urlFragment = "pda";
+		setUrlFragment(PDAHandler.URL_FRAGMENT);
 	}
 
 	@Override
@@ -83,7 +81,7 @@ public class PDAHandler extends PageHandler
 		if ((parts.length >= 2) && (parts[1].equals("pda")))
 		{
 			// Indicate that we are the controlling portal
-			session.setAttribute("sakai-controlling-portal",urlFragment);
+			session.setAttribute("sakai-controlling-portal",PDAHandler.URL_FRAGMENT);
 			try
 			{
 

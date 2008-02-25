@@ -22,6 +22,8 @@
 package org.sakaiproject.portal.charon.site;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -34,9 +36,13 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.alias.api.Alias;
+import org.sakaiproject.alias.cover.AliasService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntitySummary;
+import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.Summary;
 import org.sakaiproject.entity.cover.EntityManager;
@@ -45,7 +51,6 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.PageFilter;
 import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalSiteHelper;
-import org.sakaiproject.portal.api.SiteNeighbourhoodService;
 import org.sakaiproject.portal.api.SiteView;
 import org.sakaiproject.portal.api.SiteView.View;
 import org.sakaiproject.portal.charon.ToolHelperImpl;
@@ -58,7 +63,6 @@ import org.sakaiproject.time.api.Time;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.PreferencesService;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -74,6 +78,9 @@ import org.sakaiproject.util.Web;
 
 public class PortalSiteHelperImpl implements PortalSiteHelper
 {
+	// Alias prefix for page aliases. Use Entity.SEPARATOR as IDs shouldn't contain it.
+	private static final String PAGE_ALIAS = Entity.SEPARATOR+ "pagealias"+ Entity.SEPARATOR;
+
 	private static final Log log = LogFactory.getLog(PortalSiteHelper.class);
 
 	private final String PROP_PARENT_ID = SiteService.PROP_PARENT_ID;
@@ -305,6 +312,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		// siteUrl = siteUrl + Web.escapeUrl(siteHelper.getSiteEffectiveId(s));
 		m.put("siteUrl", siteUrl + Web.escapeUrl(getSiteEffectiveId(s)));
 
+		// TODO: This should come from the site neighbourhood.
 		ResourceProperties rp = s.getProperties();
 		String ourParent = rp.getProperty(PROP_PARENT_ID);
 		boolean isChild = ourParent != null;
@@ -347,6 +355,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	}
 
 	/**
+	 * Gets the path of sites back to the root of the tree.
 	 * @param s
 	 * @param ourParent
 	 * @return
@@ -465,7 +474,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 			boolean current = (page != null && p.getId().equals(page.getId()) && !p
 					.isPopUp());
-			String pagerefUrl = pageUrl + Web.escapeUrl(p.getId());
+			String alias = lookupPageToAlias(site, p);
+			String pagerefUrl = pageUrl + Web.escapeUrl((alias != null)?alias:p.getId());
 
 			if (doPages || p.isPopUp())
 			{
@@ -759,6 +769,14 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 						+ site.getId());
 			}
 		}
+		else
+		{
+			String displayId = portal.getSiteNeighbourhoodService().lookupSiteAlias(site.getReference(), null);
+			if (displayId != null)
+			{
+				return displayId;
+			}
+		}
 
 		return site.getId();
 	}
@@ -793,6 +811,18 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 					return SiteService.getSiteVisit(alternateSiteId);
 				}
 				catch (UserNotDefinedException ee)
+				{
+				}
+			}
+			else
+			{
+				String reference = portal.getSiteNeighbourhoodService().parseSiteAlias(siteId);
+				Reference ref = EntityManager.getInstance().newReference(reference);
+				try 
+				{
+					return SiteService.getSiteVisit(ref.getId());
+				}
+				catch (IdUnusedException iue)
 				{
 				}
 			}
@@ -862,8 +892,12 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		SitePage page = site.getPage(pageId);
 		if (page == null)
 		{
-			page = (SitePage) pages.get(0);
-			return page;
+			page = lookupAliasToPage(pageId, site);
+			if (page == null)
+			{
+				page = (SitePage) pages.get(0);
+				return page;
+			}
 		}
 
 		// Make sure that they user has permission for the page.
@@ -878,6 +912,62 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 		return (SitePage) pages.get(0);
 	}
+
+	public SitePage lookupAliasToPage(String alias, Site site)
+	{
+		SitePage page = null;
+		if (alias != null && alias.length() > 0)
+		{
+			try
+			{
+				// Use page#{siteId}:{pageAlias} So we can scan for fist colon and alias can contain any character 
+				String refString = AliasService.getTarget(PAGE_ALIAS+site.getId()+Entity.SEPARATOR+alias);
+				String aliasPageId = EntityManager.newReference(refString).getId();
+				page = (SitePage) site.getPage(aliasPageId);
+			}
+			catch (IdUnusedException e)
+			{
+				if (log.isDebugEnabled())
+				{
+					log.debug("Alias does not resolve " + e.getMessage());
+				}
+			}
+		}
+		return page;
+	}
+
+	public String lookupPageToAlias(Site site, SitePage page)
+	{
+		String alias = null;
+		List<Alias> aliases = AliasService.getAliases(page.getReference());
+		if (aliases.size() > 0)
+		{	
+			if (aliases.size() > 1 && log.isWarnEnabled())
+			{
+				log.warn("More than one alias for: "+site.getId()+ ":"+ page.getId());
+				// Sort on ID so it is consistent in the alias it uses.
+				Collections.sort(aliases, new Comparator<Alias>() {
+					public int compare(Alias o1, Alias o2)
+					{
+						return o1.getId().compareTo(o2.getId());
+					}
+					
+				});
+			}
+			alias = aliases.get(0).getId();
+			int delim = alias.lastIndexOf(Entity.SEPARATOR);
+			if (delim > 0)
+			{
+				alias = alias.substring(delim+1);
+			}
+			else
+			{
+				alias = null;
+			}
+		}
+		return alias;
+	}
+
 
 	/**
 	 * @see org.sakaiproject.portal.api.PortalSiteHelper#allowTool(org.sakaiproject.site.api.Site,
@@ -900,6 +990,10 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	{
 		switch (view)
 		{
+			case CURRENT_SITE_VIEW:
+				return new CurrentSiteViewImpl(this,  portal.getSiteNeighbourhoodService(), request, session, siteId, SiteService
+						.getInstance(), ServerConfigurationService.getInstance(),
+						PreferencesService.getInstance());
 			case ALL_SITES_VIEW:
 				return new AllSitesViewImpl(this,  portal.getSiteNeighbourhoodService(), request, session, siteId, SiteService
 						.getInstance(), ServerConfigurationService.getInstance(),
