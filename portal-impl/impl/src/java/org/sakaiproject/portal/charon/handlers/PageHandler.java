@@ -40,7 +40,6 @@ import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.api.StoredState;
-import org.sakaiproject.portal.util.PortalSiteHelper;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -49,11 +48,9 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolException;
 
 /**
- * 
  * @author ieb
  * @since Sakai 2.4
  * @version $Rev$
- * 
  */
 public class PageHandler extends BasePortalHandler
 {
@@ -62,11 +59,11 @@ public class PageHandler extends BasePortalHandler
 
 	private static final Log log = LogFactory.getLog(PageHandler.class);
 
-	protected PortalSiteHelper siteHelper = new PortalSiteHelper();
+	private static final String URL_FRAGMENT = "page";
 
 	public PageHandler()
 	{
-		urlFragment = "page";
+		setUrlFragment(PageHandler.URL_FRAGMENT);
 	}
 
 	@Override
@@ -80,7 +77,7 @@ public class PageHandler extends BasePortalHandler
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
 	{
-		if ((parts.length == 3) && (parts[1].equals("page")))
+		if ((parts.length == 3) && (parts[1].equals(PageHandler.URL_FRAGMENT)))
 		{
 			try
 			{
@@ -159,10 +156,10 @@ public class PageHandler extends BasePortalHandler
 		PortalRenderContext rcontext = portal.startPageContext(siteType, title, page
 				.getSkin(), req);
 
-		
-		includePage(rcontext, res, req, page, toolContextPath, "contentFull");
+		includePage(rcontext, res, req, session, page, toolContextPath, "contentFull");
 
 		portal.sendResponse(rcontext, res, "page", null);
+
 		StoredState ss = portalService.getStoredState();
 		if (ss != null && toolContextPath.equals(ss.getToolContextPath()))
 		{
@@ -172,10 +169,23 @@ public class PageHandler extends BasePortalHandler
 
 	}
 
+	/**
+	 * @param rcontext
+	 * @param res
+	 * @param req
+	 * @param session
+	 * @param page
+	 * @param toolContextPath
+	 * @param wrapperClass
+	 * @return
+	 * @throws IOException
+	 */
 	public void includePage(PortalRenderContext rcontext, HttpServletResponse res,
-			HttpServletRequest req, SitePage page, String toolContextPath,
-			String wrapperClass) throws IOException
+			HttpServletRequest req, Session session, SitePage page,
+			String toolContextPath, String wrapperClass) throws IOException
 	{
+		int toolCount = 0;
+
 		if (rcontext.uses(INCLUDE_PAGE))
 		{
 
@@ -205,7 +215,8 @@ public class PageHandler extends BasePortalHandler
 
 					if (site != null)
 					{
-						boolean thisTool = siteHelper.allowTool(site, placement);
+						boolean thisTool = portal.getSiteHelper().allowTool(site,
+								placement);
 						// System.out.println(" Allow Tool Display -" +
 						// placement.getTitle() + " retval = " + thisTool);
 						if (!thisTool) continue; // Skip this tool if not
@@ -215,6 +226,7 @@ public class PageHandler extends BasePortalHandler
 					Map m = portal.includeTool(res, req, placement);
 					if (m != null)
 					{
+						toolCount++;
 						toolList.add(m);
 					}
 				}
@@ -235,14 +247,14 @@ public class PageHandler extends BasePortalHandler
 					Map m = portal.includeTool(res, req, placement);
 					if (m != null)
 					{
+						toolCount++;
 						toolList.add(m);
 					}
 				}
 				rcontext.put("pageColumn1Tools", toolList);
 			}
-			
-			//Add footer variables to page template context- SAK-10312
 
+			// Add footer variables to page template context- SAK-10312
 			rcontext.put("pagepopup", page.isPopUp());
 
 			if (!page.isPopUp())
@@ -316,8 +328,9 @@ public class PageHandler extends BasePortalHandler
 				rcontext.put("bottomNavSakaiVersion", sakaiVersion);
 				rcontext.put("bottomNavServer", server);
 			}
-			
+
 		}
 	}
+
 
 }
