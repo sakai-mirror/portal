@@ -21,7 +21,7 @@ public class RoleSwitchHandler extends BasePortalHandler
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
 	{
-		if ((parts.length > 3) && (parts[1].equals("role-switch")) && SiteService.allowRoleSwap(parts[2]))
+		if ((parts.length > 3) && (parts[1].equals("role-switch")) && SiteService.allowRoleSwap(parts[2]) && parts[3].equals("Student"))
 		{
 			try
 			{
