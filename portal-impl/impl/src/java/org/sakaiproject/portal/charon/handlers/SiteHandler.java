@@ -492,10 +492,22 @@ public class SiteHandler extends WorksiteHandler
 	            {
 	            	activeSite = null;
 	            }
-            	if (activeSite.getType() != null) // this filters out some of non-standard sites where swapping roles would not apply
+	            // this block of code will check to see if the student role exists in the side.  It will be used to determine if we need to display any student view component
+	            boolean studentRoleInSite = false;
+            	Iterator i = activeSite.getRoles().iterator();
+	    		while (i.hasNext())
+	    		{
+	    			Role r = (Role) i.next();
+	    			if (r.getId().equals("Student"))
+	    			{
+	    				studentRoleInSite = true;
+	    				break;
+	    			}
+	    		}
+            	if (activeSite.getType() != null && studentRoleInSite) // the type check filters out some of non-standard sites where swapping roles would not apply.  The boolean check makes sure the student role is in the site
             	{
-		            Role userRole = activeSite.getUserRole(session.getUserId()); // the user's role in the site
 		            String switchRoleUrl = "";
+		            Role userRole = activeSite.getUserRole(session.getUserId()); // the user's role in the site
 		            if (roleswitchvalue != null && !userRole.equals(roleswitchvalue))
 		            {
 		            	switchRoleUrl = ServerConfigurationService.getPortalUrl()
@@ -506,22 +518,10 @@ public class SiteHandler extends WorksiteHandler
 		            }
 		            else
 		            {
-		            	// this block of code generates a list of roles for our dropdown in the UI
-		            	Iterator i = activeSite.getRoles().iterator();
-			        	List<String> siteRoles = new ArrayList<String>();
-			    		while (i.hasNext())
-			    		{
-			    			Role r = (Role) i.next();
-			    			if (userRole.getId()!=r.getId()) // We do not want to put the current user's role in the list.  Would force unnecessary security checks later
-			    				siteRoles.add(r.getId());
-			    		}
-			    		rcontext.put("siteRoles", siteRoles);
-			    		
 		            	switchRoleUrl = ServerConfigurationService.getPortalUrl()
 						+ "/role-switch/"
 						+ siteId
-						+ "/";
-		            	rcontext.put("panelString", "/?panel=Main");
+						+ "/Student/?panel=Main";
 		            }
 		            roleswapcheck = true; // We made it this far, so set to true to display a component
 					rcontext.put("switchRoleUrl", switchRoleUrl);

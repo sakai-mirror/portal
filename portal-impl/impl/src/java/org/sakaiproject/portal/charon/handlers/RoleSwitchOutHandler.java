@@ -32,10 +32,11 @@ public class RoleSwitchOutHandler extends BasePortalHandler
 				{
 					siteUrl = siteUrl + "?" + queryString;
 				}
+				portalService.setResetState("true");
 				session.removeAttribute("roleswap/site/" + parts[2]); // remove the attribute from the session
 				session.setAttribute("roleswap/exit/" + parts[2], "true");
 				res.sendRedirect(siteUrl);
-				return NEXT;
+				return RESET_DONE;
 			}
 			catch (Exception ex)
 			{
