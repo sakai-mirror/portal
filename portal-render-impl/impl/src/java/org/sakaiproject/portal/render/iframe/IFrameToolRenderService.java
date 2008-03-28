@@ -112,10 +112,23 @@ public class IFrameToolRenderService implements ToolRenderService
 						"\n").append("	height=\"50\"").append("\n").append(
 						"	width=\"100%\"").append("\n").append("	frameborder=\"0\"")
 				.append("\n").append("	marginwidth=\"0\"").append("\n").append(
-						"	marginheight=\"0\"").append("\n").append("	scrolling=\"auto\"")
-				.append("\n").append("	src=\"").append(toolUrl).append("\">")
-				.append("\n").append("</iframe>");
+						"	marginheight=\"0\"").append("\n").append("	scrolling=\"auto\"");
+
+		/* ONC-292: add onload javascript event to refresh timeout display when page within iframe changes */
+		if (ServerConfigurationService.getBoolean("timeoutAlert.enabled", false)) {
+			final int countdownStartTime = ServerConfigurationService.getInt("timeoutAlert.countdownStartTime", 0);
+			final int totalSessionTime = SessionManager.getCurrentSession().getMaxInactiveInterval();
+			final int inactiveTimeout = (totalSessionTime - countdownStartTime)*1000;
+			
+			sb.append("\n").append("	onload=\"refreshSession(").append(countdownStartTime).append(", ")
+					.append(inactiveTimeout).append(", '").append(ServerConfigurationService.getPortalUrl())
+					.append("',false);\"");
+		}
 		
+		/* finish iframe tag */
+		sb.append("\n").append("	src=\"").append(toolUrl).append("\">")
+				.append("\n").append("</iframe>");
+
 		final String[] buffered = bufferContent(portal,request, response, configuration);
 		
 		

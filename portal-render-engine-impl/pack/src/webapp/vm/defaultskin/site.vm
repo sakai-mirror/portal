@@ -135,6 +135,11 @@
 	</div>
 </div>
 <!-- end includeSiteNav -->
+#if (${timeoutAlertEnabled}) 
+<!-- start includeTimeoutAlert -->
+	#parse("/vm/defaultskin/includeTimeoutAlert.vm") 
+<!-- end includeTimeoutAlert -->
+#end
 <!-- end site.vm -->
 	</body>
 </html>

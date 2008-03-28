@@ -80,6 +80,9 @@
 									marginwidth="0"
 									marginheight="0"
 									scrolling="auto"	
+								#if ($timeoutAlertEnabled)
+									onload="refreshSession(${countdownStartTime}, ${inactiveTimeout}, '${portalUrl}', false);"
+								#end
 									src="${tool.toolUrl}?panel=Main">
 								</iframe>
 							</div>
@@ -160,6 +163,9 @@
 									marginwidth="0"
 									marginheight="0"
 									scrolling="auto"	
+								#if ($timeoutAlertEnabled)
+									onload="refreshSession(${countdownStartTime}, ${inactiveTimeout}, '${portalUrl}', false);"
+								#end
 									src="${tool.toolUrl}?panel=Main">
 								</iframe>
 							</div>

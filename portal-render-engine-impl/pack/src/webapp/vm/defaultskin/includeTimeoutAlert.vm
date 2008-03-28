@@ -1,0 +1,51 @@
+#### This is the DIV for the timeout alert DHTML popup
+#### timeoutAlertEnabled is TRUE if LOGGED IN and TIMEOUT ALERT is Enabled
+<div id="timeoutAlert_portal_div" style="display:none"></div>
+
+<div id="timeoutAlert_page" class="tool_popup" style="display:none">
+	<div class="portlet">
+	    <div class="portletTitleWrap">
+    		<div class="portletTitle">
+				<div class="title">
+					<h2>${rloader.timeoutAlert_title}</h2>
+				</div>
+				<div class="action">
+					<a accesskey="h" href="${timeoutAlertHelpUrl}" title="Help" target="_blank" 
+							onclick="window.open('${timeoutAlertHelpUrl}', 'Help',
+							'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); 
+							return false;">
+						<img src="/library/image/transparent.gif" alt="Help" border="0">
+					</a>
+				</div>
+			</div>
+		</div>
+		<div id="timeout_alert_body" title="${rloader.timeoutAlert_title}" class="portletMainWrap" style="font-size:13pt">
+			<br />
+   			${rloader.timeoutAlert_message}
+   			<br />
+		
+		    <!-- Need to keep number of seconds so can count them down -->
+		    <input type="hidden" name="seconds" id="seconds" value=${countdownStartTime} />
+	    
+			<div style="font-size:14pt; text-align:center;">
+				${rloader.timeoutAlert_countdown_less_than}
+				<span id="minutes"></span>&nbsp;
+				${rloader.timeoutAlert_countdown_message}
+			</div>
+			<br />
+			
+			<div>${rloader.timeoutAlert_instructions}</div>
+			<br />
+			
+			<div style="text-align:center">
+				<input type="button" value="${rloader.timeoutAlert_update}"
+   	  		   		title="${rloader.timeoutAlert_update_title}" class="active"
+   	  	   			onclick="refreshSession(${countdownStartTime}, ${inactiveTimeout}, '${portalUrl}', true); return false;" />
+	      	</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	timeoutId = setTimeout("displayTimeoutAlert()", ${inactiveTimeout});
+</script>
