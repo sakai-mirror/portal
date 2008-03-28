@@ -484,13 +484,13 @@ public class SiteHandler extends WorksiteHandler
 	            {
 	            	activeSite = portal.getSiteHelper().getSiteVisit(siteId); // active site
 	            }
-            	catch(IdUnusedException ie)
+	            catch(IdUnusedException ie)
 	            {
-	            	activeSite = null;
+            		log.error(ie.getMessage(), ie);
 	            }
 	            catch(PermissionException pe)
 	            {
-	            	activeSite = null;
+	            	log.error(pe.getMessage(), pe);
 	            }
 	            // this block of code will check to see if the student role exists in the side.  It will be used to determine if we need to display any student view component
 	            boolean studentRoleInSite = false;
