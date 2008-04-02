@@ -20,6 +20,8 @@ public class RoleSwitchOutHandler extends BasePortalHandler
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
 	{
+		if (parts == null || req == null || res == null || session == null)
+			throw new IllegalStateException("null pointers while swapping out of student view");
 		if ((parts.length > 2) && "role-switch-out".equals(parts[1]))
 		{
 			try

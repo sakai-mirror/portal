@@ -21,6 +21,8 @@ public class RoleSwitchHandler extends BasePortalHandler
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
 	{
+		if (parts == null || req == null || res == null || session == null)
+			throw new IllegalStateException("null pointers while swapping into student view");
 		if ((parts.length > 3) && "role-switch".equals(parts[1]) && SiteService.allowRoleSwap(parts[2]) && "Student".equals(parts[3]))
 		{
 			try
