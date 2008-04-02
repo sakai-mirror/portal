@@ -20,7 +20,7 @@ public class RoleSwitchOutHandler extends BasePortalHandler
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
 	{
-		if ((parts.length > 2) && (parts[1].equals("role-switch-out")))
+		if ((parts.length > 2) && "role-switch-out".equals(parts[1]))
 		{
 			try
 			{

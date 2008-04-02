@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -494,16 +495,15 @@ public class SiteHandler extends WorksiteHandler
 	            }
 	            // this block of code will check to see if the student role exists in the side.  It will be used to determine if we need to display any student view component
 	            boolean studentRoleInSite = false;
-            	Iterator i = activeSite.getRoles().iterator();
-	    		while (i.hasNext())
-	    		{
-	    			Role r = (Role) i.next();
-	    			if (r.getId().equals("Student"))
-	    			{
-	    				studentRoleInSite = true;
+	            Set<Role> roles = activeSite.getRoles();
+            	for (Role role : roles)
+            	{
+            		if (role.getId().equals("Student"))
+            		{
+            			studentRoleInSite = true;
 	    				break;
-	    			}
-	    		}
+            		}
+            	}
             	if (activeSite.getType() != null && studentRoleInSite) // the type check filters out some of non-standard sites where swapping roles would not apply.  The boolean check makes sure the student role is in the site
             	{
 		            String switchRoleUrl = "";
