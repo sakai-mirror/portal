@@ -485,7 +485,7 @@ public class SiteHandler extends WorksiteHandler
 	            {
 	            	activeSite = portal.getSiteHelper().getSiteVisit(siteId); // active site
 	            }
-	            catch(IdUnusedException ie)
+            	catch(IdUnusedException ie)
 	            {
             		log.error(ie.getMessage(), ie);
 	            }
@@ -493,18 +493,26 @@ public class SiteHandler extends WorksiteHandler
 	            {
 	            	log.error(pe.getMessage(), pe);
 	            }
-	            // this block of code will check to see if the student role exists in the side.  It will be used to determine if we need to display any student view component
-	            boolean studentRoleInSite = false;
-	            Set<Role> roles = activeSite.getRoles();
+	            // this block of code will check to see if the student role exists in the site.  It will be used to determine if we need to display any student view component
+	            boolean roleInSite = false;
+            	Set<Role> roles = activeSite.getRoles();
+
+            	String externalRoles = ServerConfigurationService.getString("studentview.roles"); // get the roles that can be swapped to from sakai.properties
+            	String[] svRoles = externalRoles.split(",");
+            	List<String> svRolesFinal = new ArrayList<String>();
+
             	for (Role role : roles)
             	{
-            		if (role.getId().equals("Student"))
+            		for (int i = 0; i < svRoles.length; i++)
             		{
-            			studentRoleInSite = true;
-	    				break;
+            			if (svRoles[i].trim().equals(role.getId()))
+            			{
+            				roleInSite = true;
+            				svRolesFinal.add(role.getId());
+            			}
             		}
             	}
-            	if (activeSite.getType() != null && studentRoleInSite) // the type check filters out some of non-standard sites where swapping roles would not apply.  The boolean check makes sure the student role is in the site
+            	if (activeSite.getType() != null && roleInSite) // the type check filters out some of non-standard sites where swapping roles would not apply.  The boolean check makes sure a role is in the site
             	{
 		            String switchRoleUrl = "";
 		            Role userRole = activeSite.getUserRole(session.getUserId()); // the user's role in the site
@@ -514,16 +522,34 @@ public class SiteHandler extends WorksiteHandler
 						+ "/role-switch-out/"
 						+ siteId
 						+ "/?panel=Main";
+		            	rcontext.put("roleUrlValue", roleswitchvalue);
 		            	roleswitchstate = true; // We're in a switched state, so set to true
 		            }
 		            else
 		            {
-		            	switchRoleUrl = ServerConfigurationService.getPortalUrl()
-						+ "/role-switch/"
-						+ siteId
-						+ "/Student/?panel=Main";
+		            	if (svRolesFinal.size()>1)
+		            	{
+		            		rcontext.put("roleswapdropdown", true);
+							switchRoleUrl = ServerConfigurationService.getPortalUrl()
+							+ "/role-switch/"
+							+ siteId
+							+ "/";
+							rcontext.put("panelString", "/?panel=Main");
+		            	}
+		            	else
+		            	{
+		            		rcontext.put("roleswapdropdown", false);
+		            		switchRoleUrl = ServerConfigurationService.getPortalUrl()
+							+ "/role-switch/"
+							+ siteId
+							+ "/"
+							+ svRolesFinal.get(0)
+							+ "/?panel=Main";
+		            		rcontext.put("roleUrlValue", svRolesFinal.get(0));
+		            	}
 		            }
 		            roleswapcheck = true; // We made it this far, so set to true to display a component
+		            rcontext.put("siteRoles", svRolesFinal);
 					rcontext.put("switchRoleUrl", switchRoleUrl);
             	}
 			}

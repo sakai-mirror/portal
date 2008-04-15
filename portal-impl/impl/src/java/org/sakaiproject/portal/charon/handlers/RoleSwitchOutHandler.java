@@ -36,7 +36,7 @@ public class RoleSwitchOutHandler extends BasePortalHandler
 				}
 				portalService.setResetState("true");
 				session.removeAttribute("roleswap/site/" + parts[2]); // remove the attribute from the session
-				session.setAttribute("roleswap/exit/" + parts[2], "true");
+				session.setAttribute("roleswap/exit/" + parts[2], "true"); // set this so sakai security will know we were in a swapped view and now we're not
 				res.sendRedirect(siteUrl);
 				return RESET_DONE;
 			}
