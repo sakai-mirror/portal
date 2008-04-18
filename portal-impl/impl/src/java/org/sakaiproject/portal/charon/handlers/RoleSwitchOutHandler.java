@@ -34,9 +34,9 @@ public class RoleSwitchOutHandler extends BasePortalHandler
 				{
 					siteUrl = siteUrl + "?" + queryString;
 				}
-				portalService.setResetState("true");
+				portalService.setResetState("true"); // flag the portal to reset
 				session.removeAttribute("roleswap/site/" + parts[2]); // remove the attribute from the session
-				session.setAttribute("roleswap/exit/" + parts[2], "true"); // set this so sakai security will know we were in a swapped view and now we're not
+				session.setAttribute("roleswapFlagForClearing/" + parts[2], "true"); // set a session variable to flag for clearing the cache in authz
 				res.sendRedirect(siteUrl);
 				return RESET_DONE;
 			}

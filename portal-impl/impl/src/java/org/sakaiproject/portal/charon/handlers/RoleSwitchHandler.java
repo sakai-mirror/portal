@@ -85,8 +85,8 @@ public class RoleSwitchHandler extends BasePortalHandler
 				{
 					siteUrl = siteUrl + "?" + queryString;
 				}
-				portalService.setResetState("true");
-				session.removeAttribute("roleswap/exit/" + parts[2]); // remove the attribute from the session
+				portalService.setResetState("true"); // flag the portal to reset
+				session.setAttribute("roleswapFlagForClearing/" + parts[2] , "true"); // set a session variable to flag for clearing the cache in authz
 				session.setAttribute("roleswap/site/" + parts[2] , parts[3]); // set the session attribute with the roleid
 				res.sendRedirect(siteUrl);
 				return RESET_DONE;
