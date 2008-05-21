@@ -92,15 +92,15 @@
  					#if (${site.isCurrentSite})
     					#if ( $site.isChild )
       			<ul id="siteHierarchy"> 
-     					 	#set ($tabCountBread =0)
-      						#foreach ( $pwd in $site.pwd )
+     					 	#set ($tabCountBread = 0)
+      						#foreach ( $site in $neighbour.parentsites )
           						#set ($tabCountBread =$tabCountBread + 1)       
           			<li>
           						#if ($tabCountBread > 1)
                 		<span class="breadSeparator">${rloader.bread_separator}</span>
           						#end
           						## note: keep all the tags in this block in the same line 
-                		<a href="${pwd.siteUrl}" title="${pwd.siteTitle}"><span>${pwd.siteTitle}</span></a>
+                		<a href="${site.siteUrl}" title="${site.siteTitle}"><span>${site.siteTitle}</span></a>
                   	</li>
       						#end
       			</ul>

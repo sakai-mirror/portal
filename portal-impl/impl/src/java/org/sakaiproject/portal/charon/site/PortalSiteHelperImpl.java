@@ -313,32 +313,12 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		m.put("siteUrl", siteUrl + Web.escapeUrl(getSiteEffectiveId(s)));
 
 		// TODO: This should come from the site neighbourhood.
+		// If current site has parent.
 		ResourceProperties rp = s.getProperties();
 		String ourParent = rp.getProperty(PROP_PARENT_ID);
-		boolean isChild = ourParent != null;
-		m.put("isChild", Boolean.valueOf(isChild));
+		boolean isAChild = ourParent != null;
+		m.put("isChild", Boolean.valueOf(isAChild));
 		m.put("parentSite", ourParent);
-
-		// Get the current site hierarchy
-		if (isChild && isCurrentSite)
-		{
-			List<Site> pwd = getPwd(s, ourParent);
-			if (pwd != null)
-			{
-				List<Map> l = new ArrayList<Map>();
-				for (int i = 0; i < pwd.size(); i++)
-				{
-					Site site = pwd.get(i);
-					// System.out.println("PWD["+i+"]="+site.getId()+"
-					// "+site.getTitle());
-					Map<String, Object> pm = new HashMap<String, Object>();
-					pm.put("siteTitle", Web.escapeHtml(site.getTitle()));
-					pm.put("siteUrl", siteUrl + Web.escapeUrl(getSiteEffectiveId(site)));
-					l.add(pm);
-				}
-				m.put("pwd", l);
-			}
-		}
 
 		if (includeSummary)
 		{
@@ -352,57 +332,6 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		}
 
 		return m;
-	}
-
-	/**
-	 * Gets the path of sites back to the root of the tree.
-	 * @param s
-	 * @param ourParent
-	 * @return
-	 */
-	private List<Site> getPwd(Site s, String ourParent)
-	{
-		if (ourParent == null) return null;
-
-		// System.out.println("Getting Current Working Directory for
-		// "+s.getId()+" "+s.getTitle());
-
-		int depth = 0;
-		Vector<Site> pwd = new Vector<Site>();
-		Set<String> added = new HashSet<String>();
-
-		// Add us to the list at the top (will become the end)
-		pwd.add(s);
-		added.add(s.getId());
-
-		// Make sure we don't go on forever
-		while (ourParent != null && depth < 8)
-		{
-			depth++;
-			Site site = null;
-			try
-			{
-				site = SiteService.getSiteVisit(ourParent);
-			}
-			catch (Exception e)
-			{
-				break;
-			}
-			// We have no patience with loops
-			if (added.contains(site.getId())) break;
-
-			// System.out.println("Adding Parent "+site.getId()+"
-			// "+site.getTitle());
-			pwd.insertElementAt(site, 0); // Push down stack
-			added.add(site.getId());
-
-			ResourceProperties rp = site.getProperties();
-			ourParent = rp.getProperty(PROP_PARENT_ID);
-		}
-
-		// PWD is only defined for > 1 site
-		if (pwd.size() < 2) return null;
-		return pwd;
 	}
 
 	/**
@@ -1026,7 +955,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 						.getInstance(), ServerConfigurationService.getInstance(),
 						PreferencesService.getInstance());
 			case SUB_SITES_VIEW:
-				return new SubSiteViewImpl(this, portal.getSiteNeighbourhoodService(), request, session, siteId, SiteService
+				return new NeighbourhoodSiteViewImpl(this, portal.getSiteNeighbourhoodService(), request, session, siteId, SiteService
 						.getInstance(), ServerConfigurationService.getInstance(),
 						PreferencesService.getInstance());
 		}

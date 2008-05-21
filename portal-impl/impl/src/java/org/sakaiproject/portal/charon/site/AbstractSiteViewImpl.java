@@ -22,25 +22,54 @@
 package org.sakaiproject.portal.charon.site;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.portal.api.SiteNeighbour;
 import org.sakaiproject.portal.api.SiteNeighbourhoodService;
 import org.sakaiproject.portal.api.SiteView;
+import org.sakaiproject.portal.api.SiteNeighbour.Relationship;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.PreferencesService;
 
 /**
+ * Loads all the users sites.
  * @author ieb
  */
 public abstract class AbstractSiteViewImpl implements SiteView
 {
+
+	static class NeighbourCompare implements Comparator<SiteNeighbour>
+	{
+
+		public int compare(SiteNeighbour o1, SiteNeighbour o2)
+		{
+			int val = o1.getRelationship().compareTo(o2.getRelationship());
+			if (val == 0)
+			{
+				val = (o1.getDistance() - o2.getDistance());
+				if (val == 0)
+				{
+					val = o1.getSite().getTitle().compareTo(o2.getSite().getTitle());
+					if (val == 0)
+					{
+						val = o1.getSite().getId().compareTo(o2.getSite().getId());
+					}
+				}
+			}
+			return val;
+		}
+	}
 
 	protected PortalSiteHelperImpl siteHelper;
 
@@ -78,6 +107,8 @@ public abstract class AbstractSiteViewImpl implements SiteView
 
 	protected boolean expandSite = false;
 
+	protected List<SiteNeighbour> myNeighbours;
+
 	public AbstractSiteViewImpl(PortalSiteHelperImpl siteHelper, SiteNeighbourhoodService siteNeighbourhoodService, 
 			HttpServletRequest request, Session session, String currentSiteId, SiteService siteService,
 			ServerConfigurationService serverConfigurationService, PreferencesService preferencesService)
@@ -91,8 +122,30 @@ public abstract class AbstractSiteViewImpl implements SiteView
 		this.serverConfigurationService = serverConfigurationService;
 		
 		
+		myNeighbours = siteNeighbourhoodService.getSitesAtNode(request, session, currentSiteId, true);
 		
-		mySites = siteNeighbourhoodService.getSitesAtNode(request, session, true);
+		Comparator<SiteNeighbour> neighbourCompare = new NeighbourCompare();
+		
+		
+		
+		Collections.sort(myNeighbours, neighbourCompare);
+		
+		mySites = new ArrayList<Site>();
+		Set<String> addedSites = new HashSet<String>();
+		for (SiteNeighbour neighbour: myNeighbours)
+		{
+			if (Relationship.MEMBER.equals(neighbour.getRelationship()) ||
+					Relationship.CURRENT.equals(neighbour.getRelationship()) ||
+					Relationship.MYWORKSITE.equals(neighbour.getRelationship()))
+			{
+				if (!addedSites.contains(neighbour.getSite().getId()))
+				{
+					mySites.add(neighbour.getSite());
+					addedSites.add(neighbour.getSite().getId());
+				}
+			}
+		}
+			
 		
 		
 		loggedIn = session.getUserId() != null;

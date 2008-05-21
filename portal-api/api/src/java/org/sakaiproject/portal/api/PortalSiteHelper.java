@@ -97,6 +97,7 @@ public interface PortalSiteHelper
 
 	/**
 	 * Generates a SiteView object from the current request and location
+	 * TODO Need to have content for hierarchy?
 	 * @param view
 	 * @param req
 	 * @param session 

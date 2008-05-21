@@ -367,44 +367,13 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	{
 		if ( siteId == null || rcontext == null ) return;
 
-		// Check the setting as to whether we are to do this
-		String pref = ServerConfigurationService.getString("portal.includesubsites");
-		if ( "never".equals(pref) ) return;
-
-		Site site = null;
-		try
-		{
-			site = siteHelper.getSiteVisit(siteId);
-		}
-		catch (Exception e)
-		{
-			return;
-		}
-		if ( site == null ) return;
-
-		
-		
-		
-		ResourceProperties rp = site.getProperties();
-		String showSub = rp.getProperty(PROP_SHOW_SUBSITES);
-               	// System.out.println("Checking subsite pref:"+site.getTitle()+" pref="+pref+" show="+showSub);
-		if ( "false".equals(showSub) ) return;
-
-		if ( "false".equals(pref) )
-		{
-			if ( ! "true".equals(showSub) ) return;
-		}
-
 		SiteView siteView = siteHelper.getSitesView(SiteView.View.SUB_SITES_VIEW,req, session, siteId);
 		if ( siteView.isEmpty() ) return;
 		
 		siteView.setPrefix(prefix);
 		siteView.setToolContextPath(toolContextPath);
 		siteView.setResetTools(resetTools);
-				
-		if( !siteView.isEmpty() ) {
-			rcontext.put("subSites", siteView.getRenderContextObject());
-		}
+		rcontext.put("neighbour", siteView.getRenderContextObject());
 	}
 
 	/*

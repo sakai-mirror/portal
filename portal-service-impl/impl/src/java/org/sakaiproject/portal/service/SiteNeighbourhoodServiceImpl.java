@@ -22,13 +22,15 @@
 package org.sakaiproject.portal.service;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
-import java.util.Vector;
+import java.util.Queue;
+import java.util.Set;	
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -40,6 +42,8 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.portal.api.SiteNeighbour;
+import org.sakaiproject.portal.api.SiteNeighbour.Relationship;
 import org.sakaiproject.portal.api.SiteNeighbourhoodService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -88,10 +92,10 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 	 * @see org.sakaiproject.portal.api.SiteNeighbourhoodService#getSitesAtNode(javax.servlet.http.HttpServletRequest,
 	 *      org.sakaiproject.tool.api.Session, boolean)
 	 */
-	public List<Site> getSitesAtNode(HttpServletRequest request, Session session,
+	public List<SiteNeighbour> getSitesAtNode(HttpServletRequest request, Session session, String context,
 			boolean includeMyWorkspace)
 	{
-		return getAllSites(request, session, includeMyWorkspace);
+		return getAllSites(request, session, context, includeMyWorkspace);
 	}
 
 	/**
@@ -108,188 +112,162 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 	 * @see org.sakaiproject.portal.api.PortalSiteHelper#getAllSites(javax.servlet.http.HttpServletRequest,
 	 *      org.sakaiproject.tool.api.Session, boolean)
 	 */
-	public List<Site> getAllSites(HttpServletRequest req, Session session,
+	public List<SiteNeighbour> getAllSites(HttpServletRequest req, Session session, String context,
 			boolean includeMyWorkspace)
 	{
 
 		boolean loggedIn = session.getUserId() != null;
 		List<Site> mySites;
+		List<SiteNeighbour> ordered = new ArrayList<SiteNeighbour>();
 
+		int distance = 0;
+		
+		try
+		{
+			Site currentSite = siteService.getSiteVisit(context);
+			ordered.add(new SiteNeighbourImpl(currentSite, null, Relationship.CURRENT, 0));
+		}
+		catch (IdUnusedException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (PermissionException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		// collect the Publically Viewable Sites
 		if (!loggedIn)
 		{
 			mySites = getGatewaySites();
-			return mySites;
 		}
-
-		// collect the user's sites
-		mySites = siteService.getSites(
-				org.sakaiproject.site.api.SiteService.SelectionType.ACCESS, null, null,
-				null, org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, null);
-
-		// collect the user's preferences
-		List prefExclude = new ArrayList();
-		List prefOrder = new ArrayList();
-		if (session.getUserId() != null)
+		else
 		{
-			Preferences prefs = preferencesService.getPreferences(session.getUserId());
-			ResourceProperties props = prefs.getProperties("sakai:portal:sitenav");
 
-			List l = props.getPropertyList("exclude");
-			if (l != null)
+			// collect the user's sites
+			mySites = siteService.getSites(
+					org.sakaiproject.site.api.SiteService.SelectionType.ACCESS, null, null,
+					null, org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, null);
+
+			// collect the user's preferences
+			List prefExclude = new ArrayList();
+			List prefOrder = new ArrayList();
+			if (session.getUserId() != null)
 			{
-				prefExclude = l;
-			}
+				Preferences prefs = preferencesService.getPreferences(session.getUserId());
+				ResourceProperties props = prefs.getProperties("sakai:portal:sitenav");
 
-			l = props.getPropertyList("order");
-			if (l != null)
-			{
-				prefOrder = l;
-			}
-		}
-
-		// remove all in exclude from mySites
-		mySites.removeAll(prefExclude);
-
-		// Prepare to put sites in the right order
-		Vector<Site> ordered = new Vector<Site>();
-		Set<String> added = new HashSet<String>();
-
-		// First, place or remove MyWorkspace as requested
-		Site myWorkspace = getMyWorkspace(session);
-		if (myWorkspace != null)
-		{
-			if (includeMyWorkspace)
-			{
-				ordered.add(myWorkspace);
-				added.add(myWorkspace.getId());
-			}
-			else
-			{
-				int pos = listIndexOf(myWorkspace.getId(), mySites);
-				if (pos != -1) mySites.remove(pos);
-			}
-		}
-
-		// re-order mySites to have order first, the rest later
-		for (Iterator i = prefOrder.iterator(); i.hasNext();)
-		{
-			String id = (String) i.next();
-
-			// find this site in the mySites list
-			int pos = listIndexOf(id, mySites);
-			if (pos != -1)
-			{
-				// move it from mySites to order, ignoring child sites
-				Site s = mySites.get(pos);
-				ResourceProperties rp = s.getProperties();
-				String ourParent = rp.getProperty(SiteService.PROP_PARENT_ID);
-				// System.out.println("Pref Site:"+s.getTitle()+"
-				// parent="+ourParent);
-				if (ourParent == null && !added.contains(s.getId()))
+				List l = props.getPropertyList("exclude");
+				if (l != null)
 				{
-					ordered.add(s);
-					added.add(s.getId());
+					prefExclude = l;
+				}
+
+				l = props.getPropertyList("order");
+				if (l != null)
+				{
+					prefOrder = l;
 				}
 			}
-		}
 
-		// We only do the child processing if we have less than 200 sites
-		boolean haveChildren = false;
-		int siteCount = mySites.size();
+			// TODO Bad code as it relies on bad Site.equals()
+			// remove all in exclude from mySites
+			mySites.removeAll(prefExclude);
 
-		// pick up the rest of the top-level-sites
-		for (int i = 0; i < mySites.size(); i++)
-		{
-			Site s = mySites.get(i);
-			if (added.contains(s.getId())) continue;
-			ResourceProperties rp = s.getProperties();
-			String ourParent = rp.getProperty(SiteService.PROP_PARENT_ID);
-			// System.out.println("Top Site:"+s.getTitle()+"
-			// parent="+ourParent);
-			if (siteCount > 200 || ourParent == null)
+			// First, place or remove MyWorkspace as requested
+			Site myWorkspace = getMyWorkspace(session);
+			if (myWorkspace != null)
 			{
-				// System.out.println("Added at root");
-				ordered.add(s);
-				added.add(s.getId());
-			}
-			else
-			{
-				haveChildren = true;
-			}
-		}
-
-		// If and only if we have some child nodes, we repeatedly
-		// pull up children nodes to be behind their parents
-		// This is O N**2 - so if we had thousands of sites it
-		// it would be costly - hence we only do it for < 200 sites
-		// and limited depth - that makes it O(N) not O(N**2)
-		boolean addedSites = true;
-		int depth = 0;
-		while (depth < 20 && addedSites && haveChildren)
-		{
-			depth++;
-			addedSites = false;
-			haveChildren = false;
-			for (int i = mySites.size() - 1; i >= 0; i--)
-			{
-				Site s = mySites.get(i);
-				if (added.contains(s.getId())) continue;
-				ResourceProperties rp = s.getProperties();
-				String ourParent = rp.getProperty(SiteService.PROP_PARENT_ID);
-				if (ourParent == null) continue;
-				haveChildren = true;
-				// System.out.println("Child Site:"+s.getTitle()+"
-				// parent="+ourParent);
-				// Search the already added pages for a parent
-				// or sibling node
-				boolean found = false;
-				int j = -1;
-				for (j = ordered.size() - 1; j >= 0; j--)
+				if (includeMyWorkspace)
 				{
-					Site ps = ordered.get(j);
-					// See if this site is our parent
-					if (ourParent.equals(ps.getId()))
+					ordered.add(new SiteNeighbourImpl(myWorkspace, null, SiteNeighbour.Relationship.MYWORKSITE, 0));
+				}
+				else
+				{
+					int pos = listIndexOf(myWorkspace.getId(), mySites);
+					if (pos != -1) mySites.remove(pos);
+				}
+			}
+
+			// re-order mySites to have order first, the rest later
+			for (Iterator i = prefOrder.iterator(); i.hasNext();)
+			{
+				String id = (String) i.next();
+
+				// find this site in the mySites list
+				int pos = listIndexOf(id, mySites);
+				if (pos != -1)
+				{
+					// move it from mySites to order, ignoring child sites
+					Site s = mySites.get(pos);
+					String ourParent = s.getProperties().getProperty(SiteService.PROP_PARENT_ID);
+					// System.out.println("Pref Site:"+s.getTitle()+"
+					// parent="+ourParent);
+					if (ourParent == null)
 					{
-						found = true;
-						break;
-					}
-					// See if this site is our sibling
-					rp = ps.getProperties();
-					String peerParent = rp.getProperty(SiteService.PROP_PARENT_ID);
-					if (ourParent.equals(peerParent))
-					{
-						found = true;
-						break;
+						ordered.add(new SiteNeighbourImpl(s, null, SiteNeighbour.Relationship.MEMBER, distance++));
 					}
 				}
-
-				// We want to insert *after* the identified node
-				j = j + 1;
-				if (found && j >= 0 && j < ordered.size())
-				{
-					// System.out.println("Added after parent");
-					ordered.insertElementAt(s, j);
-					added.add(s.getId());
-					addedSites = true; // Worth going another level deeper
-				}
 			}
-		} // End while depth
 
-		// If we still have children drop them at the end
-		if (haveChildren) for (int i = 0; i < mySites.size(); i++)
-		{
-			Site s = mySites.get(i);
-			if (added.contains(s.getId())) continue;
-			// System.out.println("Orphan Site:"+s.getId()+" "+s.getTitle());
-			ordered.add(s);
+			
 		}
+	
+		for (Site site: mySites)
+		{
+			//if (added.contains(site.getId())) continue;
+			String parent = site.getProperties().getProperty(SiteService.PROP_PARENT_ID);
+			if (context.equals(parent))
+			{
+				ordered.add(new SiteNeighbourImpl(site, null, SiteNeighbour.Relationship.DOWN, 1));
+			}
+			else 
+			{
+				ordered.add(new SiteNeighbourImpl(site, null, SiteNeighbour.Relationship.MEMBER, distance));
+			}
+		}
+		
+		// Get the parents for this request
+		ordered.addAll(getParents(context));
 
-		// All done
-		mySites = ordered;
-		return mySites;
+		return ordered;
+
 	}
 
+	private Collection<SiteNeighbour> getParents(String siteId)
+	{
+
+		Queue<SiteNeighbour> queue = new LinkedList<SiteNeighbour>();
+
+		String currentSiteId = siteId;
+			try
+			{
+				while (currentSiteId != null && queue.size() < 8) 
+				{
+					Site site = siteService.getSiteVisit(currentSiteId);
+					if (queue.contains(site))
+					{
+						log.warn("Loop detected; Current Site: "+ site.getId()+ " Head Site: "+ siteId);
+						break;
+					}
+					queue.add(new SiteNeighbourImpl(site, null, SiteNeighbour.Relationship.UP, queue.size()));
+					currentSiteId = site.getProperties().getProperty(SiteService.PROP_PARENT_ID);
+				}
+			}
+			catch (IdUnusedException iue)
+			{
+				log.debug("Couldn't find parent site: "+ currentSiteId);
+			}
+			catch (PermissionException pe)
+			{
+				log.debug("Current user doesn't have access to: "+ currentSiteId);
+			}
+			return queue;
+		}
+
+	
 	// Get the sites which are to be displayed for the gateway
 	/**
 	 * @return
@@ -372,11 +350,11 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 	 * @return The index position in siteList of the site with site id = value,
 	 *         or -1 if not found.
 	 */
-	private int listIndexOf(String value, List siteList)
+	private int listIndexOf(String value, List<Site> siteList)
 	{
 		for (int i = 0; i < siteList.size(); i++)
 		{
-			Site site = (Site) siteList.get(i);
+			Site site = siteList.get(i);
 			if (site.equals(value))
 			{
 				return i;
@@ -593,5 +571,6 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 	{
 		this.useAliasPrefix = useAliasPrefix;
 	}
+	
 
 }

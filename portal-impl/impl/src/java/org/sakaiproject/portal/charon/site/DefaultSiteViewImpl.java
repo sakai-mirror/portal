@@ -31,6 +31,7 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.portal.api.Portal;
+import org.sakaiproject.portal.api.SiteNeighbour;
 import org.sakaiproject.portal.api.SiteNeighbourhoodService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -70,63 +71,16 @@ public class DefaultSiteViewImpl extends AbstractSiteViewImpl
 	public Object getRenderContextObject()
 	{
 
-		
-		// Get the list of sites in the right order,
-		// My WorkSpace will be the first in the list
 
-		// if public workgroup/gateway site is not included, add to list
-		boolean siteFound = false;
-		for (int i = 0; i < mySites.size(); i++)
-		{
-			if (((Site) mySites.get(i)).getId().equals(currentSiteId))
-			{
-				siteFound = true;
-			}
-		}
-
-		try
-		{
-			if (!siteFound)
-			{
-				mySites.add(siteService.getSite(currentSiteId));
-			}
-		}
-		catch (IdUnusedException e)
-		{
-
-		} // ignore
-
-        int tabsToDisplay = serverConfigurationService.getInt(Portal.CONFIG_DEFAULT_TABS, 5);
-
-		
-		
-		
-		
 		boolean loggedIn = session.getUserId() != null;
 
-		if (!loggedIn)
-		{
-			tabsToDisplay = serverConfigurationService.getInt(
-					"gatewaySiteListDisplayCount", tabsToDisplay);
-		}
-		else
-		{
-			Preferences prefs = preferencesService
-					.getPreferences(session.getUserId());
-			ResourceProperties props = prefs.getProperties("sakai:portal:sitenav");
-			try
-			{
-				tabsToDisplay = (int) props.getLongProperty("tabs");
-			}
-			catch (Exception any)
-			{
-			}
-		}
+		int tabsToDisplay = getTabsToDisplay(loggedIn);
 
 		// Note that if there are exactly one more site
 		// than tabs allowed - simply put the site on
 		// instead of a dropdown with one site
 		moreSites = new ArrayList<Site>();
+
 		if (mySites.size() > (tabsToDisplay + 1))
 		{
 			// Check to see if the selected site is in the first
@@ -211,6 +165,32 @@ public class DefaultSiteViewImpl extends AbstractSiteViewImpl
 		}
 
 		return renderContextMap;
+	}
+
+	private int getTabsToDisplay(boolean loggedIn)
+	{
+		int tabsToDisplay = serverConfigurationService.getInt(Portal.CONFIG_DEFAULT_TABS, 5);
+
+
+		if (!loggedIn)
+		{
+			tabsToDisplay = serverConfigurationService.getInt(
+					"gatewaySiteListDisplayCount", tabsToDisplay);
+		}
+		else
+		{
+			Preferences prefs = preferencesService
+					.getPreferences(session.getUserId());
+			ResourceProperties props = prefs.getProperties("sakai:portal:sitenav");
+			try
+			{
+				tabsToDisplay = (int) props.getLongProperty("tabs");
+			}
+			catch (Exception any)
+			{
+			}
+		}
+		return tabsToDisplay;
 	}
 
 	/**

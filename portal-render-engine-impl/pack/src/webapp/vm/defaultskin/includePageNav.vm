@@ -37,8 +37,8 @@
 			#end
 			
 			<!-- Add subsite lists -->
-		    #if ( $subSites ) 
-		        #foreach ( $site in $subSites ) 
+		    #if ( $neighbour.subsites ) 
+		        #foreach ( $site in $neighbour.subsites ) 
 				        <li>
 				             <a class="${sitePages.subsiteClass}" href="${site.siteUrl}" title="${site.siteTitle}">
 				             <span>SubSite: ${site.siteTitle}</span>

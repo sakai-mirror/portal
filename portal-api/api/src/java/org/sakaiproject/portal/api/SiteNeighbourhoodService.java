@@ -25,7 +25,6 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.sakaiproject.site.api.Site;
 import org.sakaiproject.tool.api.Session;
 
 /**
@@ -39,13 +38,15 @@ public interface SiteNeighbourhoodService
 {
 
 	/**
-	 * Get a list of sites at the current node as defined by the request
+	 * Get a list of sites at the current node as defined by the request.
+	 * Currently this is called for every {@link SiteView} so performance matters.
 	 * @param request
 	 * @param session
+	 * @param context The context around which to ask for the site neighbours. This may be a site ID or something else.
 	 * @param includeMyWorksite
 	 * @return
 	 */
-	List<Site> getSitesAtNode(HttpServletRequest request, Session session, boolean includeMyWorksite);
+	List<SiteNeighbour> getSitesAtNode(HttpServletRequest request, Session session, String context, boolean includeMyWorksite);
 	
 	/**
 	 * Convert an ID that is normally displayed in the URL into something more readable.
