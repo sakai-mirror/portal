@@ -1009,6 +1009,12 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				rcontext.put("countdownStartTime", countdownStartTime);
 		
 				rcontext.put("inactiveTimeout", (totalSessionTime - countdownStartTime)*1000);
+				
+				//SAK-13698: Where to redirect to upon timeout expiration, from sakai.properties. Default is to go to portal
+				String timeoutAlertRedirectUrl  = ServerConfigurationService.getString("timeoutAlertRedirectUrl@org.sakaiproject.portal.charon.SkinnableCharonPortal", 
+														ServerConfigurationService.getPortalUrl());
+				
+				rcontext.put("timeoutAlertRedirectUrl", timeoutAlertRedirectUrl);
 			}
 		}
 		
