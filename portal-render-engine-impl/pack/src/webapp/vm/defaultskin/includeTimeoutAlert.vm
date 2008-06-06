@@ -48,4 +48,6 @@
 
 <script type="text/javascript">
 	timeoutId = setTimeout("displayTimeoutAlert()", ${inactiveTimeout});
+	
+	var timeoutAlertRedirectUrl = "${timeoutAlertRedirectUrl}";
 </script>
