@@ -114,7 +114,7 @@ public class IFrameToolRenderService implements ToolRenderService
 				.append("\n").append("	marginwidth=\"0\"").append("\n").append(
 						"	marginheight=\"0\"").append("\n").append("	scrolling=\"auto\"");
 
-		/* ONC-292: add onload javascript event to refresh timeout display when page within iframe changes */
+		/* SAK-13698: add onload javascript event to refresh timeout display when page within iframe changes */
 		if (ServerConfigurationService.getBoolean("timeoutAlert.enabled", false)) {
 			final int countdownStartTime = ServerConfigurationService.getInt("timeoutAlert.countdownStartTime", 0);
 			final int totalSessionTime = SessionManager.getCurrentSession().getMaxInactiveInterval();
