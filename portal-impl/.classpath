@@ -15,6 +15,7 @@
   	<classpathentry kind="var" path="M2_REPO/org/sakaiproject/sakai-user-api/SNAPSHOT/sakai-user-api-SNAPSHOT.jar"/>
   	<classpathentry kind="var" path="M2_REPO/org/sakaiproject/sakai-user-util/SNAPSHOT/sakai-user-util-SNAPSHOT.jar"/>
   	<classpathentry kind="var" path="M2_REPO/org/sakaiproject/sakai-alias-api/SNAPSHOT/sakai-alias-api-SNAPSHOT.jar"/>
+  	<classpathentry kind="var" path="M2_REPO/org/sakaiproject/sakai-presence-api/SNAPSHOT/sakai-presence-api-SNAPSHOT.jar"/>
 	<classpathentry kind="var" path="M2_REPO/velocity/velocity/1.4/velocity-1.4.jar"/>
 	<classpathentry kind="var" path="JUNIT_HOME/junit.jar" sourcepath="ECLIPSE_HOME/plugins/org.eclipse.jdt.source_3.1.1/src/org.junit_3.8.1/junitsrc.zip"/>
 	<classpathentry kind="var" path="M2_REPO/commons-collections/commons-collections/3.1/commons-collections-3.1.jar"/>
