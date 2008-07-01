@@ -42,6 +42,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntitySummary;
+import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.Summary;
 import org.sakaiproject.entity.cover.EntityManager;
@@ -311,6 +312,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		// siteUrl = siteUrl + Web.escapeUrl(siteHelper.getSiteEffectiveId(s));
 		m.put("siteUrl", siteUrl + Web.escapeUrl(getSiteEffectiveId(s)));
 
+		// TODO: This should come from the site neighbourhood.
 		ResourceProperties rp = s.getProperties();
 		String ourParent = rp.getProperty(PROP_PARENT_ID);
 		boolean isChild = ourParent != null;
@@ -353,6 +355,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	}
 
 	/**
+	 * Gets the path of sites back to the root of the tree.
 	 * @param s
 	 * @param ourParent
 	 * @return
@@ -471,7 +474,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 			boolean current = (page != null && p.getId().equals(page.getId()) && !p
 					.isPopUp());
-			String alias = lookupPageToAlias(site, p);
+			String alias = lookupPageToAlias(site.getId(), p);
 			String pagerefUrl = pageUrl + Web.escapeUrl((alias != null)?alias:p.getId());
 
 			if (doPages || p.isPopUp())
@@ -766,6 +769,14 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 						+ site.getId());
 			}
 		}
+		else
+		{
+			String displayId = portal.getSiteNeighbourhoodService().lookupSiteAlias(site.getReference(), null);
+			if (displayId != null)
+			{
+				return displayId;
+			}
+		}
 
 		return site.getId();
 	}
@@ -800,6 +811,18 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 					return SiteService.getSiteVisit(alternateSiteId);
 				}
 				catch (UserNotDefinedException ee)
+				{
+				}
+			}
+			else
+			{
+				String reference = portal.getSiteNeighbourhoodService().parseSiteAlias(siteId);
+				Reference ref = EntityManager.getInstance().newReference(reference);
+				try 
+				{
+					return SiteService.getSiteVisit(ref.getId());
+				}
+				catch (IdUnusedException iue)
 				{
 				}
 			}
@@ -898,7 +921,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			try
 			{
 				// Use page#{siteId}:{pageAlias} So we can scan for fist colon and alias can contain any character 
-				String refString = AliasService.getTarget(PAGE_ALIAS+site.getId()+Entity.SEPARATOR+alias);
+				String refString = AliasService.getTarget(buildAlias(alias, site));
 				String aliasPageId = EntityManager.newReference(refString).getId();
 				page = (SitePage) site.getPage(aliasPageId);
 			}
@@ -913,7 +936,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		return page;
 	}
 
-	public String lookupPageToAlias(Site site, SitePage page)
+	public String lookupPageToAlias(String siteId, SitePage page)
 	{
 		String alias = null;
 		List<Alias> aliases = AliasService.getAliases(page.getReference());
@@ -921,31 +944,50 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		{	
 			if (aliases.size() > 1 && log.isWarnEnabled())
 			{
-				log.warn("More than one alias for: "+site.getId()+ ":"+ page.getId());
+				log.warn("More than one alias for: "+siteId+ ":"+ page.getId());
 				// Sort on ID so it is consistent in the alias it uses.
-				Collections.sort(aliases, new Comparator<Alias>() {
-					public int compare(Alias o1, Alias o2)
-					{
-						return o1.getId().compareTo(o2.getId());
-					}
-					
-				});
+				Collections.sort(aliases, getAliasComparator());
 			}
 			alias = aliases.get(0).getId();
-			int delim = alias.lastIndexOf(Entity.SEPARATOR);
-			if (delim > 0)
-			{
-				alias = alias.substring(delim+1);
-			}
-			else
-			{
-				alias = null;
-			}
+			alias = parseAlias(alias, siteId);
 		}
 		return alias;
 	}
 
+	/**
+	 * Find the short alias.
+	 * @param alias
+	 * @return
+	 */
+	private String parseAlias(String aliasId, String siteId)
+	{
+		String prefix = PAGE_ALIAS+ siteId+ Entity.SEPARATOR;
+		String alias = null;
+		if (aliasId.startsWith(prefix))
+		{
+			alias = aliasId.substring(prefix.length());
+		}
+		return alias;
+	}
 
+	private String buildAlias(String alias, Site site)
+	{
+		return PAGE_ALIAS+site.getId()+Entity.SEPARATOR+alias;
+	}
+
+	private Comparator<Alias> getAliasComparator()
+	{
+		return new Comparator<Alias>() {
+			public int compare(Alias o1, Alias o2)
+			{
+				// Sort by date, then by ID to assure consistent order.
+				return o1.getCreatedTime().compareTo(o2.getCreatedTime()) * 10 +
+					o1.getId().compareTo(o2.getId());
+			}
+			
+		};
+	}
+	
 	/**
 	 * @see org.sakaiproject.portal.api.PortalSiteHelper#allowTool(org.sakaiproject.site.api.Site,
 	 *      org.sakaiproject.tool.api.Placement)
