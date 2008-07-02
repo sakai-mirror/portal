@@ -48,6 +48,7 @@ import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 
 /**
  * @author ieb
@@ -56,6 +57,8 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 {
 
 	private static final String SITE_ALIAS = "/sitealias/";
+
+	private static final String ATTR_SITELIST = "SiteNeighbourhoodServiceImpl.getAllSites";
 
 	private static final Log log = LogFactory.getLog(SiteNeighbourhoodServiceImpl.class);
 
@@ -113,7 +116,7 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 	{
 
 		boolean loggedIn = session.getUserId() != null;
-		List<Site> mySites;
+		List<Site> mySites = null;
 
 		// collect the Publically Viewable Sites
 		if (!loggedIn)
@@ -122,10 +125,17 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 			return mySites;
 		}
 
-		// collect the user's sites
-		mySites = siteService.getSites(
+		// collect the user's sites - checking ThreadLocal cache
+                mySites = (List<Site>) ThreadLocalManager.get(ATTR_SITELIST);
+		// System.out.println("GETTING SITES mySites="+mySites);
+		if ( mySites == null ) 
+		{
+			mySites = siteService.getSites(
 				org.sakaiproject.site.api.SiteService.SelectionType.ACCESS, null, null,
 				null, org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, null);
+			// System.out.println("PUT SITES mySites="+mySites);
+			ThreadLocalManager.set(ATTR_SITELIST,mySites);
+		}
 
 		// collect the user's preferences
 		List prefExclude = new ArrayList();
