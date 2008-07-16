@@ -55,6 +55,7 @@ import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.cover.PreferencesService;
 import org.sakaiproject.util.Web;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * 
@@ -65,6 +66,8 @@ import org.sakaiproject.util.Web;
  */
 public class SiteHandler extends WorksiteHandler
 {
+	/** messages. */
+	private static ResourceLoader rb = new ResourceLoader("sitenav");
 
 	private static final String INCLUDE_SITE_NAV = "include-site-nav";
 
@@ -527,19 +530,19 @@ public class SiteHandler extends WorksiteHandler
 					}
 					else if ("project".equals(type))
 					{
-						term = "PROJECTS";
+						term = rb.getString("moresite_projects");
 					}
 					else if ("portfolio".equals(type))
 					{
-						term = "PORTFOLIOS";
+						term = rb.getString("moresite_portfolios");
 					}
 					else if ("admin".equals(type))
 					{
-						term = "ADMINISTRATION";
+						term = rb.getString("moresite_administration");
 					}
 					else
 					{
-						term = "OTHER";
+						term = rb.getString("moresite_other");
 					}
 
 					List<Site> currentList = new ArrayList();
