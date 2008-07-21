@@ -77,6 +77,8 @@ public class PortalSiteHelper
 	// 2.3 back port
 	// private final String PROP_PARENT_ID = "sakai:parent-id";
 
+        private static final String ATTR_SITELIST = "PortalSiteHelper.getAllSites";
+
 	// Determine if we are to do multiple tabs for the anonymous view (Gateway)
 	public boolean doGatewaySiteList()
 	{
@@ -153,20 +155,52 @@ public class PortalSiteHelper
 	}
 
 	/*
+	 * Get All Sites which are accessible checking thread local cache
+	 */
+	// TODO: In 2.6 this is done in SiteNeighbourhoodServiceImpl (SAK-13886)
+	public List<Site> getAccessSites()
+	{
+		List<Site> mySites = null;
+
+                // collect the user's sites - checking ThreadLocal cache
+                mySites = (List<Site>) ThreadLocalManager.get(ATTR_SITELIST);
+                // System.out.println("GETTING SITES mySites="+mySites);
+                if ( mySites == null )
+                {
+                        mySites = SiteService.getSites(
+                                org.sakaiproject.site.api.SiteService.SelectionType.ACCESS, null, null,
+                                null, org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, null);
+                        // System.out.println("PUT SITES mySites="+mySites);
+                        ThreadLocalManager.set(ATTR_SITELIST,mySites);
+                }
+
+		return mySites;
+	}
+
+	/*
 	 * Get All Sites which indicate the current site as their parent
 	 */
-	// TODO: Move into Site
-
+	// From 2.6 - SubSiteViewImpl.java
 	public List<Site> getSubSites(Site site)
 	{
 		if ( site == null ) return null;
-		Map<String,String> propMap = new HashMap<String,String>();
-		propMap.put(PROP_PARENT_ID,site.getId());
-		List<Site> mySites = SiteService.getSites(
-					org.sakaiproject.site.api.SiteService.SelectionType.ACCESS, null,
-					null, propMap, org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC,
-					null);
-		return mySites;
+		List<Site> mySites = getAccessSites();
+
+		String currentSiteId = site.getId();
+                List<Site> csites = new ArrayList<Site>();
+                for ( Site s : mySites) {
+                        ResourceProperties rp = s.getProperties();
+                        String ourParent = rp.getProperty(PROP_PARENT_ID);
+			// System.out.println("currentsite="+currentSiteId+" parent="+ourParent);
+                        if ( currentSiteId.equals(ourParent) ) {
+                                csites.add(s);
+                        }
+                }
+                if ( csites.size() == 0 ) {
+                        return null;
+                }
+
+		return csites;
 	}
 
 	/*
@@ -196,10 +230,7 @@ public class PortalSiteHelper
 		}
 
 		// collect the user's sites
-		mySites = SiteService.getSites(
-				org.sakaiproject.site.api.SiteService.SelectionType.ACCESS, null,
-				null, null, org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC,
-				null);
+		mySites = getAccessSites();
 
 		// collect the user's preferences
 		List prefExclude = new ArrayList();
