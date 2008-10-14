@@ -50,15 +50,29 @@
 				<a href="#sitetabs" class="skip internalSkip" title="${rloader.sit_jumpworksite}" accesskey="w">
 					${rloader.sit_jumpworksite}
 				</a>
+				<a href="#tosubsitemenu" class="skip" title="${rloader.sit_jumpsubsites}">
+					${rloader.sit_jumpsubsites}
+				</a>
+				<a href="#tohierarchypages" class="skip" title="${rloader.sit_jumphierarchypages}">
+					${rloader.sit_jumphierarchypages}
+				</a>
 			</div>
 
 			<div id="siteNavWrapper" class="${logoSiteClass}">
 				<div id="mastHead" role="banner">
 					<div id="mastLogo">
+					#if (${logoLink})
+						<a href="${logoLink}"><img title="Logo" alt="Logo" src="${logoSkinRepo}/${logoSkin}/images/logo_inst.gif" /></a>
+					#else
 						<img title="Logo" alt="Logo" src="${logoSkinRepo}/${logoSkin}/images/logo_inst.gif" />
+					#end
 					</div>
 					<div id="mastBanner">
+					#if (${bannerLink})
+						<a href="${bannerLink}"><img title="Banner" alt="Banner" src="${logoSkinRepo}/${logoSkin}/images/banner_inst.gif" /></a>
+					#else
 						<img title="Banner" alt="Banner" src="${logoSkinRepo}/${logoSkin}/images/banner_inst.gif" />
+					#end
 					</div>
 				</div>
 #parse("/vm/neoskin/includeTabs.vm")
@@ -138,5 +152,6 @@
 </div>
 <!-- end includeSiteNav -->
 <!-- end site.vm -->
+
 	</body>
 </html>

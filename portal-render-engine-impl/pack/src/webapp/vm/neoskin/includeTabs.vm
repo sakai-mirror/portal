@@ -17,7 +17,7 @@
 <!-- START from NEO includeTabs.vm -->
 			<!-- start includeTabs -->
 			<div class="${tabsCssClass}"><div id="maxToolsInt" style="display:none">$maxToolsInt</div><div id="maxToolsAnchor" style="display:none">${rloader.sit_alltools}</div>
-				<div id="siteNav">
+				<div class="siteNav">
 					<!-- login component -->
 					<div id="mastLogin">
 					$portalLinks
@@ -99,33 +99,32 @@
 					#end
 					</div>
 					<!-- end login component -->
-					<div id="linkNav" role="navigation" aria-labelledby="sitetabs">
+					<div class="linkNav" role="navigation" aria-labelledby="sitetabs">
 
 <!-- this allows us to reliably detect if the browser is internet explorer, depends on these elements ul#topnav h1#sitetabs -->
 <script type="text/javascript">var sakai_portal_ie_detected=false;</script>
 <!--[if IE]><script type="text/javascript">sakai_portal_ie_detected=true;</script><![endif]-->
 							<h1 class="skip" id="sitetabs">${rloader.sit_worksiteshead}</h1>
-<ul class="topnav" id="topnav" role="menubar" aria-label="${rloader.sit_worksiteshead}">
-						#foreach ( $site in $tabsSites.tabsSites ) 
-							#if (${site.isCurrentSite})
-								#if (${site.isMyWorkspace})
-<li class="nav-selected nav-menu"><a href="#" role="menuitem" aria-haspopup="true"><span>${rloader.sit_mywor}</span></a>
-								#else
+<ul class="topnav siteLinkList" id="topnav" role="menubar" aria-label="${rloader.sit_worksiteshead}">
+						#if ($parents)
+							#foreach ( $site in $parents )
+								#if (${site.isCurrentSite})
 									#if (( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ))
 <li class="nav-selected nav-menu"><a href="#" title="${site.shortDescription}" role="menuitem" aria-haspopup="true"><span>${site.shortDescription}</span></a>
 									#else
 <li class="nav-selected nav-menu"><a href="#" title="${site.fullTitle}" role="menuitem" aria-haspopup="true"><span>${site.siteTitle}</span></a>
 									#end
 								#end
-							#else
-								#if (${site.isMyWorkspace})
-<li class="nav-menu"><a href="${site.siteUrl}" title="${rloader.sit_mywor}" role="menuitem" aria-haspopup="true"><span>${rloader.sit_mywor}</span></a>
+							#end
+						#else
+							<li><a href="/portal"><span>Site Directory</span></a></li>
+						#end
+						#foreach ( $site in $tabsSites.tabsSites ) 
+							#if (${site.isCurrentSite} && !${site.isMyWorkspace})
+								#if (( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ))
+<li class="nav-selected nav-menu"><a href="#" title="${site.shortDescription}" role="menuitem" aria-haspopup="true"><span>${site.shortDescription}</span></a>
 								#else
-									#if (( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ))
-<li class="nav-menu"><a href="${site.siteUrl}" title="${site.shortDescription}" role="menuitem" aria-haspopup="true"><span>${site.shortDescription}</span></a>										
-									#else	
-<li class="nav-menu"><a href="${site.siteUrl}" title="${site.siteTitle}: ${site.fullTitle}" role="menuitem" aria-haspopup="true"><span>${site.siteTitle}</span></a>
-									#end
+<li class="nav-selected nav-menu"><a href="#" title="${site.fullTitle}" role="menuitem" aria-haspopup="true"><span>${site.siteTitle}</span></a>
 								#end
 							#end
 
@@ -157,6 +156,25 @@
 #end
 						</ul>
 					</div> <!-- /linkNav -->
+					<div class="linkNav personalSites" role="navigation" aria-labelledby="sitetabs">
+						<a id="sitetabs" class="skip" name="sitetabs"></a>
+							<h1 class="skip">${rloader.sit_worksiteshead}</h1>
+							<ul class="topnav siteLinkList" role="menubar" aria-label="${rloader.sit_worksiteshead}">
+							#foreach ( $site in $tabsSites.tabsSites )
+								#if (${site.isMyWorkspace})
+									#if (${site.isCurrentSite})
+<li class="nav-selected nav-menu"><a href="#" role="menuitem" aria-haspopup="true"><span>${rloader.sit_mywor}</span></a>
+									#else
+										#if (( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ))
+<li class="nav-selected nav-menu"><a href="#" title="${site.shortDescription}" role="menuitem" aria-haspopup="true"><span>${site.shortDescription}</span></a>
+										#else
+<li class="nav-selected nav-menu"><a href="#" title="${site.fullTitle}" role="menuitem" aria-haspopup="true"><span>${site.siteTitle}</span></a>
+										#end
+									#end
+								#end
+							#end
+						</ul>
+					</div> <!-- /personalSites -->
 
 					#if ($tabsAddLogout)
 					<div class="galleryLogin">

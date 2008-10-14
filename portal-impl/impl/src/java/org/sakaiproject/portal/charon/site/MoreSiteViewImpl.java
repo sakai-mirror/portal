@@ -224,6 +224,16 @@ public class MoreSiteViewImpl extends DefaultSiteViewImpl
 			}
 			renderContextMap.put("tabsMoreTerms", tabsMoreTerms);
 			renderContextMap.put("tabsMoreSortedTermList", tabsMoreSortedTermList);
+			
+			if (myWorkspaceSite != null)
+			{
+				renderContextMap.put("myWorksite", siteHelper.convertSiteToMap(request,
+						myWorkspaceSite, prefix, currentSiteId, myWorkspaceSiteId, false,
+						false, "true".equals(serverConfigurationService
+								.getString(Portal.CONFIG_AUTO_RESET)), false, null,
+						loggedIn));
+			}
+			
 		}
 
 	}

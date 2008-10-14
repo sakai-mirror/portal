@@ -90,7 +90,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	// Alias prefix for page aliases. Use Entity.SEPARATOR as IDs shouldn't contain it.
 	private static final String PAGE_ALIAS = Entity.SEPARATOR+ "pagealias"+ Entity.SEPARATOR;
 
-	private static final Log log = LogFactory.getLog(PortalSiteHelper.class);
+	public static final Log log = LogFactory.getLog(PortalSiteHelper.class);
 
 	private final String PROP_PARENT_ID = SiteService.PROP_PARENT_ID;
 
@@ -417,6 +417,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				&& (s.getId().equals(currentSiteId) || effectiveSite
 						.equals(currentSiteId));
 		m.put("isCurrentSite", Boolean.valueOf(isCurrentSite));
+		m.put("isPublished", s.isPublished());
 		m.put("isMyWorkspace", Boolean.valueOf(myWorkspaceSiteId != null
 				&& (s.getId().equals(myWorkspaceSiteId) || effectiveSite
 						.equals(myWorkspaceSiteId))));
@@ -726,8 +727,20 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				continue;
 			}
 
-			String toolUrl = Web.returnUrl(req, "/" + portalPrefix + "/"
-				+ Web.escapeUrl(getSiteEffectiveId(site)));
+			String siteUrl = (String) ThreadLocalManager.get("sakai:portal:siteUrl");
+			if(siteUrl == null)
+			{
+				siteUrl = Web.escapeUrl(getSiteEffectiveId(site));
+			}
+			
+			if (siteUrl.length() != 0)
+			{
+				siteUrl = "/"+ siteUrl;
+			}
+
+			String toolUrl = Web.returnUrl(req, "/" + portalPrefix
+					+ siteUrl);
+
 			if (resetTools) {
 				toolUrl = toolUrl + "/tool-reset/";
 			} else {
@@ -1048,6 +1061,14 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			String displayId = portal.getSiteNeighbourhoodService().lookupSiteAlias(site.getReference(), null);
 			if (displayId != null)
 			{
+				if (displayId.startsWith("/"))
+				{
+					displayId = displayId.substring(1);
+				}
+				if (displayId.endsWith("/"))
+				{
+					displayId = displayId.substring(0, displayId.length()-1);
+				}
 				return displayId;
 			}
 		}
@@ -1230,7 +1251,9 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		{	
 			if (aliases.size() > 1 && log.isWarnEnabled())
 			{
-				log.warn("More than one alias for: "+siteId+ ":"+ page.getId());
+				if (log.isDebugEnabled()) {
+					log.debug("More than one alias for: "+siteId+ ":"+ page.getId());
+				}
 				// Sort on ID so it is consistent in the alias it uses.
 				Collections.sort(aliases, getAliasComparator());
 			}
@@ -1261,14 +1284,14 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		return PAGE_ALIAS+site.getId()+Entity.SEPARATOR+alias;
 	}
 
-	private Comparator<Alias> getAliasComparator()
+	public Comparator<Alias> getAliasComparator()
 	{
 		return new Comparator<Alias>() {
-			public int compare(Alias o1, Alias o2)
+			public int compare(Alias alias, Alias otherAlias)
 			{
 				// Sort by date, then by ID to assure consistent order.
-				return o1.getCreatedTime().compareTo(o2.getCreatedTime()) * 10 +
-					o1.getId().compareTo(o2.getId());
+				return otherAlias.getCreatedTime().compareTo(alias.getCreatedTime()) * 10 +
+					Integer.signum(alias.getId().compareTo(otherAlias.getId()));
 			}
 			
 		};

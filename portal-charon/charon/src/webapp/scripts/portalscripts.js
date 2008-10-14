@@ -66,10 +66,9 @@ function setUIToggleState (portal_allow_auto_minimize, portal_allow_minimize_too
 
 var dhtml_more_tabs = function() {
 	// first time through set up the DOM
-	jQuery('#selectNav').appendTo('#linkNav').addClass('dhtml_more_tabs'); // move the selectNav in the DOM
-	jQuery('#selectNav').css('top',jQuery('#linkNav').height() - 3);       // set its top position
-
-	var width = jQuery('#linkNav').width()*0.75;
+	jQuery('#selectNav').appendTo('.personalSites').addClass('dhtml_more_tabs'); // move the selectNav in the DOM
+	jQuery('#selectNav').css('top',jQuery('.personalSites').height() - 3);       // set its top position
+	jQuery('#selectNav').width(jQuery('.siteNav').width()*0.75);           // set its width to fix an IE6 bug
 	if (width < 400) width = 400;
 	jQuery('div#selectNav').width(width);          // set its width to fix an IE6 bug
 	jQuery('#selectNav').css('z-index',9899);      // explicitely set the z-index

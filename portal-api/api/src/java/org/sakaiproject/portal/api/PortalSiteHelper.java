@@ -21,6 +21,7 @@
 
 package org.sakaiproject.portal.api;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -110,7 +111,19 @@ public interface PortalSiteHelper
 	 */
 	SiteView getSitesView(View view, HttpServletRequest req, Session session, String siteId);
 
+	public List getPermittedPagesInOrder(Site site);
+
+	public String getSiteEffectiveId(Site site);
+	
+	public List<Map> convertSitesToMaps(HttpServletRequest req, List mySites,
+			String prefix, String currentSiteId, String myWorkspaceSiteId,
+			boolean includeSummary, boolean expandSite, boolean resetTools,
+			boolean doPages, String toolContextPath, boolean loggedIn);
+
+	public SitePage lookupAliasToPage(String alias, Site site);
+
 	/**
+	 * This is only needed by the hierarchy handler and can go after better refactoring.
 	 * Find an alias for a page.
 	 * @param siteId
 	 * @param page
