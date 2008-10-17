@@ -187,4 +187,9 @@ ${sakai_html_head_js}
 <script type="text/javascript">
 document.write('<!-- jquery version '+jQuery.fn.jquery+' -->\n');
 </script>
+
+#if ( ${localCSS} )
+       <link href="${pageSkinRepo}/${localCSS}" type="text/css" rel="stylesheet" media="all" />
+#end
+
 </head>
