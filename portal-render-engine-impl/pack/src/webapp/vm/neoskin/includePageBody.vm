@@ -71,8 +71,9 @@
 								<div class="portletTitle">
 									<div class="title">
 						#if (${tool.toolShowResetButton})
-						                <a href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${sitReset}">
-						                        <img src="/library/image/transparent.gif" alt="${sitReset}" border="1" /></a>
+										<a href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}">
+											<img src="/library/image/transparent.gif" title="${sitReset}" alt="${sitReset}" border="1" />
+										</a>
 						#end	
 										<h2>${tool.toolTitle}</h2>
 									</div>
@@ -130,8 +131,9 @@
 								<div class="portletTitle">
 									<div class="title">
 						#if (${tool.toolShowResetButton})
-						                <a href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${rloader.sit_reset}">
-						                        <img src="/library/image/transparent.gif" alt="${rloader.sit_reset}" border="1" /></a>
+						                <a href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}">
+						                	<img src="/library/image/transparent.gif" title="${rloader.sit_reset}" alt="${rloader.sit_reset_alt}" border="1" />
+						                </a>
 						#end
 										<h2>${tool.toolRenderResult.getTitle()}</h2>
 									</div>
