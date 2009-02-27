@@ -135,6 +135,9 @@
 					#end
 					</div>
 					<!-- end login component -->
+					<noscript><div class="alertMessage">
+						${rloader.nojavascript_warning}
+					</div></noscript>
 				</div>
 			</div>
 			<div class="divColor" id="tabBottom">

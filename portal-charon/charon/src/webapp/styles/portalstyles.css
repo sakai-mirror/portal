@@ -42,5 +42,13 @@
 	line-height: 6px;
 }
 
+.alertMessage {
+    text-align: center;
+    color: red;
+    background: inherit;
+    font-weight: bold;
+    font-size: larger
+}
+
 
 
