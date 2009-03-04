@@ -34,6 +34,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.cover.EntityManager;
@@ -163,6 +165,11 @@ public class SiteHandler extends WorksiteHandler
 		Site site = null;
 		try
 		{
+			SecurityAdvisor advisor = (SecurityAdvisor)session.getAttribute("sitevisit.security.advisor");
+			if (advisor != null) {
+				SecurityService.pushAdvisor(advisor);
+				//session.removeAttribute("sitevisit.security.advisor");
+			}
 			// This should understand aliases as well as IDs
 			site = portal.getSiteHelper().getSiteVisit(siteId);
 		}
