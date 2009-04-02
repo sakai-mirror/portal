@@ -1839,7 +1839,13 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			// of a login link, but ignore it if container.login is set
 			boolean topLogin = ServerConfigurationService.getBoolean("top.login", true);
 			boolean containerLogin = ServerConfigurationService.getBoolean("container.login", false);
+			// Should we keep the path after Login?
+			boolean keepPath = ServerConfigurationService.getBoolean("login.keep.path", false);
+			String returnPath = (keepPath)?"?returnPath="+ req.getPathInfo():"";
+			
 			if (containerLogin) topLogin = false;
+			
+
 
 			// if not logged in they get login
 			if (session.getUserId() == null)
@@ -1855,6 +1861,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 					.trimToNull(ServerConfigurationService.getString("login.url"));
 					if (overrideLoginUrl != null) logInOutUrl = overrideLoginUrl;
 
+					logInOutUrl = logInOutUrl + returnPath;
+					
 					// check for a login text override
 					message = StringUtils.trimToNull(ServerConfigurationService
 							.getString("login.text"));
@@ -1874,8 +1882,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 						if (message2 == null) message2 = rloader.getString("log.xlogin");
 						image2 = StringUtils.trimToNull(ServerConfigurationService
 								.getString("xlogin.icon"));
-						logInOutUrl2 = ServerConfigurationService.getString("portalPath")
-						+ "/xlogin";
+						logInOutUrl2 = ServerConfigurationService.getString("portalPath") + "/xlogin" + returnPath;
 						
 						logInOutUrl2Pda = ServerConfigurationService.getString("portalPath")
 						+ "/pda/xlogin";
@@ -1950,10 +1957,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				rcontext.put("loginEidWording", eidWording);
 				rcontext.put("loginPwWording", pwWording);
 				rcontext.put("loginWording", loginWording);
-
-				// setup for the redirect after login
-				session.setAttribute(Tool.HELPER_DONE_URL, ServerConfigurationService
-						.getPortalUrl());
+				if (keepPath) {
+					rcontext.put("returnPath", req.getPathInfo());
+				}
 			}
 
 			if (displayUserloginInfo)
