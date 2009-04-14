@@ -217,7 +217,7 @@ public class PDAHandler extends SiteHandler
 					if ("yes".equalsIgnoreCase(forceLogin)
 							|| "true".equalsIgnoreCase(forceLogin))
 					{
-						portal.doLogin(req, res, session, URLUtils.getSafePathInfo(req), false);
+						portal.doLogin(req, res, session, URLUtils.getSafePathInfo(req), Portal.LoginRoute.NONE);
 						return END;
 					}
 				}

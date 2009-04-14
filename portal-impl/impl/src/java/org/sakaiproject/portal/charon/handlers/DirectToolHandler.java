@@ -185,7 +185,7 @@ public class DirectToolHandler extends BasePortalHandler
 					portalService.setStoredState(ss);
 
 					portal.doLogin(req, res, session, portal.getPortalPageUrl(siteTool),
-							false);
+							Portal.LoginRoute.NONE);
 				}
 				else
 				{
