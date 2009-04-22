@@ -3,7 +3,7 @@
   <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
   <classpathentry kind="var" path="M2_REPO/jaxen/jaxen/1.1-beta-10/jaxen-1.1-beta-10.jar"/>
   <classpathentry kind="var" path="M2_REPO/junit/junit/3.8.1/junit-3.8.1.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/sakaiproject/kernel/sakai-kernel-util/1.0RC2-SNAPSHOT/sakai-kernel-util-1.0RC2-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/sakaiproject/kernel/sakai-kernel-util/1.1-SNAPSHOT/sakai-kernel-util-1.1-SNAPSHOT.jar"/>
   <classpathentry kind="src" path="/sakai-portal-impl"/>
   <classpathentry kind="src" path="/sakai-portal-util"/>
   <classpathentry kind="var" path="M2_REPO/velocity/velocity/1.4/velocity-1.4.jar"/>
