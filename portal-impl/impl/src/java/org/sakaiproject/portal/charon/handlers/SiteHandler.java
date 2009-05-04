@@ -443,7 +443,6 @@ public class SiteHandler extends WorksiteHandler
 
 			// for skinning
 			String siteType = portal.calcSiteType(siteId);
-			String origPrefix = prefix;
 
 			// If we have turned on auto-state reset on navigation, we generate
 			// the "site-reset" "worksite-reset" and "gallery-reset" urls
@@ -457,10 +456,12 @@ public class SiteHandler extends WorksiteHandler
 			
 			// Check to see if we display a link in the UI for swapping the view
 			boolean roleswapcheck = false; // This variable will tell the UI if we will display any role swapping component; false by default
-			String roleswitchvalue = (String)session.getAttribute("roleswap/site/" + siteId); // checks the session for a role swap value
+			String roleswitchvalue = SecurityService.getUserEffectiveRole(SiteService.siteReference(siteId)); // checks the session for a role swap value
 			boolean roleswitchstate = false; // This variable determines if the site is in the switched state or not; false by default
+			boolean allowroleswap = SiteService.allowRoleSwap(siteId) && !SecurityService.isSuperUser();
+			
 			// check for the site.roleswap permission
-			if (SiteService.allowRoleSwap(siteId) || (!SiteService.allowRoleSwap(siteId) && roleswitchvalue != null))
+			if (allowroleswap || roleswitchvalue != null)
 			{
 				Site activeSite = null;
 	            try
