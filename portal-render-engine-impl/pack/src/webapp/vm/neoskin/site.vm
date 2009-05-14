@@ -109,6 +109,13 @@
 					<!-- login component -->
 					<div id="mastLogin">
 					#if (!${loginTopLogin})
+						<div id="relatedLinks">
+							<ul>
+							#foreach($relatedLink in $relatedLinks)
+								<li><a href="$relatedLink.url" title="$relatedLink.title" target="_new">$relatedLink.name</a></li>
+							#end
+							</ul>
+						</div>
 						<div id="loginLinks">
 					#if (${loginHasImage1}) 
 							<a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" ><img src="${loginImage1}" alt="${loginMessage}"/></a>
