@@ -62,7 +62,7 @@
 <link href="${pageSkinRepo}/${pageSkin}/portalchat.css" type="text/css" rel="stylesheet" media="all" />
 #end
 <link href="${pageScriptPath}jquery/cluetip/1.2.10/css/jquery.cluetip.css" type="text/css" rel="stylesheet" media="all" />
-
+<link rel="shortcut icon" href="/favicon.ico">
 
 #if (! $currentPlacement && $isPDA )
     <meta name="viewport" content="width=320, user-scalable=no" />
