@@ -110,9 +110,9 @@
 							#foreach ( $site in $parents )
 								#if (${site.isCurrentSite})
 									#if (( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ))
-<li class="nav-selected nav-menu"><a href="#" title="${site.shortDescription}" role="menuitem" aria-haspopup="true"><span>${site.shortDescription}</span></a>
+<li class="nav-selected nav-menu"><a href="${site.siteUrl}" title="${site.shortDescription}" role="menuitem" aria-haspopup="true"><span>${site.shortDescription}</span></a>
 									#else
-<li class="nav-selected nav-menu"><a href="#" title="${site.fullTitle}" role="menuitem" aria-haspopup="true"><span>${site.siteTitle}</span></a>
+<li class="nav-selected nav-menu"><a href="${site.siteUrl}" title="${site.fullTitle}" role="menuitem" aria-haspopup="true"><span>${site.siteTitle}</span></a>
 									#end
 								#end
 							#end
@@ -122,9 +122,9 @@
 						#foreach ( $site in $tabsSites.tabsSites ) 
 							#if (${site.isCurrentSite} && !${site.isMyWorkspace})
 								#if (( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ))
-<li class="nav-selected nav-menu"><a href="#" title="${site.shortDescription}" role="menuitem" aria-haspopup="true"><span>${site.shortDescription}</span></a>
+<li class="nav-selected nav-menu"><a href="${site.siteUrl}" title="${site.shortDescription}" role="menuitem" aria-haspopup="true"><span>${site.shortDescription}</span></a>
 								#else
-<li class="nav-selected nav-menu"><a href="#" title="${site.fullTitle}" role="menuitem" aria-haspopup="true"><span>${site.siteTitle}</span></a>
+<li class="nav-selected nav-menu"><a href="${site.siteUrl}" title="${site.fullTitle}" role="menuitem" aria-haspopup="true"><span>${site.siteTitle}</span></a>
 								#end
 							#end
 
@@ -163,12 +163,12 @@
 							#foreach ( $site in $tabsSites.tabsSites )
 								#if (${site.isMyWorkspace})
 									#if (${site.isCurrentSite})
-<li class="nav-selected nav-menu"><a href="#" role="menuitem" aria-haspopup="true"><span>${rloader.sit_mywor}</span></a>
+<li class="nav-selected nav-menu"><a href="${site.siteUrl}" role="menuitem" aria-haspopup="true"><span>${rloader.sit_mywor}</span></a>
 									#else
 										#if (( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ))
-<li class="nav-selected nav-menu"><a href="#" title="${site.shortDescription}" role="menuitem" aria-haspopup="true"><span>${site.shortDescription}</span></a>
+<li class="nav-selected nav-menu"><a href="${site.siteUrl}" title="${site.shortDescription}" role="menuitem" aria-haspopup="true"><span>${site.shortDescription}</span></a>
 										#else
-<li class="nav-selected nav-menu"><a href="#" title="${site.fullTitle}" role="menuitem" aria-haspopup="true"><span>${site.siteTitle}</span></a>
+<li class="nav-selected nav-menu"><a href="${site.siteUrl}" title="${site.fullTitle}" role="menuitem" aria-haspopup="true"><span>${site.siteTitle}</span></a>
 										#end
 									#end
 								#end
