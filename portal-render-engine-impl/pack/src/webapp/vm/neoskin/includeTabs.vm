@@ -117,7 +117,7 @@
 								#end
 							#end
 						#else
-							<li><a href="/portal"><span>Site Directory</span></a></li>
+							<li class="backHierarchy"><a href="/portal"><span>Welcome</span></a></li>
 						#end
 						#foreach ( $site in $tabsSites.tabsSites ) 
 							#if (${site.isCurrentSite} && !${site.isMyWorkspace})
