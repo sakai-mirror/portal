@@ -165,10 +165,12 @@ public class SiteHandler extends WorksiteHandler
 		Site site = null;
 		try
 		{
-			SecurityAdvisor advisor = (SecurityAdvisor)session.getAttribute("sitevisit.security.advisor");
-			if (advisor != null) {
-				SecurityService.pushAdvisor(advisor);
-				//session.removeAttribute("sitevisit.security.advisor");
+			Set<SecurityAdvisor> advisors = (Set<SecurityAdvisor>)session.getAttribute("sitevisit.security.advisor");
+			if (advisors != null) {
+				for (SecurityAdvisor advisor:advisors) {
+					SecurityService.pushAdvisor(advisor);
+					//session.removeAttribute("sitevisit.security.advisor");
+				}
 			}
 			// This should understand aliases as well as IDs
 			site = portal.getSiteHelper().getSiteVisit(siteId);
