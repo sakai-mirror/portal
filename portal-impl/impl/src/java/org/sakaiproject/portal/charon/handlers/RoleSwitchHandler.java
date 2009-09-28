@@ -15,8 +15,10 @@ import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.PortalHandlerException;
+import org.sakaiproject.portal.charon.site.PortalSiteHelperImpl;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.util.Web;
 
@@ -82,8 +84,10 @@ public class RoleSwitchHandler extends BasePortalHandler
         	// End check for making sure the role is legit in a site
 			try
 			{
-				String siteUrl = req.getContextPath() + "/site"
-						+ Web.makePath(parts, 2, parts.length-1);
+				ThreadLocalManager.set("sakai:portal:hierarchy", Boolean.TRUE);
+				String siteUrl = req.getContextPath() + "/hierarchy/"
+						+ portal.getSiteHelper().getSiteEffectiveId(activeSite) 
+						+ ((parts.length > 4)?Web.makePath(parts, 3, parts.length-1):"");
 				// Make sure to add the parameters such as panel=Main
 				String queryString = req.getQueryString();
 				if (queryString != null)
