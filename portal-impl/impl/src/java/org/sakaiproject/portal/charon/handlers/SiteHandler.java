@@ -629,9 +629,17 @@ public class SiteHandler extends WorksiteHandler
 			rcontext.put("logoSiteClass", cssClass);
 
 			String bannerLink = ServerConfigurationService.getString("banner.link", null);
+			String bannerAlt = ServerConfigurationService.getString("banner.alt", "Banner");
+			String bannerTitle = ServerConfigurationService.getString("banner.title", null);
 			String logoLink = ServerConfigurationService.getString("logo.link", null);
+			String logoAlt = ServerConfigurationService.getString("logo.alt", "Logo");
+			String logoTitle = ServerConfigurationService.getString("logo.title", null);
 			rcontext.put("bannerLink", bannerLink);
+			rcontext.put("bannerAlt", bannerAlt);
+			rcontext.put("bannerTitle", bannerTitle);
 			rcontext.put("logoLink", logoLink);
+			rcontext.put("logoAlt", logoAlt);
+			rcontext.put("logoTitle", logoTitle);
 			portal.includeLogin(rcontext, req, session);
 		}
 	}
