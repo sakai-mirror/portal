@@ -5,7 +5,6 @@
     <project>sakai-portal-api</project>
     <project>sakai-portal-render-api</project>
     <project>sakai-portal-util</project>
-    <project>sakai-presence-api</project>
   </projects>
   <buildSpec>
     <buildCommand>
