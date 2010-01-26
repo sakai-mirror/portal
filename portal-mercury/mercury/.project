@@ -1,0 +1,24 @@
+<projectDescription>
+  <name>mercury</name>
+  <comment/>
+  <projects>
+    <project>sakai-component-api</project>
+    <project>sakai-event-api</project>
+    <project>sakai-portal-util</project>
+    <project>sakai-tool-api</project>
+    <project>sakai-tool-servlet</project>
+    <project>sakai-tool-util</project>
+    <project>sakai-user-api</project>
+    <project>sakai-user-util</project>
+    <project>sakai-util</project>
+    <project>sakai-util-api</project>
+  </projects>
+  <buildSpec>
+    <buildCommand>
+      <name>org.eclipse.jdt.core.javabuilder</name>
+    </buildCommand>
+  </buildSpec>
+  <natures>
+    <nature>org.eclipse.jdt.core.javanature</nature>
+  </natures>
+</projectDescription>
