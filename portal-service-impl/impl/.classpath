@@ -12,9 +12,9 @@
   <classpathentry kind="var" path="M2_REPO/org/apache/pluto/pluto-container/1.1.2/pluto-container-1.1.2.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/apache/pluto/pluto-descriptor-api/1.1.2/pluto-descriptor-api-1.1.2.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/apache/pluto/pluto-descriptor-impl/1.1.2/pluto-descriptor-impl-1.1.2.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/sakaiproject/kernel/sakai-component-manager/1.0.12/sakai-component-manager-1.0.12.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/sakaiproject/kernel/sakai-kernel-api/1.0.12/sakai-kernel-api-1.0.12.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/sakaiproject/kernel/sakai-kernel-util/1.0.12/sakai-kernel-util-1.0.12.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/sakaiproject/kernel/sakai-component-manager/1.0.13/sakai-component-manager-1.0.13.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/sakaiproject/kernel/sakai-kernel-api/1.0.13/sakai-kernel-api-1.0.13.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/sakaiproject/kernel/sakai-kernel-util/1.0.13/sakai-kernel-util-1.0.13.jar"/>
   <classpathentry kind="src" path="/sakai-portal-api"/>
   <classpathentry kind="var" path="M2_REPO/xerces/xercesImpl/2.6.2/xercesImpl-2.6.2.jar"/>
   <classpathentry kind="var" path="M2_REPO/xerces/xmlParserAPIs/2.6.2/xmlParserAPIs-2.6.2.jar"/>
