@@ -26,6 +26,7 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.Portal;
@@ -133,9 +134,9 @@ public class ToolHandler extends BasePortalHandler
 
 		// permission check - visit the site (unless the tool is configured to
 		// bypass)
+		Site site = null;
 		if (tool.getAccessSecurity() == Tool.AccessSecurity.PORTAL)
 		{
-			Site site = null;
 			try
 			{
 				site = SiteService.getSiteVisit(siteTool.getSiteId());
@@ -159,9 +160,59 @@ public class ToolHandler extends BasePortalHandler
 				return;
 			}
 		}
+		
+		// Check to see if the tool is visible
+		if(!isToolVisible(site, siteTool)) {
+			portal.doError(req, res, session, Portal.ERROR_WORKSITE);
+			return;
+		}
 
 		portal.forwardTool(tool, req, res, siteTool, siteTool.getSkin(), toolContextPath,
 				toolPathInfo);
+	}
+	
+	/**
+	 * Method to check if a tool is visible for a user in a site, based on KNL-428
+	 * @param site
+	 * @param toolConfig
+	 * @return
+	 */
+	private boolean isToolVisible(Site site, ToolConfiguration toolConfig) {
+		
+		//no way to check, so allow access. It's then up to the tool to control permissions
+		if(site == null || toolConfig == null) {
+			return true;
+		}
+		
+		String toolPermissionsStr = toolConfig.getConfig().getProperty("functions.require");
+
+		//no special permissions required, it's visible
+		if (toolPermissionsStr == null || toolPermissionsStr.trim().length() == 0) {
+			return true; 
+		}
+		
+		//check each set, if multiple permissions in the set, must have all.
+		String[] toolPermissionsSets = toolPermissionsStr.split("\\|");
+		for (int i = 0; i < toolPermissionsSets.length; i++){
+			String[] requiredPermissions = toolPermissionsSets[i].split(","); 
+			boolean allowed = true;
+			for (int j = 0; j < requiredPermissions.length; j++) {
+				//since all in a set are required, if we are missing just one permission, set false, break and continue to check next set
+				//as that set may override and allow access
+				if (!SecurityService.unlock(requiredPermissions[j].trim(), site.getReference())){
+					allowed = false;
+					return false;
+				}
+			}
+			//if allowed, we have matched the entire set so are satisfied
+			//otherwise we will check the next set
+			if(allowed) {
+				return true;
+			}
+		}
+		
+		//no sets were completely matched
+		return false;
 	}
 
 }
