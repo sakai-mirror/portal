@@ -22,6 +22,8 @@ package org.sakaiproject.portal.charon;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -1637,7 +1639,13 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		String pagePopupUrl = Web.returnUrl(req, "/page/");
 		boolean showHelp = ServerConfigurationService.getBoolean("display.help.menu",
 				true);
-		String iconUrl = site.getIconUrlFull();
+		String iconUrl = "";
+		try {
+		if (site.getIconUrlFull() != null)
+			iconUrl = new URI(site.getIconUrlFull()).toString();
+		} catch (URISyntaxException uex) {
+			M_log.debug("Icon URL is invalid: " + site.getIconUrlFull());
+		}
 		boolean published = site.isPublished();
 		String type = site.getType();
 
