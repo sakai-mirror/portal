@@ -487,8 +487,8 @@ ${tool.toolRenderResult.getTitle()}
 		</div>
 #end
 	</div>
-	<h1 class="skip">${rloader.sit_contentshead}</h1>
 	<a id="tocontent" class="skip" name="tocontent"></a>
+	<h1 class="skip">${rloader.sit_contentshead}</h1>
 <!-- end includePageNav -->
 #else
 <!-- Page Navigation Suppressed because only one tool is active -->
