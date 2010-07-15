@@ -35,6 +35,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.email.cover.EmailService;
 import org.sakaiproject.event.api.UsageSession;
@@ -56,6 +57,7 @@ import org.sakaiproject.util.ResourceLoader;
  * collection, logging and emailing for uncaught throwable based errors.
  * </p>
  */
+@SuppressWarnings("deprecation")
 public class ErrorReporter
 {
 	/** Our log (commons). */
@@ -334,6 +336,13 @@ public class ErrorReporter
 					+ ServerConfigurationService.getString("ui.service", "Sakai")
 					+ "\"<no-reply@" + ServerConfigurationService.getServerName() + ">";
 
+			String problemDisplay = "";
+			
+			if (problem != null) {
+				problemDisplay = rb.getString("bugreport.stacktrace") + ":\n\n"
+				+ problem + "\n\n";
+			}
+			
 			String body = rb.getString("bugreport.bugid") + ": " + bugId + "\n"
 					+ rb.getString("bugreport.user") + ": " + userEid + " ("
 					+ userName + ")\n" + rb.getString("bugreport.email") + ": "
@@ -346,8 +355,7 @@ public class ErrorReporter
 					+ rb.getString("bugreport.appserver") + ": "
 					+ ServerConfigurationService.getServerId() + "\n" + uSessionInfo
 					+ pathInfo + rb.getString("bugreport.time") + ": " + time + "\n\n\n"
-					+ userComment + rb.getString("bugreport.stacktrace") + ":\n\n"
-					+ problem + "\n\n" + placementDisplay + "\n\n" + requestDisplay;
+					+ userComment + problemDisplay + placementDisplay + "\n\n" + requestDisplay;
 
 			EmailService.send(from, emailAddr, subject, body, emailAddr, null, null);
 		}
@@ -366,8 +374,11 @@ public class ErrorReporter
 	 */
 	public void report(HttpServletRequest req, HttpServletResponse res, Throwable t)
 	{
+		boolean showStackTrace = SecurityService.isSuperUser() || 
+			ServerConfigurationService.getBoolean("portal.error.showdetail", false);
+		
 		String bugId = IdManager.createUuid(); 
-				
+				 
 		String headInclude = (String) req.getAttribute("sakai.html.head");
 		String bodyOnload = (String) req.getAttribute("sakai.html.body.onload");
 		Time reportTime = TimeService.newTime();
@@ -428,9 +439,13 @@ public class ErrorReporter
 			out.println("<p>" + rb.getString("bugreport.sendinstructions") + "</p>");
 
 			out.println("<form action=\"" + postAddr + "\" method=\"POST\">");
-			out.println("<input type=\"hidden\" name=\"problem\" value=\"");
-			out.println(FormattedText.escapeHtml(problem, false));
-			out.println("\">");
+			
+			if (showStackTrace) {
+				out.println("<input type=\"hidden\" name=\"problem\" value=\"");
+				out.println(FormattedText.escapeHtml(problem, false));
+				out.println("\">");
+			}
+			
 			out.println("<input type=\"hidden\" name=\"problemRequest\" value=\"");
 			out.println(FormattedText.escapeHtml(requestDisplay, false));
 			out.println("\">");
@@ -472,19 +487,22 @@ public class ErrorReporter
 			out.println("<li>" + rb.getString("bugreport.recoveryinstructions3")
 					+ "</li></ul><br /><br /></p>");
 
-			out.println("<h4>" + rb.getString("bugreport.detailstitle") + "</h4>");
-			out.println("<p>" + rb.getString("bugreport.detailsnote") + "</p>");
-			out.println("<p><pre>");
-			out.println(FormattedText.escapeHtml(problem, false));
-			out.println();
-			out.println(rb.getString("bugreport.user") + ": "
-					+ FormattedText.escapeHtml(userId, false) + "\n");
-			out.println(rb.getString("bugreport.usagesession") + ": "
-					+ FormattedText.escapeHtml(usageSessionId, false) + "\n");
-			out.println(rb.getString("bugreport.time") + ": "
-					+ FormattedText.escapeHtml(time, false) + "\n");
-			out.println("</pre></p>");
-
+			if (showStackTrace) {
+				out.println("<h4>" + rb.getString("bugreport.detailstitle") + "</h4>");
+				out.println("<p>" + rb.getString("bugreport.detailsnote") + "</p>");
+				
+				out.println("<p><pre>");
+				out.println(FormattedText.escapeHtml(problem, false));
+				out.println();
+				out.println(rb.getString("bugreport.user") + ": "
+						+ FormattedText.escapeHtml(userId, false) + "\n");
+				out.println(rb.getString("bugreport.usagesession") + ": "
+						+ FormattedText.escapeHtml(usageSessionId, false) + "\n");
+				out.println(rb.getString("bugreport.time") + ": "
+						+ FormattedText.escapeHtml(time, false) + "\n");
+				out.println("</pre></p>");
+			}
+			
 			out.println("</body>");
 			out.println("</html>");
 
@@ -529,6 +547,7 @@ public class ErrorReporter
 		return sb.toString();
 	}
 
+	@SuppressWarnings("unchecked")
 	private String requestDisplay(HttpServletRequest request)
 	{
 		StringBuilder sb = new StringBuilder();
