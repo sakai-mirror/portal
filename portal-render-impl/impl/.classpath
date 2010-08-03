@@ -13,9 +13,21 @@
   <classpathentry kind="var" path="M2_REPO/org/apache/pluto/pluto-container/1.1.2/pluto-container-1.1.2.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/apache/pluto/pluto-descriptor-api/1.1.2/pluto-descriptor-api-1.1.2.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/apache/pluto/pluto-descriptor-impl/1.1.2/pluto-descriptor-impl-1.1.2.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/sakaiproject/kernel/sakai-component-manager/1.0.12/sakai-component-manager-1.0.12.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/sakaiproject/kernel/sakai-kernel-api/1.0.12/sakai-kernel-api-1.0.12.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/sakaiproject/kernel/sakai-kernel-util/1.0.12/sakai-kernel-util-1.0.12.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/sakaiproject/kernel/sakai-component-manager/1.0.16/sakai-component-manager-1.0.16.jar" sourcepath="M2_REPO/org/sakaiproject/kernel/sakai-component-manager/1.0.16/sakai-component-manager-1.0.16-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/arwhyte/.m2/repository/org/sakaiproject/kernel/sakai-component-manager/1.0.16/sakai-component-manager-1.0.16-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="var" path="M2_REPO/org/sakaiproject/kernel/sakai-kernel-api/1.0.16/sakai-kernel-api-1.0.16.jar" sourcepath="M2_REPO/org/sakaiproject/kernel/sakai-kernel-api/1.0.16/sakai-kernel-api-1.0.16-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/arwhyte/.m2/repository/org/sakaiproject/kernel/sakai-kernel-api/1.0.16/sakai-kernel-api-1.0.16-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="var" path="M2_REPO/org/sakaiproject/kernel/sakai-kernel-util/1.0.16/sakai-kernel-util-1.0.16.jar" sourcepath="M2_REPO/org/sakaiproject/kernel/sakai-kernel-util/1.0.16/sakai-kernel-util-1.0.16-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/arwhyte/.m2/repository/org/sakaiproject/kernel/sakai-kernel-util/1.0.16/sakai-kernel-util-1.0.16-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
   <classpathentry kind="src" path="/sakai-portal-api"/>
   <classpathentry kind="src" path="/sakai-portal-render-api"/>
   <classpathentry kind="src" path="/sakai-portal-util"/>
