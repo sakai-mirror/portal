@@ -176,7 +176,7 @@ public class DirectToolHandler extends BasePortalHandler
 				if (session.getUserId() == null)
 				{
 					// let the tool do the the work (forward)
-					StoredState ss = portalService.newStoredState("directtool", "tool");
+					StoredState ss = portalService.newStoredState("directtool", "hierarchytool");
 					ss.setRequest(req);
 					ss.setPlacement(siteTool);
 					ss.setToolContextPath(toolContextPath);
@@ -195,7 +195,7 @@ public class DirectToolHandler extends BasePortalHandler
 			}
 		}
 		// let the tool do the the work (forward)
-		StoredState ss = portalService.newStoredState("directtool", "tool");
+		StoredState ss = portalService.newStoredState("directtool", "hierarchytool");
 		ss.setRequest(req);
 		ss.setPlacement(siteTool);
 		ss.setToolContextPath(toolContextPath);
