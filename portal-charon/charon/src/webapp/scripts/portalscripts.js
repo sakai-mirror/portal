@@ -74,13 +74,6 @@ var sessionTimeOut;
 var timeoutDialogEnabled = false;
 var timeoutDialogWarningTime;
 var timeoutLoggedoutUrl;
-jQuery(document).ready(function(){
-	//TODO - find a better method for detecting logged in
-	// note a session exists whether the user is logged in or no
-	if (jQuery('div#siteNav').get(0)) {  //if Logged in
-		setup_timeout_config();
-	}
-});
 
 var setup_timeout_config = function() {
 	jQuery.ajax({

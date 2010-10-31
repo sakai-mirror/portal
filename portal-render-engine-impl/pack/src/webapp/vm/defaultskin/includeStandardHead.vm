@@ -47,6 +47,14 @@ ${tool.toolRenderResult.getTitle()}
 #end
 <script type="text/javascript" language="JavaScript" src="/portal/scripts/portalscripts.js"></script>
 
+#if ($loggedIn)
+  <script type="text/javascript">
+      jQuery(document).ready(function(){
+          setTimeout('setup_timeout_config();', 60000);
+      });
+  </script>
+#end
+
 #if ( ${styleable} )
 <script type="text/javascript" 
     	language="JavaScript" 
