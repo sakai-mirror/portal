@@ -737,7 +737,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 	/**
 	 * Respond to navigation / access requests.
-	 * 
+	 *
 	 * @param req
 	 *        The servlet request.
 	 * @param res
@@ -786,8 +786,20 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				parts = option.split("/");
 			}
 
+
 			Map<String, PortalHandler> handlerMap = portalService.getHandlerMap(this);
-			PortalHandler ph = handlerMap.get(parts[1]);
+
+			PortalHandler ph;
+			String requestHander =  getRequestHandler(req);
+
+			if (requestHander!=null){
+				//Mobile access
+				ph = handlerMap.get("pda");
+				parts[1] = "pda";
+			}else{
+				ph = handlerMap.get(parts[1]);
+			}
+
 			if (ph != null)
 			{
 				stat = ph.doGet(parts, req, res, session);
@@ -1075,9 +1087,19 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			// get the parts (the first will be "")
 			String[] parts = option.split("/");
 
+
 			Map<String, PortalHandler> handlerMap = portalService.getHandlerMap(this);
 
-			PortalHandler ph = handlerMap.get(parts[1]);
+			PortalHandler ph;
+			String requestHander =  getRequestHandler(req);
+			if (requestHander!=null){
+				//Mobile access
+				ph = handlerMap.get("pda");
+				parts[1] = "pda";
+			}else{
+				ph = handlerMap.get(parts[1]);
+			}
+
 			if (ph != null)
 			{
 				stat = ph.doPost(parts, req, res, session);
