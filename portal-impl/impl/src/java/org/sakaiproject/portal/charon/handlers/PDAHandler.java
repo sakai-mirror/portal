@@ -72,7 +72,8 @@ public class PDAHandler extends PageHandler
 
 	private static final String URL_FRAGMENT = "pda";
 	private static final String SAKAI_COOKIE_DOMAIN = "sakai.cookieDomain"; //RequestFilter.SAKAI_COOKIE_DOMAIN
-	
+
+	private static final String TOOLCONFIG_SHOW_RESET_BUTTON = "reset.button";
 
 	public PDAHandler()
 	{
@@ -83,7 +84,6 @@ public class PDAHandler extends PageHandler
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
 	{
-
 		if ((parts.length >= 2) && (parts[1].equals("pda")))
 		{
 			// Indicate that we are the controlling portal
@@ -262,11 +262,12 @@ public class PDAHandler extends PageHandler
 		// Produce the buffered response
 		ByteArrayServletResponse bufferedResponse = new ByteArrayServletResponse(res);
 
-		try
-		{
-                	boolean retval = doToolBuffer(req, bufferedResponse, session, parts[4], 
-				req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 5), 
-				Web.makePath(parts, 5, parts.length));
+		boolean retval;
+		String toolContextPath = req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 5);
+		try {
+			retval = doToolBuffer(req, bufferedResponse, session, parts[4], 
+					toolContextPath, 
+					Web.makePath(parts, 5, parts.length));
 			if ( ! retval ) return;
 		}
 		catch (Exception e)
@@ -297,6 +298,13 @@ public class PDAHandler extends PageHandler
 		if( tidAllow.indexOf(":debug:") >= 0 )
 			log.info("Frameless HS="+headStart+" HE="+headEnd+" BS="+bodyStart+" BE="+bodyEnd);
 
+		boolean showResetButton = !"false".equals(siteTool.getConfig().getProperty(
+				TOOLCONFIG_SHOW_RESET_BUTTON));
+		rcontext.put("showResetButton", Boolean.valueOf(showResetButton));
+		if (showResetButton)
+		{
+			rcontext.put("resetActionUrl", toolContextPath.replace("/tool/", "/tool-reset/"));
+		}
 		if (bodyEnd > bodyStart && bodyStart > headEnd && headEnd > headStart
 				&& headStart > 1)
 		{
