@@ -121,6 +121,8 @@
 							</ul>
 						</div>
 						<div id="loginLinks">
+
+					<p id="prelogin">${rloader.sit_prelogin}</p>
 					#if (${loginHasImage1}) 
 							<a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" ><img src="${loginImage1}" alt="${loginMessage}"/></a>
 					#else

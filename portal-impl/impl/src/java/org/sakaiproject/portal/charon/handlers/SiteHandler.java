@@ -640,7 +640,7 @@ public class SiteHandler extends WorksiteHandler
 			rcontext.put("logoLink", logoLink);
 			rcontext.put("logoAlt", logoAlt);
 			rcontext.put("logoTitle", logoTitle);
-			portal.includeLogin(rcontext, req, session, siteId);
+			portal.includeLogin(rcontext, req, session);
 		}
 	}
 
