@@ -67,7 +67,7 @@
 				<div id="presenceWrapper">
 					<div id="presenceTitle">${rloader.sit_presencetitle}</div>
 					<iframe name="presenceIframe" id="presenceIframe" title="${rloader.sit_presencetitle}"
-						frameborder="0" marginwidth="0" marginheight="0" scrolling="auto" src="${sitePages.pageNavPresenceUrl}" >
+						frameborder="0" marginwidth="0" marginheight="0" scrolling="auto" src="${sitePages.pageNavPresenceUrl}?auto=true" >
 					</iframe>
 				</div>
 			#end
