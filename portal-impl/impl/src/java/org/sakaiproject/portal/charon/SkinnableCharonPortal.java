@@ -1269,7 +1269,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		Site site = null;
 		try
 		{
-			site = SiteService.getSiteVisit(siteId);
+			site = getSiteHelper().getSiteVisit(siteId);
 		}
 		catch (IdUnusedException e)
 		{
