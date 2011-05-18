@@ -121,7 +121,11 @@ public class ToolPortal extends HttpServlet
 			// our path is /placement-id/tool-destination, but we want to
 			// include anchors and parameters in the destination...
 			String path = req.getPathInfo();
-			if ((path == null) || (path.length() <= 1)) throw new Exception("no path");
+			if ((path == null) || (path.length() <= 1))
+			{
+				res.sendError(HttpServletResponse.SC_NOT_FOUND);
+				return;
+			}
 
 			// get the placement id, ignoring the first "/"
 			String[] parts = StringUtil.splitFirst(path.substring(1), "/");
@@ -135,7 +139,7 @@ public class ToolPortal extends HttpServlet
 					+ req.getServletPath() + "/" + placementId, toolPath);
 
 		}
-		catch (Throwable t)
+		catch (Exception t)
 		{
 			doError(req, res, t);
 		}
