@@ -700,7 +700,13 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			String doPreFetch  = placement.getConfig().getProperty(Portal.JSR_168_PRE_RENDER);
 			if ( "true".equals(doPreFetch) ) 
 			{
-				result.getContent();
+				try {
+					result.getContent();
+				} catch (Throwable t) {
+					ErrorReporter err = new ErrorReporter();
+					String str = err.reportFragment(req, res, t);
+					result.setContent(str);
+				}
 			}
 
 			toolMap.put("toolPlacementIDJS", "_self");
