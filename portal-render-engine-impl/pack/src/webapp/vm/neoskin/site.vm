@@ -123,6 +123,9 @@
 						<div id="loginLinks">
 
 					<p id="prelogin">${rloader.sit_prelogin}</p>
+					#if (${loginHasTwoFactor})
+						<span id="hasTwoFactor" title="${rloader.has_two_factor}"></span>
+					#end
 					#if (${loginHasImage1}) 
 							<a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" ><img src="${loginImage1}" alt="${loginMessage}"/></a>
 					#else

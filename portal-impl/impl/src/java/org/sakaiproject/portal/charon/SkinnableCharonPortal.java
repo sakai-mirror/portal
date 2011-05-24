@@ -49,6 +49,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.authz.api.TwoFactorAuthentication;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -193,6 +194,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	private static final String INCLUDE_TITLE = "include-title";
 
 	private PortalSiteHelper siteHelper = null;
+	
+	private TwoFactorAuthentication twoFactorAuthentication;
 
 
 	// private HashMap<String, PortalHandler> handlerMap = new HashMap<String,
@@ -993,22 +996,29 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			session.setAttribute(Tool.HELPER_DONE_URL, returnUrl);
 		}
 
-		ActiveTool tool = ActiveToolManager.getActiveTool("sakai.login");
- 
+		ActiveTool tool = null;
 		String context = req.getContextPath() + req.getServletPath() + "/relogin"; 
 		String loginPath = "";
 		if (forceContainer || LoginRoute.CONTAINER.equals(route)) {
+			tool = ActiveToolManager.getActiveTool("sakai.login");
 			loginPath = "/relogin";
+			
 		} else if (LoginRoute.SAKAI.equals(route)) {
+			tool = ActiveToolManager.getActiveTool("sakai.login");
 			loginPath = "/xlogin";
+			
+		} else if (LoginRoute.TWOFACTOR.equals(route)) {
+			tool = ActiveToolManager.getActiveTool("sakai.twofactor");
+			loginPath = "/2flogin";
+			
 		} else {
+			tool = ActiveToolManager.getActiveTool("sakai.login");
 			loginPath = "/login";
         }
 
 		if ("/pda".equals(returnPath)) {
 			context = req.getContextPath() + req.getServletPath() + returnPath + loginPath;
 		}
-		
 		tool.help(req, res, context, loginPath);
 	}
 
@@ -1845,6 +1855,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			// for showing user display name and id next to logout (SAK-10492)
 			String loginUserDispName = null;
 			String loginUserDispId = null;
+			boolean loginHasTwoFactor = false;
 			boolean displayUserloginInfo = ServerConfigurationService.
 			getBoolean("display.userlogin.info", true);
 
@@ -1916,6 +1927,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 					User thisUser = UserDirectoryService.getCurrentUser();
 					loginUserDispId = Validator.escapeHtml(thisUser.getDisplayId());
 					loginUserDispName = Validator.escapeHtml(thisUser.getDisplayName());
+					loginHasTwoFactor = twoFactorAuthentication.hasTwoFactor();
 				}
 
 				// check for a logout text override
@@ -1982,6 +1994,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			{
 				rcontext.put("loginUserDispName", loginUserDispName);
 				rcontext.put("loginUserDispId", loginUserDispId);
+				rcontext.put("loginHasTwoFactor", loginHasTwoFactor);
 			}
 			rcontext.put("displayUserloginInfo", displayUserloginInfo && loginUserDispId != null);
 			rcontext.put("relatedLinks", relatedLinks);
@@ -2029,7 +2042,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		boolean findPageAliases = ServerConfigurationService.getBoolean("portal.use.page.aliases", false);
 
 		siteHelper = new PortalSiteHelperImpl(this, findPageAliases);
-
+		
+		twoFactorAuthentication = (TwoFactorAuthentication)ComponentManager.get(TwoFactorAuthentication.class);
+		
 		portalService = org.sakaiproject.portal.api.cover.PortalService.getInstance();
 		securityService = (SecurityService) ComponentManager.get("org.sakaiproject.authz.api.SecurityService");
 		chatHelper = org.sakaiproject.portal.api.cover.PortalChatPermittedHelper.getInstance();
