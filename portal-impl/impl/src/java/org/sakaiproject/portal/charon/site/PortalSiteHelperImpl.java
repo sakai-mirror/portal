@@ -540,7 +540,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				m.put("jsPageId", Web.escapeJavascript(p.getId()));
 				m.put("pageRefUrl", pagerefUrl);
 
-                StringBuffer desc = new StringBuffer();
+				StringBuffer desc = new StringBuffer();
 				if (pTools != null) {
     				Iterator tools = pTools.iterator();
     				//get the tool descriptions for this page, typically only one per page, execpt for the Home page
@@ -556,9 +556,9 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
     				}
 				}
 				
-				// Just make sure no double quotes...
-				String description = desc.toString().replace('"','-');
-				m.put("description", desc.toString());
+				// TODO: Should have Web.escapeHtmlAttribute()
+				String description = desc.toString().replace("\"","&quot;");
+				m.put("description",  description);
 				// toolsOnPage is always null
 				//if (toolsOnPage != null) m.put("toolsOnPage", toolsOnPage);
 				if (includeSummary) summarizePage(m, site, p);
