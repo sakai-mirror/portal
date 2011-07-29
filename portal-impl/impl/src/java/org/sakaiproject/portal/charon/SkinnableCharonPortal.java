@@ -1082,6 +1082,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		rcontext.put("pageSiteType", siteType);
 		rcontext.put("toolParamResetState", portalService.getResetStateParam());
 
+		// copy the add link to /mobile to the content
+		String addMLnk = ServerConfigurationService.getString("portal.add.mobile.link","false");
+		rcontext.put("portal_add_mobile_link",Boolean.valueOf( "true".equals(addMLnk) ) ) ;
 		return rcontext;
 	}
 
