@@ -75,6 +75,7 @@
                         <!-- SAK-14526 Disable tests as they might be testing 
                             another system -->
                         <exclude>**/AnonPortalTest.java</exclude>
+                        <exclude>**/PortalRenderTest.java</exclude>
                     </excludes>
                 </configuration>
             </plugin>
