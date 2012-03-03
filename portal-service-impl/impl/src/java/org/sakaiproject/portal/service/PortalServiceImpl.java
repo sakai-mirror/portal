@@ -41,6 +41,11 @@ import org.exolab.castor.util.LocalConfiguration;
 import org.exolab.castor.util.Configuration.Property;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.portal.api.BaseEditor;
+import org.sakaiproject.portal.api.Editor;
+import org.sakaiproject.portal.api.EditorRegistry;
 import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalHandler;
 import org.sakaiproject.portal.api.PortalRenderEngine;
@@ -50,6 +55,9 @@ import org.sakaiproject.portal.api.PortletDescriptor;
 import org.sakaiproject.portal.api.SiteNeighbourhoodService;
 import org.sakaiproject.portal.api.StoredState;
 import org.sakaiproject.portal.api.StyleAbleProvider;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
 
@@ -77,6 +85,12 @@ public class PortalServiceImpl implements PortalService
 	private StyleAbleProvider stylableServiceProvider;
 
 	private SiteNeighbourhoodService siteNeighbourhoodService;
+	
+	private ContentHostingService contentHostingService;
+	
+	private EditorRegistry editorRegistry;
+	
+	private Editor noopEditor = new BaseEditor("noop", "noop", "", "");
 
 	public void init()
 	{
@@ -506,5 +520,77 @@ public class PortalServiceImpl implements PortalService
 	{
 		this.siteNeighbourhoodService = siteNeighbourhoodService;
 	}
+	
+	public ContentHostingService getContentHostingService() {
+		return contentHostingService;
+	}
+
+	public void setContentHostingService(ContentHostingService contentHostingService) {
+		this.contentHostingService = contentHostingService;
+	}
+	
+	public String getBrowserCollectionId(Placement placement) {
+		String collectionId = null;
+		if (placement != null) {
+			collectionId = getContentHostingService().getSiteCollection(placement.getContext());
+		}
+		if (collectionId == null) {
+			collectionId = getContentHostingService().getSiteCollection("~" + SessionManager.getCurrentSessionUserId());
+		}
+		return collectionId;
+	}
+
+	public Editor getActiveEditor() {
+		return getActiveEditor(null);
+	}
+
+	public Editor getActiveEditor(Placement placement) {
+		String systemEditor = ServerConfigurationService.getString("wysiwyg.editor", "fckeditor");
+		
+		String activeEditor = systemEditor;
+		if (placement != null) {
+			//Allow tool- or user-specific editors?
+			try {
+				Site site = SiteService.getSite(placement.getContext());
+				Object o = site.getProperties().get("wysiwyg.editor");
+				if (o != null) {
+					activeEditor = o.toString();
+				}
+			}
+			catch (IdUnusedException ex) {
+				if (log.isDebugEnabled()) {
+					log.debug(ex.getMessage());
+				}
+			}
+		}
+		
+		Editor editor = getEditorRegistry().getEditor(activeEditor);
+		if (editor == null) {
+			// Load a base no-op editor so sakai.editor.launch calls succeed.
+			// We may decide to offer some textarea infrastructure as well. In
+			// this case, there are editor and launch files being consulted
+			// already from /library/, which is easier to patch and deploy.
+			editor = getEditorRegistry().getEditor("textarea");
+		}
+		if (editor == null) {
+			// If, for some reason, our stub editor is null, give an instance
+			// that doesn't even try to load files. This will result in script
+			// errors because sakai.editor.launch will not be defined, but
+			// this way, we can't suffer NPEs. In some cases, this degradation
+			// will be graceful enough that the page can function.
+			editor = noopEditor;
+		}
+		
+		return editor;
+	}
+
+	public EditorRegistry getEditorRegistry() {
+		return editorRegistry;
+	}
+
+	public void setEditorRegistry(EditorRegistry editorRegistry) {
+		this.editorRegistry = editorRegistry;
+	}
+
 
 }
