@@ -65,6 +65,9 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
     private Object profileServiceObject = null;
     private Method getConnectionsForUserMethod = null;
     private Method getUuidMethod = null;
+    private Method setProfileMethod = null;
+    private Method setPrivacyMethod = null;
+    private Method setPreferencesMethod = null;
 	
 	private UserDirectoryService userDirectoryService;
 	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
@@ -129,15 +132,48 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
         }
 
         // SAK-20565. Get handles on the profile2 connections methods if available. If not, unset the connectionsAvailable flag.
-        try {
-            ComponentManager componentManager = org.sakaiproject.component.cover.ComponentManager.getInstance();
-            profileServiceObject = componentManager.get("org.sakaiproject.profile2.service.ProfileService");
-            getConnectionsForUserMethod = profileServiceObject.getClass().getMethod("getConnectionsForUser",new Class[] {String.class});
-            Class personClass = Class.forName("org.sakaiproject.profile2.model.Person");
-            getUuidMethod = personClass.getMethod("getUuid",null);
-        } catch(Exception e) {
-            connectionsAvailable = false;
-            logger.info("Profile2 not installed so portal chat will not use connections.");
+        ComponentManager componentManager = org.sakaiproject.component.cover.ComponentManager.getInstance();
+        profileServiceObject = componentManager.get("org.sakaiproject.profile2.service.ProfileService");
+            
+        if(profileServiceObject != null) {
+           	try {
+           		getConnectionsForUserMethod = profileServiceObject.getClass().getMethod("getConnectionsForUser",new Class[] {String.class});
+           		try {
+           			Class personClass = Class.forName("org.sakaiproject.profile2.model.Person");
+           			try {
+           				getUuidMethod = personClass.getMethod("getUuid",null);
+           			} catch(Exception e) {
+           				logger.warn("Failed to set getUuidMethod");
+           			}
+           			try {
+           				Class clazz = Class.forName("org.sakaiproject.profile2.model.UserProfile");
+           				setProfileMethod = personClass.getMethod("setProfile",new Class[] {clazz});
+           			} catch(Exception e) {
+           				logger.warn("Failed to set setProfileMethod");
+           			}
+           			try {
+           				Class clazz = Class.forName("org.sakaiproject.profile2.model.ProfilePrivacy");
+           				setPrivacyMethod = personClass.getMethod("setPrivacy",new Class[] {clazz});
+           			} catch(Exception e) {
+           				logger.warn("Failed to set setPrivacyMethod");
+           			}
+           			try {
+           				Class clazz = Class.forName("org.sakaiproject.profile2.model.ProfilePreferences");
+           				setPreferencesMethod = personClass.getMethod("setPreferences",new Class[] {clazz});
+           			} catch(Exception e) {
+           				logger.warn("Failed to set setPreferencesMethod");
+           			}
+           		} catch(Exception e) {
+           			logger.error("Failed to find Person class. Connections will NOT be available in portal chat.",e);
+           			connectionsAvailable = false;
+           		}
+           	} catch(Exception e) {
+           		logger.warn("Failed to set getConnectionsForUserMethod. Connections will NOT be available in portal chat.");
+        		connectionsAvailable = false;
+           	}
+        } else {
+        	logger.warn("Failed to find ProfileService interface. Connections will NOT be available in portal chat.");
+           	connectionsAvailable = false;
         }
     }
 
@@ -241,6 +277,17 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
 		}
 	}
 
+    public class PortalChatUser {
+        
+        public String id;
+        public String displayName;
+        
+        public PortalChatUser(String id,String displayName) {
+            this.id = id;
+            this.displayName = displayName;
+        }
+    }
+
     /**
      * The JS client calls this to grab the latest data in one call. Connections, latest messages, online users
      * and present users (in a site) are all returned in one lump of JSON. If the online parameter is supplied and
@@ -279,14 +326,17 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
 			return new HashMap<String,Object>(0);
 		}
 
-        List<User> presentUsers = new ArrayList<User>();
+        List<PortalChatUser> presentUsers = new ArrayList<PortalChatUser>();
 
 		String siteId = (String) params.get("siteId");
 
         if(siteId != null && siteId.length() > 0) {
             // A site id has been specified, so we add the present users from the presence service
-            presentUsers = presenceService.getPresentUsers(siteId + "-presence");
-            presentUsers.remove(currentUser);
+            List<User> presentSakaiUsers = presenceService.getPresentUsers(siteId + "-presence");
+            presentSakaiUsers.remove(currentUser);
+            for(User user : presentSakaiUsers) {
+                presentUsers.add(new PortalChatUser(user.getId(), user.getDisplayName()));
+            }
         }
 		
 		List<Object> connections = getConnectionsForUser(currentUser.getId());
@@ -301,6 +351,18 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
 
             try {
                 uuid = (String) getUuidMethod.invoke(personObject,null);
+
+                // Null all the person stuff to reduce the download size
+                if(setProfileMethod != null) {
+                	setProfileMethod.invoke(personObject,new Object[] {null});
+                }
+                if(setPrivacyMethod != null) {
+                	setPrivacyMethod.invoke(personObject,new Object[] {null});
+                }
+                if(setPreferencesMethod != null) {
+                	setPreferencesMethod.invoke(personObject,new Object[] {null});
+                }
+
             } catch(Exception e) {
                 logger.error("Failed to invoke getUuid on a Person instance. Skipping this person ...",e);
                 continue;
@@ -367,7 +429,7 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
 		
 		try {
 			String email = userDirectoryService.getUser(userId).getEmail();
-            new EmailSender(email, rb.getString("email.subject"), rb.getFormattedMessage("email.body", new String[]{currentUser.getDisplayName(), service, portalUrl}));
+            new EmailSender(email, rb.getFormattedMessage("email.subject", new String[]{service}), rb.getFormattedMessage("email.body", new String[]{currentUser.getDisplayName(), service, portalUrl}));
 		}
 		catch(Exception e) {
 			throw new EntityException("Failed to send email",userId);
