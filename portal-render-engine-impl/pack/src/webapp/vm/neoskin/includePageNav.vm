@@ -26,7 +26,7 @@
 		  		#if (${page.current})
 						<li class="selectedTool">
 							<a class="toolMenuLink #if(${page.hidden})hidden#end" title="${page.pageTitle}" role="presentation" aria-disabled="true">
-							<span class="toolMenuIcon ${page.menuClass} $!{page.menuClassOverride}"> </span><span class="menuTitle">${page.pageTitle}</span>
+							<a class="toolMenuIcon ${page.menuClass} $!{page.menuClassOverride} #if(${page.hidden})hidden#end"> <span class="menuTitle">${page.pageTitle}</span></a>
 							</a>
 						</li>
 		  		#else
