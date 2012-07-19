@@ -37,6 +37,9 @@
     <link href="/portal/styles/portalstyles-ie5.css" type="text/css" rel="stylesheet" media="all" />
 <![endif]><![endif]-->
 <link href="${pageSkinRepo}/${pageSkin}/portal.css" type="text/css" rel="stylesheet" media="all" />
+#if ( $neoChat && $loggedIn )
+<link href="${pageSkinRepo}/${pageSkin}/portalchat.css" type="text/css" rel="stylesheet" media="all" />
+#end
 
 
 #if (! $currentPlacement && $isPDA )
@@ -75,6 +78,11 @@ ${sakai_html_head_css}
 #end
 
 <script type="text/javascript" language="JavaScript" src="/portal/scripts/neoscripts.js"></script>
+<script type="text/javascript" language="JavaScript" src="/library/js/jquery/qtip/jquery.qtip-latest.min.js"></script>
+<script type="text/javascript" language="JavaScript" src="/library/js/jquery/qtip/tutorial.js"></script>
+#if ( $tutorial && $loggedIn )
+	<script type="text/javascript" language="JavaScript">$(document).ready(function(){startTutorial({'showTutorialLocationOnHide': 'true'});});</script>
+#end
 #if ( $neoChat && $loggedIn )
 <script type="text/javascript" language="JavaScript" src="/portal/scripts/jquery.idle-timer.js"></script>
 <script type="text/javascript" language="JavaScript" src="/portal/scripts/chat.js"></script>
@@ -98,6 +106,12 @@ ${sakai_html_head_css}
 	</script>
     #end
 #end
+<script type="text/javascript" language="JavaScript" src="${pageScriptPath}jquery/cluetip/1.2.5/jquery.cluetip.min.js"></script>
+
+## required CSS for cluetip, bundled with the release
+<link href="${pageScriptPath}jquery/cluetip/1.2.5/css/jquery.cluetip.css" type="text/css" rel="stylesheet" media="all" />
+
+
 </head>
 
 <!-- END from includeStandardHead.vm -->

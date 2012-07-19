@@ -35,6 +35,18 @@
 						                   title="${rloader.sit_edit}"><img src="/library/image/transparent.gif"  
 						                    alt="${rloader.sit_edit}" border="0"></a>
 						#end 
+						#if ($toolDirectUrlEnabled && ${tool.showDirectToolUrl})
+							<a class="tool-directurl" href="#${tool.toolPlacementIDJS}_directurl" rel="#${tool.toolPlacementIDJS}_directurl" title="${rloader.tool_direct_link}">
+								<img src="/library/image/transparent.gif" alt="${rloader.tool_direct_link}" border="0"/>
+							</a>
+							<div id="${tool.toolPlacementIDJS}_directurl" class="direct-url-wrap">
+								#if($toolShortUrlEnabled)
+									<input type="checkbox" onclick="toggleShortUrlOutput('${tool.directToolUrl}', this, '${tool.toolPlacementIDJS}_urlholder');" />
+									<span>${rloader.short_url}</span>
+								#end
+								<textarea class="${tool.toolPlacementIDJS}_urlholder" rows="3" cols="50">${tool.directToolUrl}</textarea>						
+							</div>
+						#end
 						#if (${tool.toolShowHelpButton})
 							#if (${tool.toolJSR168Help} )
 						             <a accesskey="h" href="${tool.toolJSR168Help}" title="${rloader.sit_help}">
@@ -119,6 +131,18 @@
 						                   title="${rloader.sit_edit}"><img src="/library/image/transparent.gif"  
 						                    alt="${rloader.sit_edit}" border="0"></a>
 						#end 
+						#if ($toolDirectUrlEnabled && ${tool.showDirectToolUrl})
+							<a class="tool-directurl" href="#${tool.toolPlacementIDJS}_directurl" rel="#${tool.toolPlacementIDJS}_directurl" title="${rloader.tool_direct_link}">
+								<img src="/library/image/transparent.gif" alt="${rloader.tool_direct_link}" border="0"/>
+							</a>
+							<div id="${tool.toolPlacementIDJS}_directurl" class="direct-url-wrap">
+								#if($toolShortUrlEnabled)
+									<input type="checkbox" onclick="toggleShortUrlOutput('${tool.directToolUrl}', this, '${tool.toolPlacementIDJS}_urlholder');" />
+									<span>${rloader.short_url}</span>
+								#end
+								<textarea class="${tool.toolPlacementIDJS}_urlholder" rows="3" cols="50">${tool.directToolUrl}</textarea>						
+							</div>
+						#end
 						#if (${tool.toolShowHelpButton})
 							#if (${tool.toolJSR168Help} )
 						             <a accesskey="h" href="${tool.toolJSR168Help}" title="${rloader.sit_help}">
@@ -216,7 +240,7 @@
 #else
 #if ( ${sitePages.pageNavShowPresenceLoggedIn})
 					<h1 class="skip">${rloader.sit_presencehead}</h1>
-					<div id="footerAppPresence" aria-live="polite"  aria-atomic="false" aria-relevant="all">
+					<div id="footerAppPresence">
 						<a href="#" id="presenceToggle"><img src="/library/image/silk/user_green.png" style="vertical-align: middle;" alt="" /><span class="skip">Toggle users present panel</span></a>
 						<span class="skip">Number of users present:</span> <span id="presenceCount"></span>
 					</div>
@@ -227,6 +251,7 @@
 #end
 
 #if ( $neoChat && ${loggedIn})
+	<h1 class="skip">${rloader.sit_presencehead}</h1>
 	#if ( $neoAvatar ) 
 		<span id="avatarPermitted" class="skip"></span>
 	#end
@@ -239,11 +264,11 @@
                     </div>
                     <div id="pc_users">
                         <div id="pc_connections_wrapper">
-                            <h5 id="pc_connections_label">${rloader.pc_connections_label}</h5>
+                            <h2 id="pc_connections_label">${rloader.pc_connections_label}</h2>
                             <ul id="pc_connections" aria-live="assertive" aria-atomic="false" aria-relevant="all"></ul>
                         </div>
                         <div class="pc_users_wrapper">
-                            <h5 id="pc_site_users_label">${rloader.pc_site_users_label}</h5>
+                            <h2 id="pc_site_users_label">${rloader.pc_site_users_label}</h2>
                             <ul id="pc_site_users" aria-live="assertive" aria-atomic="false" aria-relevant="all"></ul>
                         </div>
                     </div>
@@ -354,3 +379,4 @@
 			#end
 		<!-- end includePageBody -->
 <!-- END from includePageBody.vm -->
+<div id="tutorial"></div>

@@ -9,7 +9,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.osedu.org/licenses/ECL-2.0
+ *       http://www.opensource.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -186,7 +186,7 @@ public class CharonPortal extends HttpServlet
 		// error and we cannot use the error site...
 
 		// form a context sensitive title
-		String title = ServerConfigurationService.getString("ui.service") + " : Portal";
+		String title = ServerConfigurationService.getString("ui.service","Sakai") + " : Portal";
 
 		// start the response
 		PrintWriter out = startResponse(res, title, null, false);
@@ -284,7 +284,7 @@ public class CharonPortal extends HttpServlet
 		session.setAttribute(ATTR_SITE_PAGE + siteId, page.getId());
 
 		// form a context sensitive title
-		String title = ServerConfigurationService.getString("ui.service") + " : "
+		String title = ServerConfigurationService.getString("ui.service","Sakai") + " : "
 				+ site.getTitle() + " : " + page.getTitle();
 
 		// start the response
@@ -1006,7 +1006,7 @@ public class CharonPortal extends HttpServlet
 		}
 
 		// form a context sensitive title
-		String title = ServerConfigurationService.getString("ui.service") + " : "
+		String title = ServerConfigurationService.getString("ui.service","Sakai") + " : "
 				+ site.getTitle() + " : " + page.getTitle();
 
 		// start the response
@@ -1290,7 +1290,7 @@ public class CharonPortal extends HttpServlet
 		session.setAttribute(ATTR_SITE_PAGE + siteId, page.getId());
 
 		// form a context sensitive title
-		String title = ServerConfigurationService.getString("ui.service") + " : "
+		String title = ServerConfigurationService.getString("ui.service","Sakai") + " : "
 				+ site.getTitle() + " : " + page.getTitle();
 
 		// start the response
@@ -1712,7 +1712,7 @@ public class CharonPortal extends HttpServlet
 		session.setAttribute(ATTR_SITE_PAGE + siteId, page.getId());
 
 		// form a context sensitive title
-		String title = ServerConfigurationService.getString("ui.service") + " : "
+		String title = ServerConfigurationService.getString("ui.service","Sakai") + " : "
 				+ site.getTitle() + " : " + page.getTitle();
 
 		// start the response
@@ -1924,10 +1924,8 @@ public class CharonPortal extends HttpServlet
 
 		// check for the top.login (where the login fields are present instead
 		// of a login link, but ignore it if container.login is set
-		boolean topLogin = Boolean.TRUE.toString().equalsIgnoreCase(
-				ServerConfigurationService.getString("top.login"));
-		boolean containerLogin = Boolean.TRUE.toString().equalsIgnoreCase(
-				ServerConfigurationService.getString("container.login"));
+		boolean topLogin = ServerConfigurationService.getBoolean("top.login", true);
+		boolean containerLogin = ServerConfigurationService.getBoolean("container.login", false);
 		if (containerLogin) topLogin = false;
 
 		// if not logged in they get login

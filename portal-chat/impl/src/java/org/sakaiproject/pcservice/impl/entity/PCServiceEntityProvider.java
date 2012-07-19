@@ -1,5 +1,6 @@
 package org.sakaiproject.pcservice.impl.entity;
 
+import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -116,11 +117,28 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
         try {
             String channelId = serverConfigurationService.getString("portalchat.cluster.channel");
             if(channelId != null && !channelId.equals("")) {
-                clusterChannel = new JChannel();
+            	// Pick up the config file from sakai home if it exists
+            	File jgroupsConfig = new File(serverConfigurationService.getSakaiHomePath() + File.separator + "jgroups-config.xml");
+            	if(jgroupsConfig.exists()) {
+            		if(logger.isDebugEnabled()) {
+            			logger.debug("Using jgroups config file: " + jgroupsConfig.getAbsolutePath());
+            		}
+            		clusterChannel = new JChannel(jgroupsConfig);
+            	} else {
+            		if(logger.isDebugEnabled()) {
+            			logger.debug("No jgroups config file. Using jgroup defaults.");
+            		}
+            		clusterChannel = new JChannel();
+            	}
+            	
+            	if(logger.isDebugEnabled()) {
+            		logger.debug("JGROUPS PROTOCOL: " + clusterChannel.getProtocolStack().printProtocolSpecAsXML());
+            	}
+            	
                 clusterChannel.setReceiver(this);
                 clusterChannel.connect(channelId);
                 // We don't want a copy of our JGroups messages sent back to us
-                clusterChannel.setOpt(Channel.LOCAL,false);
+                clusterChannel.setDiscardOwnMessages(true);
                 clustered = true;
 
                 logger.info("Portal chat is connected on JGroups channel '" + channelId + "'"); 
@@ -136,45 +154,53 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
         profileServiceObject = componentManager.get("org.sakaiproject.profile2.service.ProfileService");
             
         if(profileServiceObject != null) {
-           	try {
-           		getConnectionsForUserMethod = profileServiceObject.getClass().getMethod("getConnectionsForUser",new Class[] {String.class});
-           		try {
-           			Class personClass = Class.forName("org.sakaiproject.profile2.model.Person");
-           			try {
-           				getUuidMethod = personClass.getMethod("getUuid",null);
-           			} catch(Exception e) {
-           				logger.warn("Failed to set getUuidMethod");
-           			}
-           			try {
-           				Class clazz = Class.forName("org.sakaiproject.profile2.model.UserProfile");
-           				setProfileMethod = personClass.getMethod("setProfile",new Class[] {clazz});
-           			} catch(Exception e) {
-           				logger.warn("Failed to set setProfileMethod");
-           			}
-           			try {
-           				Class clazz = Class.forName("org.sakaiproject.profile2.model.ProfilePrivacy");
-           				setPrivacyMethod = personClass.getMethod("setPrivacy",new Class[] {clazz});
-           			} catch(Exception e) {
-           				logger.warn("Failed to set setPrivacyMethod");
-           			}
-           			try {
-           				Class clazz = Class.forName("org.sakaiproject.profile2.model.ProfilePreferences");
-           				setPreferencesMethod = personClass.getMethod("setPreferences",new Class[] {clazz});
-           			} catch(Exception e) {
-           				logger.warn("Failed to set setPreferencesMethod");
-           			}
-           		} catch(Exception e) {
-           			logger.error("Failed to find Person class. Connections will NOT be available in portal chat.",e);
-           			connectionsAvailable = false;
-           		}
-           	} catch(Exception e) {
-           		logger.warn("Failed to set getConnectionsForUserMethod. Connections will NOT be available in portal chat.");
-        		connectionsAvailable = false;
-           	}
+            try {
+                getConnectionsForUserMethod = profileServiceObject.getClass().getMethod("getConnectionsForUser",new Class[] {String.class});
+                try {
+                    Class personClass = Class.forName("org.sakaiproject.profile2.model.Person");
+                    try {
+                        getUuidMethod = personClass.getMethod("getUuid",null);
+                    } catch(Exception e) {
+                        logger.warn("Failed to set getUuidMethod");
+                    }
+                    try {
+                        Class clazz = Class.forName("org.sakaiproject.profile2.model.UserProfile");
+                        setProfileMethod = personClass.getMethod("setProfile",new Class[] {clazz});
+                    } catch(Exception e) {
+                        logger.warn("Failed to set setProfileMethod");
+                    }
+                    try {
+                        Class clazz = Class.forName("org.sakaiproject.profile2.model.ProfilePrivacy");
+                        setPrivacyMethod = personClass.getMethod("setPrivacy",new Class[] {clazz});
+                    } catch(Exception e) {
+                        logger.warn("Failed to set setPrivacyMethod");
+                    }
+                    try {
+                        Class clazz = Class.forName("org.sakaiproject.profile2.model.ProfilePreferences");
+                        setPreferencesMethod = personClass.getMethod("setPreferences",new Class[] {clazz});
+                    } catch(Exception e) {
+                        logger.warn("Failed to set setPreferencesMethod");
+                    }
+                } catch(Exception e) {
+                    logger.error("Failed to find Person class. Connections will NOT be available in portal chat.",e);
+                    connectionsAvailable = false;
+                }
+            } catch(Exception e) {
+                logger.warn("Failed to set getConnectionsForUserMethod. Connections will NOT be available in portal chat.");
+                connectionsAvailable = false;
+            }
         } else {
-        	logger.warn("Failed to find ProfileService interface. Connections will NOT be available in portal chat.");
-           	connectionsAvailable = false;
+            logger.warn("Failed to find ProfileService interface. Connections will NOT be available in portal chat.");
+            connectionsAvailable = false;
         }
+    }
+    
+    public void destroy() {
+    	System.out.println("DESTROY!!!!!");
+    	if(clusterChannel != null && clusterChannel.isConnected()) {
+    		// This calls disconnect() first
+    		clusterChannel.close();
+    	}
     }
 
     /**
@@ -276,17 +302,17 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
 			this.timestamp = (new Date()).getTime();
 		}
 	}
-
-    public class PortalChatUser {
-        
-        public String id;
-        public String displayName;
-        
-        public PortalChatUser(String id,String displayName) {
-            this.id = id;
-            this.displayName = displayName;
-        }
-    }
+	
+	public class PortalChatUser {
+		
+		public String id;
+		public String displayName;
+		
+		public PortalChatUser(String id,String displayName) {
+			this.id = id;
+			this.displayName = displayName;
+		}
+	}
 
     /**
      * The JS client calls this to grab the latest data in one call. Connections, latest messages, online users
@@ -299,8 +325,9 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
 		User currentUser = userDirectoryService.getCurrentUser();
 		User anon = userDirectoryService.getAnonymousUser();
 		
-		if(anon.equals(currentUser))
-			throw new SecurityException("You must be logged in to use this service");
+		if(anon.equals(currentUser)) {
+			return new HashMap<String,Object>(0);
+		}
 		
 		String online = (String) params.get("online");
 		
@@ -326,7 +353,7 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
 			return new HashMap<String,Object>(0);
 		}
 
-        List<PortalChatUser> presentUsers = new ArrayList<PortalChatUser>();
+		List<PortalChatUser> presentUsers = new ArrayList<PortalChatUser>();
 
 		String siteId = (String) params.get("siteId");
 
@@ -335,11 +362,11 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
 			// location and retrieve the present users
 			String location = siteId + "-presence";
 			presenceService.setPresence(location);
-            List<User> presentSakaiUsers = presenceService.getPresentUsers(siteId + "-presence");
-            presentSakaiUsers.remove(currentUser);
-            for(User user : presentSakaiUsers) {
-                presentUsers.add(new PortalChatUser(user.getId(), user.getDisplayName()));
-            }
+			List<User> presentSakaiUsers = presenceService.getPresentUsers(siteId + "-presence");
+			presentSakaiUsers.remove(currentUser);
+			for(User user : presentSakaiUsers) {
+				presentUsers.add(new PortalChatUser(user.getId(), user.getDisplayName()));
+			}
         }
 		
 		List<Object> connections = getConnectionsForUser(currentUser.getId());
@@ -354,18 +381,18 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
 
             try {
                 uuid = (String) getUuidMethod.invoke(personObject,null);
-
+                
                 // Null all the person stuff to reduce the download size
                 if(setProfileMethod != null) {
-                	setProfileMethod.invoke(personObject,new Object[] {null});
+                    setProfileMethod.invoke(personObject,new Object[] {null});
                 }
                 if(setPrivacyMethod != null) {
-                	setPrivacyMethod.invoke(personObject,new Object[] {null});
+                    setPrivacyMethod.invoke(personObject,new Object[] {null});
                 }
                 if(setPreferencesMethod != null) {
-                	setPreferencesMethod.invoke(personObject,new Object[] {null});
+                    setPreferencesMethod.invoke(personObject,new Object[] {null});
                 }
-
+                
             } catch(Exception e) {
                 logger.error("Failed to invoke getUuid on a Person instance. Skipping this person ...",e);
                 continue;

@@ -9,7 +9,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.osedu.org/licenses/ECL-2.0
+ *       http://www.opensource.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -156,6 +156,12 @@ public interface Portal
         public static final String SAKAI_PORTAL_BREADCRUMBS = "sakai-portal:breadcrumbs";
         public static final String SAKAI_PORTAL_SUPPRESSTITLE = "sakai-portal:suppresstitle";
 	
+
+	/**
+	 * Tool property to allow the enabling/disabling of the direct url linking UI
+	 */
+	public static final String TOOL_DIRECTURL_ENABLED_PROP = "sakai:tool-directurl-enabled";
+        
 	/**
 	 * prepare the response and send it to the render engine
 	 * 

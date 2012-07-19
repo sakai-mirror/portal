@@ -9,7 +9,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.osedu.org/licenses/ECL-2.0
+ *       http://www.opensource.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -218,7 +218,11 @@ public class DefaultSiteViewImpl extends AbstractSiteViewImpl
 		if ( worksiteToolUrl != null ) {
 			renderContextMap.put("worksiteToolUrl", worksiteToolUrl);
 		}
-
+		if (serverConfigurationService.getBoolean("portal.use.tutorial", true)){
+			renderContextMap.put("tutorial", true);
+		}else{
+			renderContextMap.put("tutorial", false);
+		}
 		List<Map> l = siteHelper.convertSitesToMaps(request, mySites, prefix,
 				currentSiteId, myWorkspaceSiteId,
 				/* includeSummary */false, /* expandSite */true,

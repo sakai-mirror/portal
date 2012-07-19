@@ -1,49 +1,3 @@
-
-/* Script for pop-up dhtml more tabs implementation 
- * uses jQuery library
- */
-/* dhtml_more_tabs
- * displays the More Sites div
- * note the technique of recasting the function after initalization
- */
-var dhtml_more_tabs = function(){
-    // first time through set up the DOM
-    jQuery('#selectNav').appendTo('#linkNav').addClass('dhtml_more_tabs'); // move the selectNav in the DOM
-    jQuery('#selectNav').css('top', jQuery('#linkNav').height() - 3); // set its top position
-    jQuery('#selectNav').width(jQuery('#linkNav').width() * 0.75); // set its width to fix an IE6 bug
-    jQuery('#selectNav').css('z-index', 9900); // explicitely set the z-index
-    jQuery('.more-tab').css('z-index', 9800); //  " for the More Tabs div element
-    // then recast the function to the post initialized state which will run from then on
-    dhtml_more_tabs = function(){
-            jQuery('div#selectNav').show();
-        if (jQuery('#selectNav').css('display') == 'none') {
-            // highlight the more tab
-            jQuery('.more-tab').addClass('more-active');
-            // dim the current tab
-            jQuery('.selectedTab').addClass('tab-dim');
-            // mask the rest of the page
-            createDHTMLMask(dhtml_more_tabs);
-            // bind this function to the More Tabs tab to close More Tabs on click
-            jQuery('.selectedTab').bind('click', function(e){
-                dhtml_more_tabs();
-                return false;
-            });
-        }
-        else {
-            // unhighlight the more tab
-            jQuery('.more-tab').removeClass('more-active');
-            // hide the dropdown
-            jQuery('div#selectNav').hide(); // hide the box
-            //undim the currently selected tab
-            jQuery('.selectedTab').removeClass('tab-dim');
-            removeDHTMLMask()
-            jQuery('.selectedTab').unbind('click');
-        }
-    }
-    // finally run the inner function, first time through
-    dhtml_more_tabs();
-}
-
 /* dhtml_view_sites
  * displays the More Sites div
  * note the technique of recasting the function after initalization
@@ -73,11 +27,35 @@ var dhtml_view_sites = function(){
                 dhtml_view_sites();
                 return false;
             });
+
+            jQuery('#selectSite a:first').focus();
+
+            // If we hit escape or the up arrow on any of the links in the drawer, slide it
+            // up and focus on the more tab.
+            jQuery('#selectSite a').keydown(function (e) {
+                if(e.keyCode == 38 || e.keyCode == 27) {
+                    e.preventDefault();
+                    closeDrawer();
+                }
+            });
+
+            // Show the tool popup on the down arrow, or slide up the drawer on escape.
+            $('.moreSitesLink').keydown(function (e){
+                if (e.keyCode == 40) {
+                    showToolMenu(e);
+                }
+            });
+
+            jQuery('#otherSitesMenu a').last().keydown(function (e) {
+                if(e.keyCode == 9 && !e.shiftKey) {
+                    closeDrawer();
+                }
+            });
         }
         else {
             // hide the dropdown
             jQuery('div#selectSite div').hide();
-            jQuery('div#selectSite').slideUp('fast').hide(); // hide the box
+            jQuery('div#selectSite').slideUp('fast'); // hide the box
             removeDHTMLMask()
             jQuery('#otherSiteTools').remove();
             jQuery('.selectedTab').unbind('click');
@@ -85,6 +63,15 @@ var dhtml_view_sites = function(){
     }
     // finally run the inner function, first time through
     dhtml_view_sites();
+}
+
+function closeDrawer() {
+    jQuery('div#selectSite div').hide();
+    jQuery('div#selectSite').slideUp('fast'); // hide the box
+    removeDHTMLMask()
+    jQuery('#otherSiteTools').remove();
+    jQuery('.selectedTab').unbind('click');
+    jQuery('.more-tab a').focus();
 }
 
 function createDHTMLMask(callback){
@@ -249,6 +236,7 @@ function sakaiMinimizeNavigation(){
         $('#container').addClass('sakaiMinimizePageNavigation');
     }
     $('#toggleToolMax').hide();
+    $('#toggleToolMenu').attr('title',$('#toggleNormal em').text());
     $('#toggleNormal').css({
         'display': 'block'
     });
@@ -264,6 +252,7 @@ function sakaiRestoreNavigation(){
         $('#container').removeClass('sakaiMinimizePageNavigation');
     }
     $('#toggleToolMax').show();
+    $('#toggleToolMenu').attr('title',$('#toggleToolMax em').text());
     $('#toggleNormal').css({
         'display': 'none'
     });
@@ -326,44 +315,54 @@ function f_filterResults(n_win, n_docel, n_body){
     return n_body && (!n_result || (n_result > n_body)) ? n_body : n_result;
 }
 
-function showToolMenu(e) {
+/** Shows a drawer site tool dropdown **/
+function showToolMenu(e){
     e.preventDefault();
     var jqObj = $(e.target);
-    $('#otherSiteTools').remove();
-    var subsubmenu = "<ul id=\"otherSiteTools\">";
-    var siteURL = '/direct/site/' + jqObj.attr('id') + '/pages.json';
-    scroll(0, 0)
-    var pos = jqObj.offset();
-    var maxToolsInt = parseInt($('#maxToolsInt').text());
-    var goToSite = '<li class=\"otherSiteTool\"><span><a class=\"icon-sakai-see-all-tools\" href=\"' + portal.portalPath + '/site/' +  jqObj.attr('id') + '\">' +$('#maxToolsAnchor').text() + '</a></span></li>'
-    jQuery.getJSON(siteURL, function(data){
-        $.each(data, function(i, item){
-            if (i <= maxToolsInt) {
-                if (item.tools.length === 1) {
-                    subsubmenu = subsubmenu + '<li class=\"otherSiteTool\"><span><a class=\"icon-' + item.tools[0].toolId.replace(/\./gi, '-') + '\" href=' + item.tools[0].url + ">" + item.tools[0].title + "</a></span></li>"
+    $('.toolMenus').removeClass('toolMenusActive')
+    if ($('.' + jqObj.attr('id')).length) {
+        $('#otherSiteTools').remove();
+    }
+    else {
+        $('#otherSiteTools').remove();
+        var subsubmenu = "<ul id=\"otherSiteTools\" class=\"" + jqObj.attr('id') + "\">";
+        var siteURL = '/direct/site/' + jqObj.attr('id') + '/pages.json';
+        scroll(0, 0)
+        var pos = jqObj.offset();
+        var maxToolsInt = parseInt($('#maxToolsInt').text());
+        var goToSite = '<li class=\"otherSiteTool\"><span><a class=\"icon-sakai-see-all-tools\" href=\"' + portal.portalPath + '/site/' + jqObj.attr('id') + '\">' + $('#maxToolsAnchor').text() + '</a></span></li>';
+        jQuery.getJSON(siteURL, function(data){
+            $.each(data, function(i, item){
+                if (i <= maxToolsInt) {
+                    if (item.tools.length === 1) {
+                        subsubmenu = subsubmenu + '<li class=\"otherSiteTool\"><span><a class=\"icon-' + item.tools[0].toolId.replace(/\./gi, '-') + '\" href=' + item.tools[0].url + ">" + item.tools[0].title + "</a></span></li>";
+                    }
                 }
+                
+            });
+            if ((data.length - 1) > maxToolsInt) {
+                subsubmenu = subsubmenu + goToSite
             }
-
-        });
-        if ((data.length - 1) >   maxToolsInt){
-            subsubmenu = subsubmenu + goToSite
-        }          
-        subsubmenu = subsubmenu + "</ul>"
-        $('#portalOuterContainer').append(subsubmenu);
-        $('#otherSiteTools').css({
-            'top': pos.top,
-            'left': pos.left + 30
-        });
-        $('#otherSiteTools li:first').attr('tabindex', '-1')
-        $('#otherSiteTools li:first').focus();
-
-        $('#otherSiteTools').keydown(function(e) {
-            if (e.keyCode == 38) {
-                jqObj.focus();
-                $(this).hide();
-            }
-        });
-    }); // end json call
+            subsubmenu = subsubmenu + "</ul>"
+            $('#portalOuterContainer').append(subsubmenu);
+            $('#otherSiteTools').css({
+                'top': pos.top + 28,
+                'left': pos.left - 173
+            });
+            $('#otherSiteTools li a:first').focus();
+            jqObj.addClass("toolMenusActive");
+            // On up arrow or escape, hide the popup
+            $('#otherSiteTools').keydown(function(e){
+                if (e.keyCode == 27) {
+                    e.preventDefault();
+                    jqObj.focus();
+                    $(this).hide();
+                }
+            });
+            
+            addArrowNavAndDisableTabNav($('#otherSiteTools'), jqObj);
+        }); // end json call
+    }
 }
 
 jQuery(document).ready(function(){
@@ -373,9 +372,8 @@ jQuery(document).ready(function(){
 
     // SAK-22026. Attach down and up arrow handlers to the more sites tab.
     $('.more-tab a').keydown(function (e) {
-        if (e.keyCode == 40) {
-            return dhtml_view_sites();
-        } else if (e.keyCode == 38) {
+        if (e.keyCode == 40 || e.keyCode == 38 || e.keyCode == 27) {
+            e.preventDefault();
             return dhtml_view_sites();
         }
     });
@@ -383,11 +381,6 @@ jQuery(document).ready(function(){
     // open tool menus in "other sites" panel
     $('.toolMenus').click(function(e){
         showToolMenu(e);
-    });
-    $('.moreSitesLink').keydown(function (e){
-        if (e.keyCode == 40) {
-            showToolMenu(e);
-        }
     });
     
     // prepend site title to tool title
@@ -442,26 +435,44 @@ jQuery(document).ready(function(){
     $('.trayPopupClose').click(function(e){
         e.preventDefault();
         $(this).closest('.trayPopup').hide();
-    })
+    });
+    
+    //bind directurl checkboxes
+    jQuery('a.tool-directurl').cluetip({
+    	local: true,
+    	arrows: true,
+		cluetipClass: 'jtip',
+		sticky: true,
+		cursor: 'pointer',
+		activation: 'click',
+		closePosition: 'title',
+		closeText: '<img src="/library/image/silk/cross.png" alt="close" />'
+    });
+
 });
 
 var setupSiteNav = function(){
     $("ul.subnav").each(function(){
-        // Add a up arrow handler to slide the page menu up
+        // Add a up arrow and escape key handler to slide the page menu up
         $(this).keydown(function (e) {
-            if (e.keyCode == 38) {
-                $(this).slideUp('fast').hide();
+            if (e.keyCode == 27) {
+                $(this).parent().children('a').focus();
+                $(this).slideUp('fast');
             }
         });
         $(this).children('li:last').addClass('lastMenuItem')
     });
+
+    addArrowNavAndDisableTabNav($("ul.subnav"));
+
     $('.lastMenuItem a').blur(function(e){
-        jQuery(this).parents('ul.subnav').slideUp('fast').hide();
+        jQuery(this).parents('ul.subnav').slideUp('fast');
     });
     $('.topnav a').keydown(function(e){
         if (e.keyCode == 40) {
+            e.preventDefault();
             jQuery('#selectSite').hide();
-            jQuery(this).parent().find("ul.subnav").slideDown('fast').show();
+            jQuery(this).parent().find("ul.subnav").slideDown('fast');
             jQuery(this).parent().find("ul.subnav a:first").focus();
         }
     });
@@ -471,13 +482,15 @@ var setupSiteNav = function(){
         jQuery('#selectSite').hide();
         jQuery('#otherSiteTools').remove();
         
-        jQuery(this).parent().find("ul.subnav").slideDown('fast').show();
-        
-        jQuery(this).parent().hover(function(){
-        }, function(){
-            jQuery(this).parent().find("ul.subnav").slideUp('slow');
-        });
-        
+        if(jQuery(this).parent().find("ul.subnav").css('display') == 'none') {
+            jQuery(this).parent().find("ul.subnav").slideDown('fast');
+            jQuery(this).parent().hover(function(){
+            }, function(){
+                jQuery(this).parent().find("ul.subnav").slideUp('fast');
+            });
+        } else {
+            jQuery(this).parent().find("ul.subnav").slideUp('fast');
+        }
     }).hover(function(){
         jQuery(this).addClass("subhover"); //On hover over, add class "subhover"
     }, function(){ //On Hover Out
@@ -490,7 +503,7 @@ var setupSiteNav = function(){
         jQuery('#selectSite').hide();
         jQuery('#otherSiteTools').remove();
         
-        jQuery(this).parent().find("ul.subnav").slideDown('fast').show();
+        jQuery(this).parent().find("ul.subnav").slideDown('fast');
         
         jQuery(this).parent().hover(function(){
         }, function(){
@@ -548,3 +561,55 @@ var setupSkipNav = function(){
         $(target).attr('tabindex','-1').focus();
      });
 };
+
+//handles showing either the short url or the full url, depending on the state of the checkbox 
+//(if configured, otherwise returns url as-is as according to the url shortening entity provder)
+function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {		
+	
+	if($(checkbox).is(':checked')) {
+		
+		$.ajax({
+			url:'/direct/url/shorten?path='+encodeURI(defaultUrl),
+			success: function(shortUrl) {
+				$('.'+textbox).val(shortUrl);
+			}
+		}); 
+	} else {
+		$('.'+textbox).val(defaultUrl);
+	}
+}
+
+function addArrowNavAndDisableTabNav(ul,focusReturn) {
+    ul.find('li a').attr('tabindex','-1').keydown(function (e) {
+        var obj = $(e.target);
+        if(e.keyCode == 40) {
+            e.preventDefault();
+            var next = obj.parent().parent().next();
+            if(next[0] === undefined) {
+                if(focusReturn !== undefined) {
+                    focusReturn.focus();
+                } else {
+                    obj.parent().parent().parent().parent().children('a').focus();
+                }
+                ul.slideUp('fast');
+            } else {
+                next.find('a').focus();
+            }
+        } else if(e.keyCode == 9) { // Suck up the menu if tab is pressed 
+            ul.slideUp('fast');
+        } else if(e.keyCode == 38) {
+            e.preventDefault();
+            var prev = obj.parent().parent().prev();
+            if(prev[0] === undefined) {
+                if(focusReturn !== undefined) {
+                    focusReturn.focus();
+                } else {
+                    obj.parent().parent().parent().parent().children('a').focus();
+                }
+                ul.slideUp('fast');
+            } else {
+                prev.find('a').focus();
+            }
+        }
+    });
+}

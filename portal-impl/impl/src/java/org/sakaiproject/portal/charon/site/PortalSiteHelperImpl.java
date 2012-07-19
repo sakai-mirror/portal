@@ -9,7 +9,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.osedu.org/licenses/ECL-2.0
+ *       http://www.opensource.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
+import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -93,6 +94,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	private final String PROP_PARENT_ID = SiteService.PROP_PARENT_ID;
 
 	private static final String PROP_HTML_INCLUDE = "sakai:htmlInclude";
+
+	private static final String PROP_MENU_CLASS = "sakai:menuClass";
 
 	protected final static String CURRENT_PLACEMENT = "sakai:ToolComponent:current.placement";
 
@@ -604,6 +607,11 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 					String menuClass = firstTool.getToolId();
 					menuClass = "icon-" + menuClass.replace('.', '-');
 					m.put("menuClass", menuClass);
+					Properties tmp = firstTool.getConfig();
+					if ( tmp != null ) {
+						String mc = tmp.getProperty(PROP_MENU_CLASS);
+						if ( mc != null && mc.length() > 0 ) m.put("menuClassOverride", mc);
+					}
 				}
 				else
 				{
@@ -639,6 +647,11 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 					String menuClass = placement.getToolId();
 					menuClass = "icon-" + menuClass.replace('.', '-');
 					m.put("menuClass", menuClass);
+					Properties tmp = placement.getConfig();
+					if ( tmp != null ) {
+						String mc = tmp.getProperty(PROP_MENU_CLASS);
+						if ( mc != null && mc.length() > 0 ) m.put("menuClassOverride", mc);
+					}
 					// this is here to allow the tool reorder to work if requried.
 					m.put("_placement", placement);
 					l.add(m);

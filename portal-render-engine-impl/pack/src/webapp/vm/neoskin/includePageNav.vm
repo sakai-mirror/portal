@@ -24,20 +24,20 @@
 		  		#if (${page.current})
 						<li class="selectedTool">
 							<a class="toolMenuLink #if(${page.hidden})hidden#end" title="${page.pageTitle}" role="presentation" aria-disabled="true">
-							<span class="toolMenuIcon ${page.menuClass}">${page.pageTitle}</span>
+							<span class="toolMenuIcon ${page.menuClass} $!{page.menuClassOverride}">${page.pageTitle}</span>
 							</a>
 						</li>
 		  		#else
 		  			 #if (${page.ispopup})
 						<li>
 							<a class="toolMenuLink #if(${page.hidden})hidden#end" href="javascript:;" title="${page.pageTitle}" onclick="window.open('${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')">
-							<span class="toolMenuIcon ${page.menuClass}">${page.pageTitle}</span>
+							<span class="toolMenuIcon ${page.menuClass} $!{page.menuClassOverride}">${page.pageTitle}</span>
 							</a>
 						</li>
 		   			#else
 						<li>
 							<a class="toolMenuLink #if(${page.hidden})hidden#end" href="${page.pageRefUrl}" title="${page.description}">
-							<span class="toolMenuIcon ${page.menuClass}">${page.pageTitle}</span>
+							<span class="toolMenuIcon ${page.menuClass} $!{page.menuClassOverride}">${page.pageTitle}</span>
 							</a>
 						</li>
 		   			#end
@@ -77,12 +77,14 @@
 					</ul>
 				</div>
 			#end
+
+
 			</div>
 			<div id="togglebar">
 #if ( $loggedIn ) 
-	<a id="toggleToolMenu" onmouseup="blur()" href="#" title="${rloader.sit_toggle_nav}">
-		<span id="toggleToolMax"#if (${sakai_nav_minimized}) style="display:none"#end>&nbsp;</span>
-		<span id="toggleNormal""#if (! ${sakai_nav_minimized}) style="display:none"#end>&nbsp;</span>
+	<a id="toggleToolMenu" onmouseup="blur()" href="#" title="#if (${sakai_nav_minimized})${rloader.sit_toggle_nav_exp}#else${rloader.sit_toggle_nav_min} #end">
+		<span id="toggleToolMax"#if (${sakai_nav_minimized}) style="display:none"#end><em class="skip">${rloader.sit_toggle_nav_min}</em>&nbsp;</span>
+		<span id="toggleNormal""#if (! ${sakai_nav_minimized}) style="display:none"#end><em class="skip">${rloader.sit_toggle_nav_exp}</em>&nbsp;</span>
 	</a>
 #end	
 			</div>

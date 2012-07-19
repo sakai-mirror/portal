@@ -9,7 +9,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.osedu.org/licenses/ECL-2.0
+ *       http://www.opensource.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -49,6 +49,7 @@ import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.api.SiteView;
 import org.sakaiproject.portal.api.StoredState;
+import org.sakaiproject.portal.charon.site.AllSitesViewImpl;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -167,7 +168,13 @@ public class SiteHandler extends WorksiteHandler
 			else
 			{
 				// TODO Should maybe switch to portal.getSiteHelper().getMyWorkspace()
-				siteId = SiteService.getUserSiteId(session.getUserId());
+                                AllSitesViewImpl allSites = (AllSitesViewImpl)portal.getSiteHelper().getSitesView(SiteView.View.ALL_SITES_VIEW, req, session, siteId);
+                                List<Map> sites = (List<Map>)allSites.getRenderContextObject();
+                                if (sites.size() > 0) {
+                                	siteId = (String)sites.get(0).get("siteId");
+                                }
+                                else
+                                	siteId = SiteService.getUserSiteId(session.getUserId());
 			}
 		}
 
@@ -239,21 +246,22 @@ public class SiteHandler extends WorksiteHandler
 			pageId = findPageIdFromToolId(pageId, req.getPathInfo(), site);
 		}
 		
+		// clear the last page visited
+		session.removeAttribute(Portal.ATTR_SITE_PAGE + siteId);
+
+		// form a context sensitive title
+		String title = ServerConfigurationService.getString("ui.service","Sakai") + " : "
+				+ site.getTitle();
+
 		// Lookup the page in the site - enforcing access control
 		// business rules
 		SitePage page = portal.getSiteHelper().lookupSitePage(pageId, site);
-		if (page == null)
+		if (page != null)
 		{
-			portal.doError(req, res, session, Portal.ERROR_SITE);
-			return;
+			// store the last page visited
+			session.setAttribute(Portal.ATTR_SITE_PAGE + siteId, page.getId());
+			title += " : " + page.getTitle();
 		}
-
-		// store the last page visited
-		session.setAttribute(Portal.ATTR_SITE_PAGE + siteId, page.getId());
-
-		// form a context sensitive title
-		String title = ServerConfigurationService.getString("ui.service") + " : "
-				+ site.getTitle() + " : " + page.getTitle();
 
 		// start the response
 		String siteType = portal.calcSiteType(siteId);
