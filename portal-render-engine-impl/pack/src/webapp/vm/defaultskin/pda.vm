@@ -133,7 +133,13 @@ ${responseHead}
   #if ( $loggedIn ) 
     <li class="logoutLink"><span><a href="${portalTopUrl}?force.logout=yes">$rloader.getString("pda_logout")</a></span></li>
   #else
-    <li class="loginLink"><span><a href="${portalTopUrl}?force.login=yes">$rloader.getString("pda_login")</a></span></li>
+   <!-- xportal -->
+   <li class="loginLink">
+        <span><a href="${portalTopUrl}?force.login=yes">$rloader.getString("pda_login")</a></span>
+        #if (${loginHasLogInOutUrl2})
+        </li><li class="loginLink"><span><a href="${loginLogInOutUrl2Pda}">${loginMessage2}</a></span>
+        #end
+   </li>
   #end
   <!-- End WURFL Small Display -->
 #else
@@ -150,11 +156,17 @@ ${responseHead}
 			## need to get string from bundle
 	    <li class="logoutLink"><span><a href="${portalTopUrl}?force.logout=yes">$rloader.getString("pda_logout")</a></span></li>
 	  #else
-			## need to get string from bundle
-	    <li class="loginLink"><span><a href="${portalTopUrl}?force.login=yes">$rloader.getString("pda_login")</a></span></li>
+    	<!-- xportal -->
+    	<li class="loginLink">
+    		<span><a href="${portalTopUrl}?force.login=yes">$rloader.getString("pda_login")</a></span>
+    		#if (${loginHasLogInOutUrl2})
+			</li><li class="loginLink"><span><a href="${loginLogInOutUrl2Pda}" title="${loginMessage2}">${loginMessage2}</a></span>
+			#end
+    	 </li>
 	  #end
   </li>
 #end
+
 </ul> <!--end of menu bar -->
 #if ($currentPlacement)
   #if ( ${bufferedResponse} && ${responseBody} ) 
