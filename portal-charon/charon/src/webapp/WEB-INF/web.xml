@@ -47,11 +47,6 @@
 			<param-value>max-age=2678400, public</param-value>
 		</init-param>
 	</filter>
-
-	<filter>
-		<filter-name>sakai.login</filter-name>
-		<filter-class>org.sakaiproject.util.OptimisticLogin</filter-class>
-	</filter>
 	
 	<filter-mapping>
 		<filter-name>sakai.request</filter-name>
@@ -69,16 +64,7 @@
 	<filter-mapping>
 		<filter-name>CacheFilterForWeek</filter-name>
 		<url-pattern>/scripts/*</url-pattern>
-	</filter-mapping>
-
-	<filter-mapping>
-		<filter-name>sakai.login</filter-name>
-		<servlet-name>sakai.portal.charon</servlet-name>
-		<dispatcher>REQUEST</dispatcher>
-		<dispatcher>FORWARD</dispatcher>
-		<dispatcher>INCLUDE</dispatcher>
-	</filter-mapping>
-
+	</filter-mapping>	
 
 
 	<servlet>
