@@ -115,7 +115,7 @@
 								#if (${site.isMyWorkspace})
 <li class="nav-menu"><a href="${site.siteUrl}" title="${rloader.sit_mywor}" role="menuitem" aria-haspopup="true"><span>${rloader.sit_mywor}</span></a>
 								#else
-<li class="nav-menu"><a href="${site.siteUrl}" title="${site.fullTitle}" role="menuitem" aria-haspopup="true"><span>${site.siteTitle}</span></a>
+<li class="nav-menu"><a href="${site.siteUrl}" title="${site.siteTitle}: ${site.fullTitle}" role="menuitem" aria-haspopup="true"><span>${site.siteTitle}</span></a>
 								#end
 							#end
 <ul class="nav-submenu subnav" role="menu">
@@ -123,11 +123,11 @@
     #foreach ( $page in $site.sitePages.pageNavTools ) 
         #set ($pageCount =$pageCount + 1)       
         #if (${page.isPage} && $pageCount <=  $maxToolsInt )
-			<li class="submenuitem"><span#if(${page.hidden}) class="hidden"#end><a href="${page.pageRefUrl}" title="${page.description}" class="${page.menuClass}" role="menuitem">${page.pageTitle}</a></span></li>
+			<li class="submenuitem"><span#if(${page.hidden}) class="hidden"#end><a href="${page.pageRefUrl}" title="${page.pageTitle}: ${page.description}" class="${page.menuClass}" role="menuitem">${page.pageTitle}</a></span></li>
 		#end
     #end
 	#if ($pageCount > $maxToolsInt)
-		<li class="submenuitem"><span><a href="${site.siteUrl}" title="${site.siteTitle}" class="icon-sakai-see-all-tools" role="menuitem"><span>${rloader.sit_alltools}</span></a></span></li>
+		<li class="submenuitem"><span><a href="${site.siteUrl}" title="${rloader.sit_alltools}: ${site.siteTitle}" class="icon-sakai-see-all-tools" role="menuitem"><span>${rloader.sit_alltools}</span></a></span></li>
 	#end	
 
 #if (${site.sitePages.pageNavCanAddMoreTools}) 
@@ -157,6 +157,27 @@
 
 #if ($tabsSites.tabsMoreSitesShow)
 	<div id="selectSite" style="display:none">
+		<div id="otherSiteSearch"> 
+			#if($tabsSites.tabsMoreSites.size() > ${showSearchWhen})
+				<label for="txtSearch">${rloader.sit_search}</label> <input type="text" id="txtSearch" name="txtSearch" maxlength="50" />
+				<a id="imgSearch" href="#" style="display:none"><img src="${pageSkinRepo}/${pageSkin}/images/cancel.png" alt="${rloader.sit_search_cancel}" title="${rloader.sit_search_cancel}" /></a>
+				<span id="noSearchResults" style="display:none">${rloader.sit_search_none}</span>
+			#else
+				<h4>${rloader.sit_drawer}</h4>
+			#end
+		</div>
+            #if (${tabsSites.worksiteToolUrl})
+                <ul id="otherSitesMenu">
+                    <li><a id="allSites" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true&sakai.state.reset=true"><span>${rloader.sit_allsites}</span></a></li>
+                    <li><a id="newSite" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true&panel=Shortcut&sakai_action=doNew_site&sakai.state.reset=true"><span>${rloader.sit_newsite}</span></a></li>
+                    #if (${tabsSites.prefsToolUrl})
+                        <li><a href="${tabsSites.prefsToolUrl}?sakai_nav_minimized=true"><span>${rloader.sit_preferences}</span></a></li>
+                    #end
+                     <li id="otherSiteCloseW">
+                        <a href="#" onclick="closeDrawer()" title="${rloader.sit_othersitesclose}"><span>X</span><span class="skip">${rloader.sit_othersitesclose}</span></a>
+                    </li>
+                </ul>
+            #end
 		#if ($useDHTMLMore)
 			<div id="otherSitesCategorWrap">
 			### TODO: format well
@@ -171,7 +192,7 @@
 					#if (${site.isMyWorkspace})
 						<li>
 							<a href="${site.siteUrl}" title="${rloader.sit_mywor}">
-								<span class="fullTitle">${rloader.sit_mywor}</span>
+								<span  class="fullTitle">${rloader.sit_mywor}</span>
 							</a>
 							<a href="#" id="${site.siteId}"class="toolMenus">&nbsp;<span class="skip">Tools</span></a>
 						</li>
@@ -186,37 +207,13 @@
 			</div> ##  /#otherSitesCategorWrap
 		#else
 			<div id="otherSiteMenuWrap">
-				<div id="otherSiteSearch"> 
-					#if($tabsSites.tabsMoreSites.size() > ${showSearchWhen})
-						<label for="txtSearch">${rloader.sit_search}</label> <input type="text" id="txtSearch" name="txtSearch" maxlength="50" />
-						<a id="imgSearch" href="#" style="display:none"><img src="${pageSkinRepo}/${pageSkin}/images/cancel.png" alt="${rloader.sit_search_cancel}" title="${rloader.sit_search_cancel}" /></a>
-						<span id="noSearchResults" style="display:none">${rloader.sit_search_none}</span>
-					#else
-						<h4>${rloader.sit_drawer}</h4>
-					#end
-				</div>	
      			<ul id="otherSiteList" role="navigation">
 					#foreach( $site in $tabsSites.tabsMoreSites )
-						<li>
-                            <a style="float: left;" href="${site.siteUrl}" title="${site.fullTitle}" id="${site.siteId}" class="moreSitesLink"><span class="fullTitle">${site.fullTitle}</span></a>
-                            <span class="drop" tabindex="-1" id="${site.siteId}"></span>
-                        </li>
+						<li><a href="${site.siteUrl}" title="${site.fullTitle}" id="${site.siteId}" class="moreSitesLink"><span class="fullTitle">${site.fullTitle}</span></a><a href="javascript:;" id="${site.siteId}" class="toolMenus" tabindex="-1">&nbsp;<span class="skip">Tools</span></a></li>
 					#end	
       			</ul>
 			</div>
 		#end	
-            #if (${tabsSites.worksiteToolUrl})
-                <ul id="otherSitesMenu">
-                    <li><a id="allSites" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true&sakai.state.reset=true"><span>${rloader.sit_allsites}</span></a></li>
-                    <li><a id="newSite" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true&panel=Shortcut&sakai_action=doNew_site&sakai.state.reset=true"><span>${rloader.sit_newsite}</span></a></li>
-                    #if (${tabsSites.prefsToolUrl})
-                        <li><a href="${tabsSites.prefsToolUrl}?sakai_nav_minimized=true"><span>${rloader.sit_preferences}</span></a></li>
-                    #end
-                     <li id="otherSiteCloseW">
-                        <a href="#" onclick="closeDrawer()" title="${rloader.sit_othersitesclose}"><span>X</span><span class="skip">${rloader.sit_othersitesclose}</span></a>
-                    </li>
-                </ul>
-            #end
 	</div>
 #end
 
@@ -230,7 +227,8 @@
             var $ul_topnav = jQuery('ul#topnav');
             var aria_label_val = $ul_topnav.attr('aria-label');
             jQuery('h1#sitetabs').attr('role','navigation').attr('aria-label', aria_label_val);
-            $ul_topnav.removeAttr('role').removeAttr('aria-label');
+            jQuery('div#linkNav').removeAttr('role').removeAttr('aria-labelledby');
+            $ul_topnav.removeAttr('aria-label');
         }
     });
 </script>
