@@ -12,6 +12,13 @@ var dhtml_view_sites = function(){
         if (jQuery('#selectSite').css('display') == 'none') {
             jQuery('div#selectSite div').show();
             jQuery('div#selectSite').slideDown('fast', function(){
+                // check if $('#otherSiteList li').length > some number, then show search
+                // otherwise not
+                   if(jQuery('div#otherSitesCategorWrap').height() > 300){
+                    $('div#otherSitesCategorWrap').height(300).css({overflow:"auto"});
+                }
+
+
                 jQuery('#txtSearch').focus();
             });
             createDHTMLMask(dhtml_view_sites);
@@ -35,13 +42,38 @@ var dhtml_view_sites = function(){
             // Show the tool popup on the down arrow, or slide up the drawer on escape.
             $('.moreSitesLink').keydown(function (e){
                 if (e.keyCode == 40) {
-                    showToolMenu(e);
+                    showToolMenu(e,0);
                 }
             });
 
-            jQuery('#otherSitesMenu a').last().keydown(function (e) {
-                if(e.keyCode == 9 && !e.shiftKey) {
-                    closeDrawer();
+            // If we've tabbed backwards to the first element in the drawer, it could be the
+            // search box or the all sites list, stop tabbing. This is a hack as we are
+            // currently attaching keydown handlers to the list item text rather that the link
+            // and you can only explicitly set focus to links and form elements.
+            var txtSearch = $('#txtSearch');
+            if(txtSearch.length) {
+                $(txtSearch[0]).keydown(function (e) {
+                    if (e.keyCode == 9 && e.shiftKey) {
+                        e.preventDefault();
+                    }
+                });
+            } else {
+                $('#allSites').keydown(function (e) {
+                    if (e.keyCode == 9 && e.shiftKey) {
+                        e.preventDefault();
+                    }
+                });
+            }
+
+            // If we tab off the right of the sites list, cycle the focus.
+            $('#otherSiteList > li:last').keydown(function (e) {
+                if (e.keyCode == 9 && !e.shiftKey) {
+                    e.preventDefault();
+                    if(txtSearch.length) {
+                        txtSearch[0].focus();
+                    } else {
+                        $('#allSites').focus();
+                    }
                 }
             });
         }
@@ -64,6 +96,7 @@ function closeDrawer() {
     removeDHTMLMask()
     jQuery('#otherSiteTools').remove();
     jQuery('.selectedTab').unbind('click');
+    jQuery('.moreSitesLink').unbind('keydown');
     jQuery('.more-tab a').focus();
 }
 
@@ -309,29 +342,30 @@ function f_filterResults(n_win, n_docel, n_body){
 }
 
 /** Shows a drawer site tool dropdown **/
-function showToolMenu(e){
+function showToolMenu(e, xOffset){
     e.preventDefault();
     var jqObj = $(e.target);
     var classId = jqObj.attr('id');
     // We need to escape special chars, like exclamations, or else jQuery selectors don't work.
-    var id = classId.replace(/!/g,'\\!');
+    var id = classId.replace(/!/g,'\\!').replace(/~/g,'\\~');
     $('.toolMenus').removeClass('toolMenusActive');
     if ($('.' + id).length) {
         $('#otherSiteTools').remove();
     }
     else {
         $('#otherSiteTools').remove();
-        var subsubmenu = "<ul id=\"otherSiteTools\" class=\"" + classId + "\">";
+        var subsubmenu = "<ul id=\"otherSiteTools\" class=\"" + classId + "\" role=\"menu\">";
         var siteURL = '/direct/site/' + classId + '/pages.json';
         scroll(0, 0)
         var pos = jqObj.offset();
         var maxToolsInt = parseInt($('#maxToolsInt').text());
-        var goToSite = '<li class=\"otherSiteTool\"><span><a class=\"icon-sakai-see-all-tools\" href=\"' + portal.portalPath + '/site/' + id + '\">' + $('#maxToolsAnchor').text() + '</a></span></li>';
+        var maxToolsText = $('#maxToolsAnchor').text();
+        var goToSite = '<li class=\"otherSiteTool\"><span><a role=\"menuitem\" class=\"icon-sakai-see-all-tools\" href=\"' + portal.portalPath + '/site/' + id + '\" title=\"' + maxToolsText + '\">' + maxToolsText + '</a></span></li>';
         jQuery.getJSON(siteURL, function(data){
             $.each(data, function(i, item){
                 if (i <= maxToolsInt) {
                     if (item.tools.length === 1) {
-                        subsubmenu = subsubmenu + '<li class=\"otherSiteTool\" role=\"menuitem\"><span><a class=\"icon-' + item.tools[0].toolId.replace(/\./gi, '-') + '\" href=' + item.tools[0].url + ">" + item.title + "</a></span></li>";
+                        subsubmenu = subsubmenu + '<li class=\"otherSiteTool\"><span><a role=\"menuitem\" class=\"icon-' + item.tools[0].toolId.replace(/\./gi, '-') + '\" href=\"' + item.tools[0].url + "\" title=\"" + item.title + "\">" + item.title + "</a></span></li>";
                     }
                 }
                 
@@ -343,20 +377,27 @@ function showToolMenu(e){
             $('#portalOuterContainer').append(subsubmenu);
             $('#otherSiteTools').css({
                 'top': pos.top + 28,
-                'left': pos.left - 173
+                'left': pos.left - xOffset
             });
             $('#otherSiteTools li a:first').focus();
-            jqObj.addClass("toolMenusActive");
+            jqObj.parent().find('.toolMenus').addClass("toolMenusActive");
             // On up arrow or escape, hide the popup
             $('#otherSiteTools').keydown(function(e){
                 if (e.keyCode == 27) {
                     e.preventDefault();
                     jqObj.focus();
-                    $(this).hide();
+                    $(this).remove();
+                    $('.' + id).remove();
+                    jqObj.parent().find('.toolMenus').removeClass("toolMenusActive");
                 }
             });
             
-            addArrowNavAndDisableTabNav($('#otherSiteTools'), jqObj);
+            addArrowNavAndDisableTabNav($('#otherSiteTools'), function () {
+                jqObj.focus();
+                $('.' + id).remove();
+                // Switch the arrows
+                jqObj.parent().find('.toolMenus').removeClass("toolMenusActive");
+            });
         }); // end json call
     }
 }
@@ -376,7 +417,7 @@ jQuery(document).ready(function(){
     
     // open tool menus in "other sites" panel
     $('.toolMenus').click(function(e){
-        showToolMenu(e);
+        showToolMenu(e,173);
     });
     
     // prepend site title to tool title
@@ -396,16 +437,17 @@ jQuery(document).ready(function(){
             resetSearch();
         }
         if (jQuery('#txtSearch').val().length > 0) {
-            jQuery('#otherSiteList li').hide();
-            //jQuery('#otherSiteList li:first').show();
+            jQuery('#otherSiteList li, .otherSitesCategorList li').hide();
+            jQuery('#otherSitesCategorWrap h4').hide();
             jQuery('#otherSiteList li a span.fullTitle:Contains(\'' + jQuery('#txtSearch').val() + '\')').parent('a').parent('li').show();
+            jQuery('.otherSitesCategorList li a span.fullTitle:Contains(\'' + jQuery('#txtSearch').val() + '\')').parent('a').parent('li').show().closest('ul').prev('h4').show();
             jQuery('#imgSearch').fadeIn('slow');
         }
         if (jQuery('#txtSearch').val().length == 0) {
             resetSearch();
         }
         // Should be <=1 if there is a header line
-        if (jQuery('#otherSiteList li:visible').length < 1) {
+        if (jQuery('#otherSiteList li:visible').length < 1 && jQuery('.otherSitesCategorList li:visible').length < 1) {
             jQuery('.norecords').remove();
             jQuery('#otherSiteSearch #noSearchResults').fadeIn('slow');
         }
@@ -417,6 +459,8 @@ jQuery(document).ready(function(){
     function resetSearch(){
         jQuery('#txtSearch').val('');
         jQuery('#otherSiteList li').show();
+        jQuery('.otherSitesCategorList li').show();
+        jQuery('#otherSitesCategorWrap h4').show();
         jQuery('#noSearchResults').fadeOut();
         jQuery('#imgSearch').fadeOut();
         jQuery('#txtSearch').focus();
@@ -449,7 +493,7 @@ jQuery(document).ready(function(){
 
 var setupSiteNav = function(){
     $("ul.subnav").each(function(){
-        // Add a up arrow and escape key handler to slide the page menu up
+        // Add an escape key handler to slide the page menu up
         $(this).keydown(function (e) {
             if (e.keyCode == 27) {
                 $(this).parent().children('a').focus();
@@ -461,10 +505,7 @@ var setupSiteNav = function(){
 
     addArrowNavAndDisableTabNav($("ul.subnav"));
 
-    $('.lastMenuItem a').blur(function(e){
-        jQuery(this).parents('ul.subnav').slideUp('fast');
-    });
-    $('.topnav a').keydown(function(e){
+    $('.topnav > li.nav-menu > a').keydown(function(e){
         if (e.keyCode == 40) {
             e.preventDefault();
             jQuery('#selectSite').hide();
@@ -575,34 +616,36 @@ function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {
 	}
 }
 
-function addArrowNavAndDisableTabNav(ul,focusReturn) {
+/* Callback is a function and is called after sliding up ul */
+function addArrowNavAndDisableTabNav(ul,callback) {
     ul.find('li a').attr('tabindex','-1').keydown(function (e) {
         var obj = $(e.target);
         if(e.keyCode == 40) {
             e.preventDefault();
             var next = obj.parent().parent().next();
             if(next[0] === undefined) {
-                if(focusReturn !== undefined) {
-                    focusReturn.focus();
+                ul.slideUp('fast');
+                if(callback !== undefined) {
+                    callback();
                 } else {
                     obj.parent().parent().parent().parent().children('a').focus();
                 }
-                ul.slideUp('fast');
             } else {
                 next.find('a').focus();
             }
         } else if(e.keyCode == 9) { // Suck up the menu if tab is pressed 
             ul.slideUp('fast');
         } else if(e.keyCode == 38) {
+            // Up arrow
             e.preventDefault();
             var prev = obj.parent().parent().prev();
             if(prev[0] === undefined) {
-                if(focusReturn !== undefined) {
-                    focusReturn.focus();
+                ul.slideUp('fast');
+                if(callback !== undefined) {
+                    callback();
                 } else {
                     obj.parent().parent().parent().parent().children('a').focus();
                 }
-                ul.slideUp('fast');
             } else {
                 prev.find('a').focus();
             }
