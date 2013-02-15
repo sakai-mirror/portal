@@ -154,9 +154,9 @@ var setup_timeout_config = function(){
 }
 
 var poll_session_data = function(){
-    //Need to append Date.getTime as sakai still uses jquery pre 1.2.1 which doesn't support the cache: false parameter.
     jQuery.ajax({
-        url: "/direct/session/" + sessionId + ".json?auto=true&_=" + (new Date()).getTime(), //auto=true makes it not refresh the session lastaccessedtime
+        url: "/direct/session/" + sessionId + ".json?auto=true", //auto=true makes it not refresh the session lastaccessedtime
+        cache: false,
         dataType: "json",
         success: function(data){
             //get the maxInactiveInterval in the same ms
