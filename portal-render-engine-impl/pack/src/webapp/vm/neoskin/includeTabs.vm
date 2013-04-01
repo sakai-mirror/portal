@@ -20,7 +20,17 @@
 				<div id="siteNav">
 					<!-- login component -->
 					<div id="mastLogin">
-					$portalLinks
+<script type="text/javascript">
+  googleLinksConfig = {
+	accessToken : '$googleLinksAccessToken',
+	userCalendarId : '$userGoogleCalendarId',
+	driveDocsMaximumAgeDays : '$googleLinksDriveDocsMaximumAgeDays'
+  };
+</script>
+					#if ($portalLinks != '') 
+					  #include($portalLinks)
+					#end
+
 					#if (!${loginTopLogin})
 					
 					#if ($viewAsStudentLink)
