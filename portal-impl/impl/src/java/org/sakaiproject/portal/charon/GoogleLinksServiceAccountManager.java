@@ -21,56 +21,127 @@ public class GoogleLinksServiceAccountManager {
 
 	private static final Log M_log =
 			LogFactory.getLog(GoogleLinksServiceAccountManager.class);
-	// Only instance of this singleton factory
-	private static final GoogleLinksServiceAccountManager INSTANCE =
-			new GoogleLinksServiceAccountManager();
-
-	// Static public methods ----------------------------------------
-
-	public static GoogleLinksServiceAccountManager getInstance() {
-		return INSTANCE;
-	}
 
 
 	// Instance variables -------------------------------------------
 
+	private String userEmailAddress;
+	private GoogleCredential googleCredential;
+	private GoogleServiceAccount googleServiceAccount;
+	// CalendarScopes.CALENDAR_READONLY
+	private String[] scopes = new String[] {
+			CalendarScopes.CALENDAR,
+			DriveScopes.DRIVE,
+			"https://mail.google.com/mail/feed/atom/",
+			PlusScopes.PLUS_ME
+		};
 
 
 	// Constructors -------------------------------------------------
 
-	private GoogleLinksServiceAccountManager() {
+	/**
+	 * TODO: decide what to do about filtering -- should this throw error if the
+	 * email address is not valid (i.e. must be "@umich.edu")?
+	 */
+	public GoogleLinksServiceAccountManager(String userEmailAddress) {
+		// TODO: find "ObjectUtility" method to perform this test...
+		if ((userEmailAddress == null) || "".equals(userEmailAddress.trim())) {
+			throw new IllegalArgumentException(
+					"Constructor requires userEmailAddress not blank.");
+		}
+		setUserEmailAddress(userEmailAddress);
+		// TODO: manage service account somewhere else; perhaps inject it
+		setGoogleServiceAccount(
+				new GoogleServiceAccount("google.links.readWrite"));
 	}
 
 
 	// Public methods -----------------------------------------------
 
-	public String getAccessToken(String userEmailAddress) {
+	public String getAccessToken() {
 		String result = null;
-		// CalendarScopes.CALENDAR_READONLY
-		String[] scopes = new String[] {
-				CalendarScopes.CALENDAR,
-				DriveScopes.DRIVE,
-				"https://mail.google.com/mail/feed/atom/",
-				PlusScopes.PLUS_ME
-			};
-		// TODO: Validate serviceAccount
-		GoogleServiceAccount serviceAccount =
-				new GoogleServiceAccount("google.links.readWrite");
 		try {
-			GoogleCredential credential = SakaiGoogleAuthServiceImpl.authorize(
-					userEmailAddress,
-					serviceAccount.getEmailAddress(),
-					serviceAccount.getPrivateKeyFilePath(),
-					scopes);
+			GoogleCredential credential = findGoogleCredential();
 			if (credential != null) {
 				credential.refreshToken();
 				result = credential.getAccessToken();
 			} else {
-				M_log.warn("Unable to get credential for " + serviceAccount);
+				M_log.warn(
+						"Unable to get credential for "
+						+ getGoogleServiceAccount());
 			}
 		} catch (Exception err) {
-			M_log.error("Failed to get access token for \"" + userEmailAddress + "\"", err);
+			M_log.error(
+					"Failed to get access token for \""
+					+ getUserEmailAddress()
+					+ "\"",
+					err);
 		}
 		return result;
+	}
+
+	/**
+	 * Returns the ID of the user's personal calendar.  Testing shows this is
+	 * the user's email address.
+	 */
+	public String getUserCalendarId() {
+		return getUserEmailAddress();
+	}
+
+	public String getUserEmailAddress() {
+		return userEmailAddress;
+	}
+
+
+	// Private methods ----------------------------------------------
+
+	private void authorize() {
+		if (getGoogleCredential() != null) {
+			return;	// Quick return: already authorized - there is nothing to do
+		}
+		try {
+			setGoogleCredential(SakaiGoogleAuthServiceImpl.authorize(
+					getUserEmailAddress(),
+					getGoogleServiceAccount().getEmailAddress(),
+					getGoogleServiceAccount().getPrivateKeyFilePath(),
+					getScopes()));
+		} catch (Exception err) {
+			M_log.error(
+					"Unable to authorize "
+					+ getGoogleServiceAccount()
+					+ " with \""
+					+ getUserEmailAddress()
+					+ "\"",
+					err);
+		}
+	}
+
+	private GoogleCredential findGoogleCredential() {
+		authorize();
+		return getGoogleCredential();
+	}
+
+	private GoogleCredential getGoogleCredential() {
+		return googleCredential;
+	}
+
+	private void setGoogleCredential(GoogleCredential value) {
+		googleCredential = value;
+	}
+
+	private GoogleServiceAccount getGoogleServiceAccount() {
+		return googleServiceAccount;
+	}
+
+	private void setGoogleServiceAccount(GoogleServiceAccount value) {
+		googleServiceAccount = value;
+	}
+
+	private void setUserEmailAddress(String value) {
+		userEmailAddress = value;
+	}
+
+	private String[] getScopes() {
+		return scopes;
 	}
 }
