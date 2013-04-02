@@ -40,6 +40,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -112,11 +113,15 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.api.ToolURL;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesEdit;
-import org.sakaiproject.user.api.PreferencesService;
+import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserAlreadyDefinedException;
+import org.sakaiproject.user.api.UserEdit;
+import org.sakaiproject.user.api.UserLockedException;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.user.api.UserPermissionException;
+import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.BasicAuth;
 import org.sakaiproject.util.EditorConfiguration;
@@ -137,7 +142,6 @@ import au.com.flyingkite.mobiledetect.UAgentInfo;
 @SuppressWarnings("deprecation")
 public class SkinnableCharonPortal extends HttpServlet implements Portal
 {
-
 	/**
 	 * 
 	 */
@@ -181,6 +185,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	private GalleryHandler galleryHandler;
 	
 	private String gatewaySiteUrl;
+
+	private String gatewayPdaSiteUrl;
 
 	private WorksiteHandler worksiteHandler;
 
@@ -849,7 +855,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				parts = option.split("/");
 			}
 
-
 			Map<String, PortalHandler> handlerMap = portalService.getHandlerMap(this);
 
 			PortalHandler ph;
@@ -861,8 +866,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 			// begin SAK-19089
 			// if not logged in and accessing "/" and not from PDA, redirect to gatewaySiteUrl
-			if ((gatewaySiteUrl != null) && (option == null || "/".equals(option)) 
-					&& (!pdaHandler) && (session.getUserId() == null)) 
+			if ((gatewaySiteUrl != null) && (option == null || "/".equals(option) || "/pda".equals(option)) 
+					/* && (!pdaHandler) */ && (session.getUserId() == null)) 
 			{
 				// redirect to gatewaySiteURL 
 				res.sendRedirect(gatewaySiteUrl);
@@ -870,6 +875,16 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			}
 			// end SAK-19089
 
+			// begin SAK-22991
+			// if not logged in and from PDA, redirect to gatewayPdaSiteUrl
+			if ((gatewayPdaSiteUrl != null) && (option == null ||  "/pda".equals(option)) && (session.getUserId() == null)) 
+			{
+				// redirect to gatewaySiteURL 
+				res.sendRedirect(gatewayPdaSiteUrl);
+				return;
+			}
+			
+			// end SAK-19089
 			// SAK-22633 - Only forward site urls to PDAHandler
 			if (pdaHandler && parts.length > 1 && "site".equals(parts[1])){
 				//Mobile access
@@ -1179,24 +1194,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		String addMLnk = ServerConfigurationService.getString("portal.add.mobile.link","false");
 		// how many tools to show in portal pull downs
 		rcontext.put("maxToolsInt", Integer.valueOf(ServerConfigurationService.getInt("portal.tool.menu.max", 10)));
-// RLN: adding properties to Velocity
-// TODO: replace these values with real values for the current user
-String userEmailAddress = "test@collab.its.umich.edu";
-// TODO: Find method to get the ID of the user's personal/default calendar
-String googleCalendarId = "collab.its.umich.edu_iknb8nellbqn919qdrtnujq5mo@group.calendar.google.com";
 
-		// TODO: Get this from service in module gcalendar
-		String googleLinksAccessToken = GoogleLinksServiceAccountManager
-				.getInstance()
-				.getAccessToken(userEmailAddress);
-		rcontext.put("userGoogleCalendarId", googleCalendarId);
-		rcontext.put("googleLinksAccessToken", googleLinksAccessToken);
-		rcontext.put(
-				 "googleLinksDriveDocsMaximumAgeDays",
-				 ServerConfigurationService
-						.getInt("google.links.drive.docs.maximum.age.days",
-								14));
-
+		
 		// show the mobile link or not
 		if (s.getAttribute("is_mobile_device") == null && request != null){
 			//determine if we are on a mobile device - sets up the params we need
@@ -1663,6 +1662,8 @@ String googleCalendarId = "collab.its.umich.edu_iknb8nellbqn919qdrtnujq5mo@group
 
                         rcontext.put("neoChat", 
 				ServerConfigurationService.getBoolean("portal.neochat", true));
+                        rcontext.put("portalChatPollInterval", 
+				ServerConfigurationService.getInt("portal.chat.pollInterval", 5000));
                         rcontext.put("neoAvatar", 
 				ServerConfigurationService.getBoolean("portal.neoavatar", true));
 
@@ -1935,6 +1936,8 @@ String googleCalendarId = "collab.its.umich.edu_iknb8nellbqn919qdrtnujq5mo@group
 		handlerPrefix = ServerConfigurationService.getString("portal.handler.default", "site");
 		
 		gatewaySiteUrl = ServerConfigurationService.getString("gatewaySiteUrl", null);
+		
+		gatewayPdaSiteUrl = ServerConfigurationService.getString("gatewayPdaSiteUrl", null);
 		
 		sakaiTutorialEnabled = ServerConfigurationService.getBoolean("portal.use.tutorial", true);
 
