@@ -1,13 +1,37 @@
+<style type="text/css">
+	#gl .userData {
+		background-color: red;
+		border-radius: 50%;
+		color: white;
+		display: none;
+		float: right;
+		margin-right: 3px;
+		margin-top: 3px;
+		min-width: 14px;
+		padding: 4px;
+		text-align: center;
+		top: 2px;
+	}
+</style>
 <script type="text/javascript">
   var $googleLinksMenu = null;
 
   // NOTE: Best place for all of this is in .js file; would need to be retrieved as <script src="myJsUrl" type="text/javascript">< /script> inside <head>
   $(document).ready(function(){
-	$googleLinksMenu = $('#googleLinksMenu');
+	$googleLinksMenu = $('#gl');
 	if (getGoogleLinksMenu().length === 0) {
 	  console.warn('M+Google menu not found: #googleLinks');
 	}
-    $("#glc").click(function(e) {
+	/**
+	 * BEGIN DEBUG
+	 *
+	 * Quick hack to change CSS in portal.css: these changes will be made in
+	 * the source code that generates portal.css.
+	 */
+	$googleLinksMenu.find('li').css('position', 'relative').css('border-bottom', 'none').find('a').css('float', 'left');
+	// END DEBUG
+
+	$("#glc").click(function(e) {
       e.preventDefault();
 	  // Toggle the menu, and make Google AJAX requests if the menu is being opened
       if ($(this).siblings('ul').toggle().is(':visible')) {
@@ -167,21 +191,33 @@ function getUnreadEmailCount() {
 		});
 }
 
+//dumb is for testing only
+var dumb = '';
 function updateGoogleMenu(menuItemClass, data, title) {
   // Links parent
-  var $menuItem = getGoogleLinksMenu().find('li.' + menuItemClass);
-  if ($menuItem.length === 0) {
-	// Menu does not exist, so nothing to do
-	return;
-  }
-  // Span to show user-data
-  var $userDataSpan = $menuItem.find('span.userData');
-  if (data == 0) {
-	data = '';
-  }
-	$userDataSpan.text(data);
+	var $menuItem = getGoogleLinksMenu().find('li.' + menuItemClass);
+	if ($menuItem.length === 0) {
+		// Menu does not exist, so nothing to do
+		console.debug('Google Links Menu not found: "' + menuItemClass + '"');
+		return;
+	}
+	// Span to show user-data
+	var $userDataSpan = $menuItem.find('span.userData');
+	if ((data == 0) || ($.trim(data) === '')) {
+		$userDataSpan.hide();
+	} else {
+//		dumb = dumb + '9';
+//		$userDataSpan.text(dumb + data);
+		$userDataSpan.text(data);
+		$userDataSpan.show();
+		if (title !== '') {
+			$userDataSpan.attr('title', title);
+		} else {
+			$userDataSpan.attr('title', '');
+		}
+	}
 
-	// Update title, keeping original title so updates can be made cleanly.
+/*	// Update title, keeping original title so updates can be made cleanly.
 	var origTitle = $menuItem.data('origTitle');
 	if (origTitle == null) {
 		// Triming so undefined & null are treated as ''
@@ -195,7 +231,7 @@ function updateGoogleMenu(menuItemClass, data, title) {
 	} else {
 		$menuItem.attr('title', origTitle);
 	}
-}
+*/}
 
 function updateGoogleDriveInMenu(data) {
 	updateGoogleMenu('googleDrive', data, '');
@@ -297,9 +333,17 @@ function getTimeIso(dt, useLocalTimezone) {
 	return result;
 }
 
+// Debugging
+function debugShowFakeNumbers() {
+	updateGoogleMenu('googleCalendar', '1', 'Fake #');
+	updateGoogleMenu('googleDrive', '20', 'Fake #');
+	updateGoogleMenu('googleMail', '300', 'Fake #');
+	updateGoogleMenu('googlePlus', '4000', 'Fake #');
+}
+
 </script>
 <a href="#" id="glc">M+Google  &#9662;</a>
-<ul style="display:none" id="googleLinksMenu">
+<ul style="display:none" id="gl">
   <li class="googleMail">
 	<a class="gm" href="http://email.umich.edu"  target="_blank">GMail</a>
 	<span class="userData"></span>
@@ -315,5 +359,9 @@ function getTimeIso(dt, useLocalTimezone) {
   <li class="googlePlus">
 	<a class="gp" href="https://plus.google.com" target="_blank">Google+</a>
 	<span class="userData"></span>
+  </li>
+  <!-- DEBUG li -->
+  <li>
+  	<button type="button" onclick="debugShowFakeNumbers()">Fake Numbers</button>
   </li>
 </ul>
