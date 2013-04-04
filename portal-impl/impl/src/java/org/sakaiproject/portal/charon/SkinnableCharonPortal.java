@@ -39,7 +39,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -1191,9 +1190,13 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		// how many tools to show in portal pull downs
 		rcontext.put("maxToolsInt", Integer.valueOf(ServerConfigurationService.getInt("portal.tool.menu.max", 10)));
 		// SAK-22912-extended: Add Google Links to context
-		String userEmail = UserDirectoryService.getCurrentUser().getEmail();
-		addGoogleLinksToContext(rcontext, request.getSession(), userEmail);
-		
+		String userEmailAddress = UserDirectoryService.getCurrentUser().getEmail();
+		if ((userEmailAddress != null) && !"".equals(userEmailAddress.trim())) {
+			GoogleLinksServiceAccountManager manager =
+					new GoogleLinksServiceAccountManager(userEmailAddress);
+			manager.setGoogleContextVariables(rcontext, request.getSession());
+		}
+
 		// show the mobile link or not
 		if (s.getAttribute("is_mobile_device") == null && request != null){
 			//determine if we are on a mobile device - sets up the params we need
@@ -1206,30 +1209,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		rcontext.put("toolShortUrlEnabled", ServerConfigurationService.getBoolean("shortenedurl.portal.tool.enabled", true));
 		
 		return rcontext;
-	}
-
-	/**
-	 * SAK-22912-extended: Add Google Links to context
-	 */
-	private void addGoogleLinksToContext(
-			PortalRenderContext rcontext,
-			HttpSession httpSession,
-			String userEmailAddress)
-	{
-		if ((userEmailAddress == null) || "".equals(userEmailAddress.trim())) {
-			return;	// Quick return: there is nothing to do
-		}
-		GoogleLinksServiceAccountManager manager =
-				new GoogleLinksServiceAccountManager(userEmailAddress);
-		String googleLinksAccessToken = manager.getAccessToken();
-		rcontext.put("googleLinksAccessToken", googleLinksAccessToken);
-		String googleCalendarId = manager.getUserCalendarId();
-		rcontext.put("userGoogleCalendarId", googleCalendarId);
-		rcontext.put(
-				 "googleLinksDriveDocsMaximumAgeDays",
-				 ServerConfigurationService
-						.getInt("google.links.drive.docs.maximum.age.days",
-								14));
 	}
 
 	/**

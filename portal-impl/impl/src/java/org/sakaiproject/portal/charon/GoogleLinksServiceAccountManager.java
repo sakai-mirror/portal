@@ -1,8 +1,12 @@
 package org.sakaiproject.portal.charon;
 
+import javax.servlet.http.HttpSession;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.google.impl.SakaiGoogleAuthServiceImpl;
+import org.sakaiproject.portal.api.PortalRenderContext;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.services.calendar.CalendarScopes;
@@ -92,6 +96,19 @@ public class GoogleLinksServiceAccountManager {
 		return userEmailAddress;
 	}
 
+	public void setGoogleContextVariables(
+			PortalRenderContext rcontext,
+			HttpSession httpSession)
+	{
+		String googleLinksAccessToken = getAccessToken();
+		rcontext.put("googleLinksAccessToken", googleLinksAccessToken);
+		String googleCalendarId = getUserCalendarId();
+		rcontext.put("userGoogleCalendarId", googleCalendarId);
+		rcontext.put(
+				 "googleLinksDriveDocsMaximumAgeDays",
+				 getDriveDocsMaximumAgeDays());
+	}
+
 
 	// Private methods ----------------------------------------------
 
@@ -114,6 +131,13 @@ public class GoogleLinksServiceAccountManager {
 					+ "\"",
 					err);
 		}
+	}
+
+	// TODO: store this in field instead of repeating lookup?
+	private int getDriveDocsMaximumAgeDays() {
+		return ServerConfigurationService
+				.getInt("google.links.drive.docs.maximum.age.days",
+				14);
 	}
 
 	private GoogleCredential findGoogleCredential() {
