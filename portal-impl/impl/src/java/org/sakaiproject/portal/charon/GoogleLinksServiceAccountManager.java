@@ -2,6 +2,7 @@ package org.sakaiproject.portal.charon;
 
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -34,8 +35,8 @@ public class GoogleLinksServiceAccountManager {
 	private GoogleServiceAccount googleServiceAccount;
 	// CalendarScopes.CALENDAR_READONLY
 	private String[] scopes = new String[] {
-			CalendarScopes.CALENDAR,
-			DriveScopes.DRIVE,
+			CalendarScopes.CALENDAR_READONLY,
+			DriveScopes.DRIVE_READONLY,
 			"https://mail.google.com/mail/feed/atom/",
 			PlusScopes.PLUS_ME
 		};
@@ -56,7 +57,7 @@ public class GoogleLinksServiceAccountManager {
 		setUserEmailAddress(userEmailAddress);
 		// TODO: manage service account somewhere else; perhaps inject it
 		setGoogleServiceAccount(
-				new GoogleServiceAccount("google.links.readWrite"));
+				new GoogleServiceAccount("google.links"));
 	}
 
 
@@ -100,18 +101,37 @@ public class GoogleLinksServiceAccountManager {
 			PortalRenderContext rcontext,
 			HttpSession httpSession)
 	{
+		// Get access token formatted for JSON
 		String googleLinksAccessToken = getAccessToken();
-		rcontext.put("googleLinksAccessToken", googleLinksAccessToken);
-		String googleCalendarId = getUserCalendarId();
-		rcontext.put("userGoogleCalendarId", googleCalendarId);
+		if (googleLinksAccessToken == null) {
+			googleLinksAccessToken = "";
+		} else {
+			googleLinksAccessToken =
+					StringEscapeUtils.escapeJavaScript(googleLinksAccessToken);
+		}
+		// Format calendarId for JSON
+		String googleCalendarId =
+				StringEscapeUtils.escapeJavaScript(getUserCalendarId());
 		rcontext.put(
-				 "googleLinksDriveDocsMaximumAgeDays",
-				 getDriveDocsMaximumAgeDays());
+				"portalLinksConfig",
+				"<script>googleLinksConfig = { "
+				+ "accessToken : '"
+				+ googleLinksAccessToken
+				+ "', "
+				+ "userCalendarId : '" + googleCalendarId + "', "
+				+ "driveDocsMaximumAgeDays : '"
+				+ getDriveDocsMaximumAgeDays()
+				+ "'"
+				+ "}</script>");
 	}
 
 
 	// Private methods ----------------------------------------------
 
+	/**
+	 * Not thread-safe.  If called 2+ times, it may create two credentials, and
+	 * ongoing credential will be from thread that sets the field last.
+	 */
 	private void authorize() {
 		if (getGoogleCredential() != null) {
 			return;	// Quick return: already authorized - there is nothing to do

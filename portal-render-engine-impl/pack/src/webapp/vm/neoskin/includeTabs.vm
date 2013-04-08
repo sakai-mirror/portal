@@ -20,17 +20,10 @@
 				<div id="siteNav">
 					<!-- login component -->
 					<div id="mastLogin">
-<script type="text/javascript">
-  googleLinksConfig = {
-	accessToken : '$googleLinksAccessToken',
-	userCalendarId : '$userGoogleCalendarId',
-	driveDocsMaximumAgeDays : '$googleLinksDriveDocsMaximumAgeDays'
-  };
-</script>
-					#if ($portalLinks != '') 
-					  #include($portalLinks)
-					#end
-
+					## portalLinksConfig is generated at runtime by Java
+					$portalLinksConfig
+					## portalLinks can be set in sakai.properties
+					$portalLinks
 					#if (!${loginTopLogin})
 					
 					#if ($viewAsStudentLink)
