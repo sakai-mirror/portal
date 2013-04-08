@@ -24,12 +24,6 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>sakai-portal-impl</artifactId>
         </dependency>
-		<!-- RLN Addition: this is proxy for getting gmail atom feed -->
-	    <dependency>
-	        <groupId>org.mitre.dsmiley.httpproxy</groupId>
-	        <artifactId>smiley-http-proxy-servlet</artifactId>
-	        <version>1.2</version>
-	    </dependency>
     </dependencies>
 
     <build>
