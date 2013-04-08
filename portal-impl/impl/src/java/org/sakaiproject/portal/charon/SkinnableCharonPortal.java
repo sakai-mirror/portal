@@ -51,6 +51,7 @@ import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.googleservice.impl.GoogleLinksServiceAccountManager;
 import org.sakaiproject.portal.api.Editor;
 import org.sakaiproject.portal.api.PageFilter;
 import org.sakaiproject.portal.api.Portal;
@@ -1193,8 +1194,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		String userEmailAddress = UserDirectoryService.getCurrentUser().getEmail();
 		if ((userEmailAddress != null) && !"".equals(userEmailAddress.trim())) {
 			GoogleLinksServiceAccountManager manager =
-					new GoogleLinksServiceAccountManager(userEmailAddress);
-			manager.setGoogleContextVariables(rcontext, request.getSession());
+					GoogleLinksServiceAccountManager.getInstance();
+			manager.setGoogleContextVariables(
+					rcontext,
+					request.getSession(),
+					userEmailAddress);
 		}
 
 		// show the mobile link or not
