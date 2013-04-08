@@ -78,18 +78,4 @@
 		<url-pattern>/*</url-pattern>
 	</servlet-mapping>
 
-	<!-- RLN Additions -->
-    <servlet>
-        <servlet-name>gmailAtomProxy</servlet-name>
-        <servlet-class>org.mitre.dsmiley.httpproxy.ProxyServlet</servlet-class>
-        <init-param>
-          <param-name>targetUri</param-name>
-          <param-value>https://mail.google.com/mail/feed/atom/</param-value>
-        </init-param>
-    </servlet>
-    <servlet-mapping>
-      <servlet-name>gmailAtomProxy</servlet-name>
-      <url-pattern>/gmailAtomProxy/*</url-pattern>
-    </servlet-mapping>
-
 </web-app>
