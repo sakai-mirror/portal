@@ -40,6 +40,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -113,11 +114,15 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.api.ToolURL;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesEdit;
-import org.sakaiproject.user.api.PreferencesService;
+import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserAlreadyDefinedException;
+import org.sakaiproject.user.api.UserEdit;
+import org.sakaiproject.user.api.UserLockedException;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.user.api.UserPermissionException;
+import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.BasicAuth;
 import org.sakaiproject.util.EditorConfiguration;
@@ -1191,6 +1196,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		// how many tools to show in portal pull downs
 		rcontext.put("maxToolsInt", Integer.valueOf(ServerConfigurationService.getInt("portal.tool.menu.max", 10)));
 
+		
 		// show the mobile link or not
 		if (s.getAttribute("is_mobile_device") == null && request != null){
 			//determine if we are on a mobile device - sets up the params we need
