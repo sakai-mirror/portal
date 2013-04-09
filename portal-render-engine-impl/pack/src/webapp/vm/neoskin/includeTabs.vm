@@ -20,9 +20,6 @@
 				<div id="siteNav">
 					<!-- login component -->
 					<div id="mastLogin">
-					## portalLinksConfig is generated at runtime by Java
-					$portalLinksConfig
-					## portalLinks can be set in sakai.properties
 					$portalLinks
 					#if (!${loginTopLogin})
 					

@@ -1190,12 +1190,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		String addMLnk = ServerConfigurationService.getString("portal.add.mobile.link","false");
 		// how many tools to show in portal pull downs
 		rcontext.put("maxToolsInt", Integer.valueOf(ServerConfigurationService.getInt("portal.tool.menu.max", 10)));
-		// SAK-22912-extended: Add Google Links to context
-		GoogleLinksServiceAccountManager manager =
-				GoogleLinksServiceAccountManager.getInstance();
-		manager.setGoogleContextVariables(
-				rcontext,
-				request.getSession());
 
 		// show the mobile link or not
 		if (s.getAttribute("is_mobile_device") == null && request != null){
@@ -1833,11 +1827,12 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			}
 			rcontext.put("loginTopLogin", Boolean.valueOf(topLogin));
 
-			// display portal links - SAK-22983
-			String portalLinks = portalService.getPortalLinks();
-			if (portalLinks != null) {
-				rcontext.put("portalLinks",portalLinks);
-			}						
+			// SAK-22912-extended: Add Google Links to context
+			GoogleLinksServiceAccountManager manager =
+					GoogleLinksServiceAccountManager.getInstance();
+			manager.setGoogleContextVariables(
+					rcontext,
+					req.getSession());
 			if (!topLogin)
 			{
 
