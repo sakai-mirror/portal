@@ -1191,15 +1191,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		// how many tools to show in portal pull downs
 		rcontext.put("maxToolsInt", Integer.valueOf(ServerConfigurationService.getInt("portal.tool.menu.max", 10)));
 		// SAK-22912-extended: Add Google Links to context
-		String userEmailAddress = UserDirectoryService.getCurrentUser().getEmail();
-		if ((userEmailAddress != null) && !"".equals(userEmailAddress.trim())) {
-			GoogleLinksServiceAccountManager manager =
-					GoogleLinksServiceAccountManager.getInstance();
-			manager.setGoogleContextVariables(
-					rcontext,
-					request.getSession(),
-					userEmailAddress);
-		}
+		GoogleLinksServiceAccountManager manager =
+				GoogleLinksServiceAccountManager.getInstance();
+		manager.setGoogleContextVariables(
+				rcontext,
+				request.getSession());
 
 		// show the mobile link or not
 		if (s.getAttribute("is_mobile_device") == null && request != null){
