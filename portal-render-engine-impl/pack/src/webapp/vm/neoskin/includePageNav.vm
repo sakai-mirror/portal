@@ -106,7 +106,7 @@
 			#foreach ( $site in $children ) 
 				        <li>
 				             <a class="${sitePages.subsiteClass} #if(!${site.isPublished})unpublished#end" href="${site.siteUrl}" title="${site.siteTitle}">
-				             <a class="${site.type} #if(!${site.isPublished})unpublished#end" href="${site.siteUrl}" title="${site.siteTitle}">
+				             <a class="${site.iconClass} #if(!${site.isPublished})unpublished#end" href="${site.siteUrl}" title="${site.siteTitle}">
 				             <span>${site.siteTitle}</span>
 				             </a>
 				        </li>
