@@ -63,6 +63,7 @@ import org.sakaiproject.user.cover.PreferencesService;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.portal.util.URLUtils;
 
 /**
  * @author ieb
@@ -232,7 +233,7 @@ public class SiteHandler extends WorksiteHandler
 				ss.setRequest(req);
 				ss.setToolContextPath(toolContextPath);
 				portalService.setStoredState(ss);
-				portal.doLogin(req, res, session, req.getPathInfo(), false);
+				portal.doLogin(req, res, session, URLUtils.getSafePathInfo(req), false);
 			}
 			else
 			{
@@ -244,7 +245,7 @@ public class SiteHandler extends WorksiteHandler
 		// If the page is the mutable page name then look up the 
 		// real page id from the tool name.
 		if (mutablePagename.equalsIgnoreCase(pageId)) {
-			pageId = findPageIdFromToolId(pageId, req.getPathInfo(), site);
+			pageId = findPageIdFromToolId(pageId, URLUtils.getSafePathInfo(req), site);
 		}
 		
 		// clear the last page visited
@@ -311,7 +312,7 @@ public class SiteHandler extends WorksiteHandler
 		}catch(Exception e){}
 //End - log the visit into SAKAI_EVENT		
 		rcontext.put("currentUrlPath", Web.serverUrl(req) + req.getContextPath()
-				+ req.getPathInfo());
+				+ URLUtils.getSafePathInfo(req));
 
 		// end the response
 		if (doFrameTop)
