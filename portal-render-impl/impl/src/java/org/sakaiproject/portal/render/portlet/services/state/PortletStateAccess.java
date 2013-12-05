@@ -96,18 +96,5 @@ public class PortletStateAccess
 		return container;
 	}
 
-	static class PortletStateContainer
-	{
-		private Map stateMap = new HashMap();
 
-		public void add(PortletState state)
-		{
-			stateMap.put(state.getId(), state);
-		}
-
-		public PortletState get(String windowId)
-		{
-			return (PortletState) stateMap.get(windowId);
-		}
-	}
 }
