@@ -707,15 +707,7 @@ public class SiteHandler extends WorksiteHandler
 			boolean loggedIn = session.getUserId() != null;
 
 			// Role swap doesn't work for unpublished sites so don't present the option.
-			boolean siteIsPublished = false;
-			try {
-				Site site = SiteService.getSite(siteId);
-				if (site != null) {
-					siteIsPublished = site.isPublished();
-				}
-			} catch (IdUnusedException e) {
-				// not a site after all
-			}
+			boolean siteIsPublished = portal.getSiteHelper().isSitePublished(siteId);
 
 			// Check to see if we display a link in the UI for swapping the view
 			boolean roleswapcheck = false; // This variable will tell the UI if we will display any role swapping component; false by default
