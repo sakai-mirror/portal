@@ -56,7 +56,7 @@
                                     #if (${tool.toolJSR168Help} )
                                         <a class="portlet title-tools help" accesskey="h" href="${tool.toolJSR168Help}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)"><span class="skip">${rloader.site_newwindow}</span></a>
                                     #else
-                                        <a class="portlet title-tools help popup" href="${tool.toolHelpActionUrl}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)" target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false"><span class="skip">${rloader.site_newwindow}</span></a>
+                                        <a class="portlet title-tools help popup" href="${tool.toolHelpActionUrl}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)" target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=1024,height=768'); return false"><span class="skip">${rloader.site_newwindow}</span></a>
                                     #end
                                     
                                 #end
@@ -72,7 +72,7 @@
                                 <h2><a class="portlet title-tools title" href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${tool.toolTitle}">${tool.toolTitle}</a></h2>
                             
                                 #if (${tool.toolShowHelpButton})
-                                    <a class="portlet title-tools help popup"  href="${tool.toolHelpActionUrl}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolTitle)" target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false"><span class="skip">${rloader.site_newwindow}</span></a>
+                                    <a class="portlet title-tools help popup"  href="${tool.toolHelpActionUrl}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolTitle)" target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=1024,height=768'); return false"><span class="skip">${rloader.site_newwindow}</span></a>
                                 #end
                                 
                             </nav><!--  end nav.portlet portlet-title wrapper -->
@@ -129,7 +129,7 @@
                                     #if (${tool.toolJSR168Help} )
                                         <a class="portlet title-tools help" accesskey="h" href="${tool.toolJSR168Help}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)"><span class="skip">${rloader.site_newwindow}</span></a>
                                     #else
-                                        <a class="portlet title-tools help popup" href="${tool.toolHelpActionUrl}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)" target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help',  'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false"><span class="skip">${rloader.site_newwindow}</span></a>
+                                        <a class="portlet title-tools help popup" href="${tool.toolHelpActionUrl}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)" target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help',  'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=1024,height=768'); return false"><span class="skip">${rloader.site_newwindow}</span></a>
                                     #end
                                      
                                 #end
@@ -147,7 +147,7 @@
                                 <h2><a class="portlet title-tools title" href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${tool.toolTitle}">${tool.toolTitle}</a></h2>
 
                                 #if (${tool.toolShowHelpButton})
-                                    <a class="portlet title-tools help popup" href="${tool.toolHelpActionUrl}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolTitle)" target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false"><span class="skip">${rloader.site_newwindow}</span></a>
+                                    <a class="portlet title-tools help popup" href="${tool.toolHelpActionUrl}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolTitle)" target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=1024,height=768'); return false"><span class="skip">${rloader.site_newwindow}</span></a>
                                 #end
                                     
                             </nav><!-- End of nav.portlet portlet-title wrapper -->
