@@ -17,7 +17,7 @@
 <!-- START from NEO includeTabs.vm -->
 			<!-- start includeTabs -->
 			<div class="${tabsCssClass}"><div id="maxToolsInt" style="display:none">$maxToolsInt</div><div id="maxToolsAnchor" style="display:none">${rloader.sit_alltools}</div>
-				<div class="siteNav">
+				<div id="siteNav">
 					<!-- login component -->
 					<div id="mastLogin">
 					$portalLinks
@@ -99,7 +99,7 @@
 					#end
 					</div>
 					<!-- end login component -->
-					<div class="linkNav" role="navigation" aria-labelledby="sitetabs">
+					<div id="linkNav" role="navigation" aria-labelledby="sitetabs">
 
 <!-- this allows us to reliably detect if the browser is internet explorer, depends on these elements ul#topnav h1#sitetabs -->
 <script type="text/javascript">var sakai_portal_ie_detected=false;</script>
@@ -158,8 +158,29 @@
 					</div> <!-- /linkNav -->
 					<div class="linkNav personalSites" role="navigation" aria-labelledby="sitetabs">
 						<a id="sitetabs" class="skip" name="sitetabs"></a>
-							<h1 class="skip">${rloader.sit_worksiteshead}</h1>
-							<ul class="topnav siteLinkList" role="menubar" aria-label="${rloader.sit_worksiteshead}">
+						<span class="topnav">
+							<span class="nav-menu" aria-haspopup="true">
+								<ul class="nav-submenu subnav" role="menu">
+									#foreach($relatedLink in $relatedLinks)
+										<li class="submenuitem">
+											<span>
+												<a role="menuitem" href="$relatedLink.url" title="$relatedLink.title" target="_blank">
+													$relatedLink.name<span class="toolMenuIcon"> </span>
+												</a>
+											</span>
+										</li>
+									#end
+								</ul>
+								<div class="galleryLogin">
+									<span class="drop" tabindex="-1">Quick Links</span>
+								</div>
+							</span>
+						</span>
+						<h1 class="skip">${rloader.sit_worksiteshead}</h1>
+						<ul class="topnav siteLinkList" role="menubar" aria-label="${rloader.sit_worksiteshead}">
+							#foreach($relatedLink in $relatedLinks)
+								<li><a href="$relatedLink.url" title="$relatedLink.title" target="_new">$relatedLink.name</a></li>
+							#end
 							#foreach ( $site in $tabsSites.tabsSites )
 								#if (${site.isMyWorkspace})
 									#if (${site.isCurrentSite})
@@ -250,6 +271,7 @@
 		#end	
 	</div>
 #end
+<div class="clear" />
 
 <script type="text/javascript">
     jQuery(document).ready(function() {
@@ -258,7 +280,7 @@
         if (sakai_portal_ie_detected) {
             // SAK-22308
             //if (jQuery.browser.msie && jQuery('ul#topnav[role="navigation"]') && jQuery('h1#sitetabs')) {
-            var $ul_topnav = jQuery('ul#topnav');
+            var $ul_topnav = jQuery('ul.topnav');
             var aria_label_val = $ul_topnav.attr('aria-label');
             jQuery('h1#sitetabs').attr('role','navigation').attr('aria-label', aria_label_val);
             jQuery('div#linkNav').removeAttr('role').removeAttr('aria-labelledby');
