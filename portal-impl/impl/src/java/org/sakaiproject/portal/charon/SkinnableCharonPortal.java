@@ -1844,7 +1844,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			// of a login link, but ignore it if container.login is set
 			boolean topLogin = ServerConfigurationService.getBoolean("top.login", true);
 			boolean containerLogin = ServerConfigurationService.getBoolean("container.login", false);
-			if (containerLogin) topLogin = false;
+			Boolean PDAHandler = (Boolean)session.getAttribute("PDAHandler");
+
+			if (containerLogin || Boolean.TRUE.equals(PDAHandler)) topLogin = false;
 
 			// if not logged in they get login
 			if (session.getUserId() == null)

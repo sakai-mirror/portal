@@ -357,8 +357,10 @@ public class PDAHandler extends SiteHandler
 				}
 
 				// Add any device specific information to the context
+				session.setAttribute("PDAHandler", Boolean.TRUE);
 				portal.setupMobileDevice(req, rcontext);
-				
+				portal.includeLogin(rcontext,req, session);
+			
 				addLocale(rcontext,site);
 
 				portal.sendResponse(rcontext, res, "pda", null);
